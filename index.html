@@ -6,6 +6,7 @@
     <title>Lifetime Legacy Global | Login</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js?v=3" defer></script>
 </head>
 <body>
 
@@ -65,17 +66,19 @@
                 <form id="loginForm">
                     <div class="form-group">
                         <label for="loginEmail">Associate Email Address</label>
-                        <input type="email" id="loginEmail" required placeholder="associate@legacy.com">
+                        <input type="email" id="loginEmail" required placeholder="associate@legacy.com" autocomplete="email">
                     </div>
 
                     <div class="form-group">
                         <label for="loginPassword">Password</label>
-                        <input type="password" id="loginPassword" required placeholder="••••••••">
+                        <input type="password" id="loginPassword" required placeholder="••••••••" autocomplete="current-password">
                     </div>
 
                     <button type="submit" class="btn-primary">Authenticate Session</button>
-                    <div id="loginMessage" class="status-message"></div>
                 </form>
+
+                <!-- FIXED: Updated ID from loginMessage to loginStatus -->
+                <div id="loginStatus" class="status-message"></div>
 
                 <div class="auth-footer">
                     Don't have an Associate ID? <a href="signup.html">Register Here</a>
@@ -89,6 +92,5 @@
         <p>&copy; Lifetime Legacy Global Network. All Rights Reserved. Secretum In Unitate.</p>
     </footer>
 
-    <script src="script.js"></script>
 </body>
 </html>
