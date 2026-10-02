@@ -1,5 +1,5 @@
 // 1. Rename the variable to avoid variable name collision with the SDK
-const SUPABASE_URL = "https://ioU2uiw5NZqp8ShkzkYOHA.supabase.co";
+const SUPABASE_URL = "https://clnqxwyewtzofeiyzrbk.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ioU2uiw5NZqp8ShkzkYOHA_cxRXKJyx";
 
 // Use supabaseClient instead of supabase
