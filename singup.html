@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Associate ID | Lifetime Legacy Global</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">LIFETIME <span>LEGACY</span> GLOBAL</div>
+        <nav>
+            <a href="index.html">Back to Login</a>
+        </nav>
+    </header>
+
+    <section id="auth" class="auth-container">
+        <div class="auth-box">
+            <h2>Register Associate ID</h2>
+            <p>Create your credentials in the global network.</p>
+            
+            <form id="signupForm">
+                <div class="input-group">
+                    <label for="signupEmail">Associate Email Address</label>
+                    <input type="email" id="signupEmail" placeholder="associate@legacy.com" required>
+                </div>
+                <div class="input-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" placeholder="••••••••" required minlength="6">
+                </div>
+                
+                <button type="submit" class="submit-btn">Initialize Registration</button>
+            </form>
+
+            <p style="text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">
+                Already registered? 
+                <a href="index.html" style="color: var(--accent-gold); font-weight: bold; text-decoration: none;">Login Here</a>
+            </p>
+
+            <div id="signupMessage" class="feedback-msg" style="text-align: center; margin-top: 1rem;"></div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Lifetime Legacy Global Holdings Inc. All Rights Reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
