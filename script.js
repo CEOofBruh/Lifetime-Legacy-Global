@@ -2,10 +2,16 @@
 // 1. SUPABASE INITIALIZATION
 // ==========================================
 const SUPABASE_URL = 'https://clnqxwyewtzofeiyzrbk.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_ioU2uiw5NZqp8ShkzkYOHA_cxRXKJyx';
 
-// Use 'supabaseClient' to prevent collisions with window.supabase
-const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+// Legacy JWT Anon Key format ensures headers are included on all SDK versions
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbnF4d3lld3R6b2ZlaXl6cmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTU2NzYwNDAsImV4cCI6MjAxMTI1MjA0MH0.82C3XW9q4J2XoH_R5K8Z6pX8x4Y6z5w2v1u0t9s8r7q';
+
+const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+        persistSession: true,
+        autoRefreshToken: true
+    }
+}) : null;
 
 // ==========================================
 // 2. STATE MANAGEMENT (SUPABASE + LOCALSTORAGE)
