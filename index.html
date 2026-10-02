@@ -5,23 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lifetime Legacy Global | Architect Your Destiny</title>
     <link rel="stylesheet" href="style.css">
+    
+    <!-- Supabase JS Library (v2) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <!-- Joshy Pogi -->
+    <!-- ARG Clue Hidden in Source -->
+    <!-- DIRECTIVE_01: DO NOT ALLOW UNVERIFIED ASSOCIATES PAST LEVEL 1 COURSES -->
+    <!-- LEGACY_KEY: 0x88f_override -->
 
     <header>
         <div class="logo">LIFETIME <span>LEGACY</span> GLOBAL</div>
         <nav>
             <a href="#about">About Us</a>
             <a href="#tiers">Affiliate Ranks</a>
-            <a href="#login" class="btn-login">Member Login</a>
+            <a href="#auth" class="btn-login">Associate Portal</a>
         </nav>
     </header>
 
     <section class="hero">
         <h1>Unlock Unlimited Generational Wealth</h1>
         <p>Join over 40,000 global partners leveraging our proprietary digital ecosystem.</p>
-        <a href="#login" class="cta-button">Claim Your Legacy Portal</a>
+        <a href="#auth" class="cta-button">Claim Your Legacy Portal</a>
     </section>
 
     <section id="about" class="grid-section">
@@ -39,24 +44,31 @@
         </div>
     </section>
 
-    <!-- LOGIN PORTAL -->
-    <section id="login" class="auth-container">
+    <!-- REAL SUPABASE AUTHENTICATION PORTAL -->
+    <section id="auth" class="auth-container">
         <div class="auth-box">
-            <h2>Associate Access Portal</h2>
-            <p>Enter your Associate ID and Password to enter the portal.</p>
+            <h2 id="authTitle">Associate Access Portal</h2>
+            <p id="authSubtitle">Authenticate with your Associate Credentials.</p>
             
-            <form id="loginForm">
+            <form id="authForm">
                 <div class="input-group">
-                    <label for="username">Associate ID / Email</label>
-                    <input type="text" id="username" placeholder="e.g., associate_9921" required>
+                    <label for="email">Associate Email Address</label>
+                    <input type="email" id="email" placeholder="associate@legacy.com" required>
                 </div>
                 <div class="input-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" required>
+                    <input type="password" id="password" placeholder="••••••••" required minlength="6">
                 </div>
-                <button type="submit" class="submit-btn">Authenticate Session</button>
+                
+                <button type="submit" id="submitBtn" class="submit-btn">Authenticate Session</button>
             </form>
-            <p id="authMessage" class="error-msg"></p>
+
+            <p style="text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">
+                <span id="toggleQuestion">Need an Associate ID?</span> 
+                <a href="#" id="toggleAuthMode" style="color: var(--accent-gold); font-weight: bold; text-decoration: none;">Register Here</a>
+            </p>
+
+            <div id="authMessage" class="feedback-msg" style="text-align: center; margin-top: 1rem;"></div>
         </div>
     </section>
 
