@@ -1,14 +1,12 @@
 // Supabase Project Credentials
-const SUPABASE_URL = "https://ioU2uiw5NZqp8ShkzkYOHA.supabase.co"; // Update with full URL if different
+const SUPABASE_URL = "https://ioU2uiw5NZqp8ShkzkYOHA.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ioU2uiw5NZqp8ShkzkYOHA_cxRXKJyx";
 
 // Initialize Supabase Client
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
-let isSignUpMode = false;
 let currentUser = null;
 
-// User Profile State (persisted per session in localStorage / ready for database integration)
 let userData = {
     coins: 0,
     rank: "Bronze Initiate",
@@ -17,102 +15,79 @@ let userData = {
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
-    
-    // Check current path
     const isDashboard = window.location.pathname.includes("dashboard.html");
-
-    // Check for Active Supabase Session
     const { data: { session } } = await supabase.auth.getSession();
 
+    // Session Protection
     if (isDashboard) {
         if (!session) {
-            // Unauthenticated users are sent back to login page
             window.location.href = "index.html";
             return;
         }
         currentUser = session.user;
         loadUserData();
         updateDashboardUI();
-    } else if (session && !isDashboard) {
-        // If already logged in on index page, skip login and direct to dashboard
-        const loginForm = document.getElementById("authForm");
-        if (loginForm) {
-            window.location.href = "dashboard.html";
-            return;
-        }
+    } else if (session && (window.location.pathname.includes("index.html") || window.location.pathname.includes("signup.html"))) {
+        // If already logged in, send directly to dashboard
+        window.location.href = "dashboard.html";
+        return;
     }
 
-    // 1. Toggle Login / Register Modes on index.html
-    const toggleAuthMode = document.getElementById("toggleAuthMode");
-    const authTitle = document.getElementById("authTitle");
-    const authSubtitle = document.getElementById("authSubtitle");
-    const submitBtn = document.getElementById("submitBtn");
-    const toggleQuestion = document.getElementById("toggleQuestion");
-    const authMessage = document.getElementById("authMessage");
-
-    if (toggleAuthMode) {
-        toggleAuthMode.addEventListener("click", (e) => {
+    // 1. SIGNUP LOGIC (On signup.html)
+    const signupForm = document.getElementById("signupForm");
+    if (signupForm) {
+        signupForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-            isSignUpMode = !isSignUpMode;
+            const signupMessage = document.getElementById("signupMessage");
+            signupMessage.style.color = "#c5a059";
+            signupMessage.textContent = "Creating Associate Account...";
 
-            if (isSignUpMode) {
-                authTitle.textContent = "Register Associate ID";
-                authSubtitle.textContent = "Create your account credentials in the global network.";
-                submitBtn.textContent = "Initialize Registration";
-                toggleQuestion.textContent = "Already registered?";
-                toggleAuthMode.textContent = "Login Here";
+            const email = document.getElementById("signupEmail").value.trim();
+            const password = document.getElementById("signupPassword").value.trim();
+
+            const { data, error } = await supabase.auth.signUp({ email, password });
+
+            if (error) {
+                signupMessage.style.color = "#ef4444";
+                signupMessage.textContent = error.message;
             } else {
-                authTitle.textContent = "Associate Access Portal";
-                authSubtitle.textContent = "Authenticate with your Associate Credentials.";
-                submitBtn.textContent = "Authenticate Session";
-                toggleQuestion.textContent = "Need an Associate ID?";
-                toggleAuthMode.textContent = "Register Here";
-            }
-            if (authMessage) authMessage.textContent = "";
-        });
-    }
-
-    // 2. Handle Login / Sign Up Submission
-    const authForm = document.getElementById("authForm");
-    if (authForm) {
-        authForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            authMessage.style.color = "#c5a059";
-            authMessage.textContent = "Processing payload...";
-
-            const email = document.getElementById("email").value.trim();
-            const password = document.getElementById("password").value.trim();
-
-            if (isSignUpMode) {
-                // Real Supabase Sign Up
-                const { data, error } = await supabase.auth.signUp({ email, password });
-
-                if (error) {
-                    authMessage.style.color = "#ef4444";
-                    authMessage.textContent = error.message;
-                } else {
-                    authMessage.style.color = "#10b981";
-                    authMessage.textContent = "Associate Account Created! You can now log in.";
-                }
-            } else {
-                // Real Supabase Login
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-                if (error) {
-                    authMessage.style.color = "#ef4444";
-                    authMessage.textContent = error.message;
-                } else {
-                    authMessage.style.color = "#10b981";
-                    authMessage.textContent = "Session Authenticated! Redirecting...";
-                    setTimeout(() => {
-                        window.location.href = "dashboard.html";
-                    }, 1000);
-                }
+                signupMessage.style.color = "#10b981";
+                signupMessage.textContent = "Account Created successfully! Redirecting to login...";
+                setTimeout(() => {
+                    window.location.href = "index.html";
+                }, 1500);
             }
         });
     }
 
-    // 3. Handle ARG Code / Verification Submissions on Dashboard
+    // 2. LOGIN LOGIC (On index.html)
+    const loginForm = document.getElementById("loginForm");
+    if (loginForm) {
+        loginForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const loginMessage = document.getElementById("loginMessage");
+            loginMessage.style.color = "#c5a059";
+            loginMessage.textContent = "Authenticating session...";
+
+            const email = document.getElementById("loginEmail").value.trim();
+            const password = document.getElementById("loginPassword").value.trim();
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                loginMessage.style.color = "#ef4444";
+                loginMessage.textContent = error.message;
+            } else {
+                loginMessage.style.color = "#10b981";
+                loginMessage.textContent = "Authenticated! Launching portal...";
+                setTimeout(() => {
+                    window.location.href = "dashboard.html";
+                }, 1000);
+            }
+        });
+    }
+
+    // 3. ARG PUZZLE VERIFICATION (On dashboard.html)
     const quizForm = document.getElementById("quizForm");
     const quizFeedback = document.getElementById("quizFeedback");
 
@@ -153,7 +128,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // 4. Handle Logout button
+    // Logout Button
     const logoutBtn = document.getElementById("logoutBtn");
     if (logoutBtn) {
         logoutBtn.addEventListener("click", async () => {
@@ -163,7 +138,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-// Load player state scoped to logged-in Supabase user ID
 function loadUserData() {
     if (!currentUser) return;
     const storageKey = `llg_user_${currentUser.id}`;
@@ -173,14 +147,12 @@ function loadUserData() {
     }
 }
 
-// Save player state scoped to logged-in Supabase user ID
 function saveUserData() {
     if (!currentUser) return;
     const storageKey = `llg_user_${currentUser.id}`;
     localStorage.setItem(storageKey, JSON.stringify(userData));
 }
 
-// Update DOM elements on Dashboard
 function updateDashboardUI() {
     if (!document.getElementById("coinBalance") || !currentUser) return;
 
@@ -195,7 +167,6 @@ function updateDashboardUI() {
     document.getElementById("lbUserRank").textContent = userData.rank;
     document.getElementById("lbUserCoins").textContent = userData.coins;
 
-    // Module 2 Auto-unlock visual state when balance >= 100
     if (userData.coins >= 100) {
         const card2 = document.getElementById("card-m2");
         if (card2) {
@@ -209,7 +180,6 @@ function updateDashboardUI() {
         }
     }
 
-    // Populate sidebar with unlocked links
     const unlockedContainer = document.getElementById("unlockedLinks");
     if (unlockedContainer) {
         unlockedContainer.innerHTML = "";
