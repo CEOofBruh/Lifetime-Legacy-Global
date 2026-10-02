@@ -1,9 +1,9 @@
-// Supabase Project Credentials
+// 1. Rename the variable to avoid variable name collision with the SDK
 const SUPABASE_URL = "https://ioU2uiw5NZqp8ShkzkYOHA.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ioU2uiw5NZqp8ShkzkYOHA_cxRXKJyx";
 
-// Initialize Supabase Client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+// Use supabaseClient instead of supabase
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
 let currentUser = null;
 
@@ -16,7 +16,9 @@ let userData = {
 
 document.addEventListener("DOMContentLoaded", async () => {
     const isDashboard = window.location.pathname.includes("dashboard.html");
-    const { data: { session } } = await supabase.auth.getSession();
+    
+    // Replace 'supabase.' with 'supabaseClient.'
+    const { data: { session } } = await supabaseClient.auth.getSession();
 
     // Session Protection
     if (isDashboard) {
@@ -28,12 +30,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         loadUserData();
         updateDashboardUI();
     } else if (session && (window.location.pathname.includes("index.html") || window.location.pathname.includes("signup.html"))) {
-        // If already logged in, send directly to dashboard
         window.location.href = "dashboard.html";
         return;
     }
 
-    // 1. SIGNUP LOGIC (On signup.html)
+    // 1. SIGNUP LOGIC (signup.html)
     const signupForm = document.getElementById("signupForm");
     if (signupForm) {
         signupForm.addEventListener("submit", async (e) => {
@@ -45,14 +46,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             const email = document.getElementById("signupEmail").value.trim();
             const password = document.getElementById("signupPassword").value.trim();
 
-            const { data, error } = await supabase.auth.signUp({ email, password });
+            const { data, error } = await supabaseClient.auth.signUp({ email, password });
 
             if (error) {
                 signupMessage.style.color = "#ef4444";
                 signupMessage.textContent = error.message;
             } else {
                 signupMessage.style.color = "#10b981";
-                signupMessage.textContent = "Account Created successfully! Redirecting to login...";
+                signupMessage.textContent = "Account created! Redirecting to login...";
                 setTimeout(() => {
                     window.location.href = "index.html";
                 }, 1500);
@@ -60,7 +61,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // 2. LOGIN LOGIC (On index.html)
+    // 2. LOGIN LOGIC (index.html)
     const loginForm = document.getElementById("loginForm");
     if (loginForm) {
         loginForm.addEventListener("submit", async (e) => {
@@ -72,7 +73,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const email = document.getElementById("loginEmail").value.trim();
             const password = document.getElementById("loginPassword").value.trim();
 
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
             if (error) {
                 loginMessage.style.color = "#ef4444";
@@ -87,7 +88,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // 3. ARG PUZZLE VERIFICATION (On dashboard.html)
+    // 3. ARG PUZZLE VERIFICATION
     const quizForm = document.getElementById("quizForm");
     const quizFeedback = document.getElementById("quizFeedback");
 
@@ -128,11 +129,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // Logout Button
+    // Logout
     const logoutBtn = document.getElementById("logoutBtn");
     if (logoutBtn) {
         logoutBtn.addEventListener("click", async () => {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             window.location.href = "index.html";
         });
     }
