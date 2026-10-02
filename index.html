@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lifetime Legacy Global | Architect Your Destiny</title>
+    <title>Lifetime Legacy Global | Login</title>
     <link rel="stylesheet" href="style.css">
-    
-    <!-- Supabase JS Library (v2) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -18,8 +16,7 @@
         <div class="logo">LIFETIME <span>LEGACY</span> GLOBAL</div>
         <nav>
             <a href="#about">About Us</a>
-            <a href="#tiers">Affiliate Ranks</a>
-            <a href="#auth" class="btn-login">Associate Portal</a>
+            <a href="signup.html" class="btn-login">Register ID</a>
         </nav>
     </header>
 
@@ -44,37 +41,36 @@
         </div>
     </section>
 
-    <!-- REAL SUPABASE AUTHENTICATION PORTAL -->
+    <!-- LOGIN FORM -->
     <section id="auth" class="auth-container">
         <div class="auth-box">
-            <h2 id="authTitle">Associate Access Portal</h2>
-            <p id="authSubtitle">Authenticate with your Associate Credentials.</p>
+            <h2>Associate Access Portal</h2>
+            <p>Authenticate with your Associate Credentials.</p>
             
-            <!-- Explicitly avoiding action attribute so JS handles submission -->
-            <form id="authForm">
+            <form id="loginForm">
                 <div class="input-group">
-                    <label for="email">Associate Email Address</label>
-                    <input type="email" id="email" placeholder="associate@legacy.com" required>
+                    <label for="loginEmail">Associate Email Address</label>
+                    <input type="email" id="loginEmail" placeholder="associate@legacy.com" required>
                 </div>
                 <div class="input-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" placeholder="••••••••" required minlength="6">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required minlength="6">
                 </div>
                 
-                <button type="submit" id="submitBtn" class="submit-btn">Authenticate Session</button>
+                <button type="submit" class="submit-btn">Authenticate Session</button>
             </form>
 
             <p style="text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">
-                <span id="toggleQuestion">Need an Associate ID?</span> 
-                <a href="#" id="toggleAuthMode" style="color: var(--accent-gold); font-weight: bold; text-decoration: none;">Register Here</a>
+                Need an Associate ID? 
+                <a href="signup.html" style="color: var(--accent-gold); font-weight: bold; text-decoration: none;">Register Here</a>
             </p>
 
-            <div id="authMessage" class="feedback-msg" style="text-align: center; margin-top: 1rem;"></div>
+            <div id="loginMessage" class="feedback-msg" style="text-align: center; margin-top: 1rem;"></div>
         </div>
     </section>
 
     <footer>
-        <p>&copy; 2026 Lifetime Legacy Global Holdings Inc. All Rights Reserved. Unscreened reproduction is strictly monitored.</p>
+        <p>&copy; 2026 Lifetime Legacy Global Holdings Inc. All Rights Reserved.</p>
     </footer>
 
     <script src="script.js"></script>
