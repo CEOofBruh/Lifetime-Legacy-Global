@@ -28,52 +28,171 @@ body {
     font-family: var(--font-sans);
     line-height: 1.5;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* ==========================================
-   2. AUTHENTICATION PAGES (index.html / signup.html)
+   2. PUBLIC SITE HEADER & NAVIGATION
    ========================================== */
-.auth-body {
+header {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--card-border);
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+}
+
+.logo {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--accent-gold);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 1.5rem;
+}
+
+nav ul li a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+nav ul li a:hover {
+    color: var(--accent-gold);
+}
+
+/* ==========================================
+   3. HERO SPLIT LAYOUT (index.html / signup.html)
+   ========================================== */
+.hero-wrapper {
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
-    padding: 1.5rem;
+    padding: 3rem 1.5rem;
 }
 
+.hero-container {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 3rem;
+    max-width: 1280px;
+    width: 100%;
+    align-items: center;
+}
+
+@media (max-width: 968px) {
+    .hero-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+.hero-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent-gold);
+    background-color: var(--accent-gold-glow);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    border: 1px solid var(--accent-gold);
+    margin-bottom: 1rem;
+}
+
+.hero-content h1 {
+    font-size: 2.5rem;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    font-weight: 800;
+}
+
+.gold-text {
+    color: var(--accent-gold);
+}
+
+.hero-description {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    margin-bottom: 2rem;
+    max-width: 600px;
+}
+
+.feature-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.feature-card {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+}
+
+.feature-icon {
+    font-size: 1.25rem;
+}
+
+.feature-card h4 {
+    font-size: 0.95rem;
+    color: var(--text-main);
+    margin-bottom: 0.2rem;
+}
+
+.feature-card p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* ==========================================
+   4. AUTHENTICATION CARDS & FORMS
+   ========================================== */
 .auth-card {
     background-color: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: 8px;
     padding: 2.5rem;
     width: 100%;
-    max-width: 420px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
 }
 
-.auth-brand {
-    text-align: center;
-    margin-bottom: 2rem;
+.auth-card h2 {
+    font-size: 1.4rem;
+    margin-bottom: 0.25rem;
 }
 
-.auth-brand .brand-logo {
-    font-size: 2rem;
-    color: var(--accent-gold);
-    display: block;
-    margin-bottom: 0.5rem;
+.auth-card .subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1.75rem;
 }
 
-.auth-brand h1 {
-    font-size: 1.25rem;
-    letter-spacing: 2px;
-    color: var(--text-main);
-}
-
-.form-group {
+.form-group, .input-group {
     margin-bottom: 1.25rem;
 }
 
-.form-group label {
+.form-group label, .input-group label {
     display: block;
     font-size: 0.75rem;
     text-transform: uppercase;
@@ -82,7 +201,7 @@ body {
     margin-bottom: 0.5rem;
 }
 
-.form-group input {
+.form-group input, .input-group input {
     width: 100%;
     padding: 0.75rem 1rem;
     background-color: var(--input-bg);
@@ -94,7 +213,7 @@ body {
     transition: border-color 0.2s;
 }
 
-.form-group input:focus {
+.form-group input:focus, .input-group input:focus {
     border-color: var(--accent-gold);
 }
 
@@ -109,10 +228,18 @@ body {
     letter-spacing: 1px;
     cursor: pointer;
     transition: opacity 0.2s;
+    margin-top: 0.5rem;
 }
 
 .btn-primary:hover {
     opacity: 0.9;
+}
+
+.status-message {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    font-family: var(--font-mono);
+    text-align: center;
 }
 
 .auth-footer {
@@ -132,7 +259,7 @@ body {
 }
 
 /* ==========================================
-   3. PORTAL NAVIGATION BAR
+   5. PORTAL NAVIGATION (DASHBOARD)
    ========================================== */
 .portal-nav {
     display: flex;
@@ -189,13 +316,14 @@ body {
 }
 
 /* ==========================================
-   4. DASHBOARD GRID LAYOUT
+   6. DASHBOARD GRID LAYOUT
    ========================================== */
 .dashboard-container {
     display: grid;
     grid-template-columns: 280px 1fr;
     gap: 1.5rem;
     max-width: 1280px;
+    width: 100%;
     margin: 2rem auto;
     padding: 0 1.5rem;
 }
@@ -228,7 +356,7 @@ body {
 }
 
 /* ==========================================
-   5. SIDEBAR COMPONENTS
+   7. SIDEBAR & PROFILE COMPONENTS
    ========================================== */
 .profile-card {
     background-color: var(--card-bg);
@@ -315,9 +443,9 @@ body {
 }
 
 /* ==========================================
-   6. TERMINAL & LEADERBOARD
+   8. TERMINAL & LEADERBOARD
    ========================================== */
-.terminal-form .input-group {
+.terminal-form .input-group-inline {
     display: flex;
     gap: 0.5rem;
 }
@@ -383,7 +511,7 @@ body {
 }
 
 /* ==========================================
-   7. MODULE NODES & BADGES
+   9. MODULE NODES & BADGES
    ========================================== */
 .modules-grid {
     display: grid;
@@ -440,4 +568,17 @@ body {
 .module-node p {
     font-size: 0.8rem;
     color: var(--text-muted);
+}
+
+/* ==========================================
+   10. FOOTER
+   ========================================== */
+footer {
+    border-top: 1px solid var(--card-border);
+    background-color: var(--card-bg);
+    text-align: center;
+    padding: 1.25rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: auto;
 }
