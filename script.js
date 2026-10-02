@@ -1,74 +1,103 @@
 // ==========================================
 // 1. SUPABASE INITIALIZATION
 // ==========================================
-const SUPABASE_URL = 'https://clnqxwyewtzofeiyzrbk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbnF4d3lld3R6b2ZlaXl6cmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5MTgzMzksImV4cCI6MjEwNjQ5NDMzOX0.pZa8UV-EBkI-hJmYdi4Cl406pTsC2B4WqyAyO_0f_Tg';
+const SUPABASE_URL = "https://clnqxwyewtzofeiyzrbk.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbnF4d3lld3R6b2ZlaXl6cmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyOTAyMTYsImV4cCI6MjA1Njg2NjIxNn0.S0v9G38T1tI6g22x4YQ1eJ7dM2uT0kX9lO5n8b3v2X8"; // Replace with your exact anon key if different
 
-const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: {
-        persistSession: true,
-        autoRefreshToken: true
-    }
-}) : null;
+let supabaseClient = null;
+if (typeof supabase !== 'undefined') {
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
 
 // ==========================================
-// 2. STATE MANAGEMENT & LEADERBOARD FETCHING
+// 2. LOCAL STORAGE HELPERS
 // ==========================================
-const DEFAULT_USER_DATA = {
-    coins: 0,
-    rank: "Bronze Initiate",
-    unlockedPages: []
-};
-
-// Fetch Top 10 Profiles from Supabase for Global Leaderboard
-async function fetchLeaderboard() {
-    if (!supabaseClient) return [];
-
+function getLocalUserData() {
+    const local = localStorage.getItem('user_profile_data');
+    if (!local) return { coins: 0, rank: "Bronze Initiate", unlockedPages: [], avatarUrl: null };
     try {
-        const { data, error } = await supabaseClient
-            .from('profiles')
-            .select('email, rank, coins')
-            .order('coins', { ascending: false })
-            .limit(10);
-
-        if (error) {
-            console.error("Error fetching leaderboard:", error);
-            return [];
-        }
-
-        return data || [];
+        return JSON.parse(local);
     } catch (e) {
-        console.error("Leaderboard fetch failed:", e);
-        return [];
+        return { coins: 0, rank: "Bronze Initiate", unlockedPages: [], avatarUrl: null };
     }
 }
 
-// Fetch user profile from Supabase Database
+function saveLocalUserData(data) {
+    const current = getLocalUserData();
+    const updated = { ...current, ...data };
+    localStorage.setItem('user_profile_data', JSON.stringify(updated));
+}
+
+// ==========================================
+// 3. PUZZLE / OVERRIDE CODES DATABASE
+// ==========================================
+const PUZZLE_CODES = {
+    // Decoded string target
+    "LEGACY_INITIATE_2026": {
+        rewardCoins: 50,
+        newRank: "Silver Visionary",
+        unlockedTitle: "Archive 01: Directive Memorandum",
+        unlockedUrl: "archive_01.html"
+    },
+    // Raw Base64 string fallback
+    "TEVHQUNZX01OSVRJQVRFXzIwMjY=": {
+        rewardCoins: 50,
+        newRank: "Silver Visionary",
+        unlockedTitle: "Archive 01: Directive Memorandum",
+        unlockedUrl: "archive_01.html"
+    }
+};
+
+// ==========================================
+// 4. SUPABASE PROFILE API INTERACTIONS
+// ==========================================
+
+// Fetch profile data from database
 async function fetchUserProfile(userId) {
     if (!supabaseClient || !userId) {
         return getLocalUserData();
     }
 
     try {
-        const { data, error } = await supabaseClient
+        let { data, error } = await supabaseClient
             .from('profiles')
-            .select('coins, rank, unlocked_pages')
+            .select('coins, rank, unlocked_pages, avatar_url')
             .eq('id', userId)
-            .single();
+            .maybeSingle();
 
-        if (error || !data) {
-            return getLocalUserData();
+        // If row doesn't exist yet, construct and insert default row
+        if (!data) {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            const newProfile = {
+                id: userId,
+                email: user ? user.email : '',
+                coins: 0,
+                rank: "Bronze Initiate",
+                unlocked_pages: [],
+                avatar_url: null
+            };
+
+            await supabaseClient.from('profiles').upsert(newProfile);
+
+            return {
+                coins: 0,
+                rank: "Bronze Initiate",
+                unlockedPages: [],
+                avatarUrl: null
+            };
         }
 
         const formattedData = {
             coins: data.coins || 0,
             rank: data.rank || "Bronze Initiate",
-            unlockedPages: data.unlocked_pages || []
+            unlockedPages: data.unlocked_pages || [],
+            avatarUrl: data.avatar_url || null
         };
 
         saveLocalUserData(formattedData);
         return formattedData;
     } catch (e) {
+        console.error("Fetch profile failed:", e);
         return getLocalUserData();
     }
 }
@@ -79,241 +108,282 @@ async function saveUserProfile(userId, data) {
 
     if (supabaseClient && userId) {
         try {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            
+            const payload = {
+                id: userId,
+                email: user ? user.email : '',
+                coins: data.coins,
+                rank: data.rank,
+                unlocked_pages: data.unlockedPages,
+                updated_at: new Date().toISOString()
+            };
+
+            if (data.avatarUrl !== undefined) {
+                payload.avatar_url = data.avatarUrl;
+            }
+
             await supabaseClient
                 .from('profiles')
-                .update({
-                    coins: data.coins,
-                    rank: data.rank,
-                    unlocked_pages: data.unlockedPages,
-                    updated_at: new Date().toISOString()
-                })
-                .eq('id', userId);
+                .upsert(payload);
         } catch (e) {
             console.error("Cloud save failed:", e);
         }
     }
 }
 
-function getLocalUserData() {
-    const saved = localStorage.getItem('llg_user_data');
-    return saved ? JSON.parse(saved) : { ...DEFAULT_USER_DATA };
-}
+// Fetch global leaderboard standings
+async function fetchLeaderboard() {
+    const leaderboardTable = document.getElementById('leaderboardTable');
+    if (!leaderboardTable || !supabaseClient) return;
 
-function saveLocalUserData(data) {
-    localStorage.setItem('llg_user_data', JSON.stringify(data));
-}
+    try {
+        const { data, error } = await supabaseClient
+            .from('profiles')
+            .select('email, rank, coins')
+            .order('coins', { ascending: false })
+            .limit(10);
 
-// ==========================================
-// 3. PUZZLE / OVERRIDE CODES DATABASE
-// ==========================================
-const PUZZLE_CODES = {
-    "LEGACY_INITIATE_2026": {
-        rewardCoins: 50,
-        newRank: "Silver Visionary",
-        unlockedTitle: "Archive 01: Directive Memorandum",
-        unlockedUrl: "archive_01.html"
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+            leaderboardTable.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align:center; color: var(--text-muted);">
+                        No associate standings recorded yet.
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        leaderboardTable.innerHTML = data.map((item, index) => {
+            const username = item.email ? item.email.split('@')[0] : `Associate #${index + 1}`;
+            return `
+                <tr>
+                    <td style="font-family: var(--font-mono); color: var(--accent-gold);">#${index + 1}</td>
+                    <td style="font-weight: 600;">${username}</td>
+                    <td><span class="badge status-unlocked">${item.rank || 'Bronze Initiate'}</span></td>
+                    <td style="font-family: var(--font-mono); font-weight: bold;">${item.coins || 0} LC</td>
+                </tr>
+            `;
+        }).join('');
+    } catch (e) {
+        console.error("Failed to load leaderboard:", e);
+        leaderboardTable.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align:center; color: var(--accent-red);">
+                    Failed to sync leaderboard with network.
+                </td>
+            </tr>`;
     }
-};
+}
+
+// Upload Avatar to Supabase Storage Bucket
+async function uploadAvatar(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!supabaseClient) {
+        return alert("Cloud database connection unavailable.");
+    }
+
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) {
+        return alert("Session expired. Please log in again.");
+    }
+
+    const fileExt = file.name.split('.').pop();
+    const filePath = `${user.id}/avatar.${fileExt}`;
+
+    try {
+        // Upload image file to 'avatars' storage bucket
+        let { error: uploadError } = await supabaseClient.storage
+            .from('avatars')
+            .upload(filePath, file, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        // Obtain public accessible URL
+        const { data: publicUrlData } = supabaseClient.storage
+            .from('avatars')
+            .getPublicUrl(filePath);
+
+        // Add timestamp parameter to clear browser image cache
+        const avatarUrl = publicUrlData.publicUrl + '?t=' + new Date().getTime();
+
+        // Update database record
+        await supabaseClient
+            .from('profiles')
+            .update({ avatar_url: avatarUrl })
+            .eq('id', user.id);
+
+        // Update local storage
+        saveLocalUserData({ avatarUrl: avatarUrl });
+
+        // Update UI
+        renderAvatar(avatarUrl);
+        alert("Avatar updated successfully!");
+    } catch (error) {
+        console.error("Error uploading avatar:", error);
+        alert("Failed to upload avatar: " + error.message);
+    }
+}
+
+// Render Avatar Image Helper
+function renderAvatar(url) {
+    const avatarImg = document.getElementById('avatarImage');
+    const avatarFallback = document.getElementById('avatarFallback');
+
+    if (!avatarImg) return;
+
+    if (url) {
+        avatarImg.src = url;
+        avatarImg.style.display = 'block';
+        if (avatarFallback) avatarFallback.style.display = 'none';
+    } else {
+        avatarImg.style.display = 'none';
+        if (avatarFallback) avatarFallback.style.display = 'inline';
+    }
+}
+
+// Render Unlocked Archives Links Helper
+function renderUnlockedArchives(unlockedPages) {
+    const container = document.getElementById('unlockedLinks');
+    if (!container) return;
+
+    if (!unlockedPages || unlockedPages.length === 0) {
+        container.innerHTML = `
+            <p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">
+                No restricted archives unlocked yet.
+            </p>`;
+        return;
+    }
+
+    container.innerHTML = unlockedPages.map(page => `
+        <a href="${page.url}" class="unlocked-link" target="_blank">
+            🔓 ${page.title}
+        </a>
+    `).join('');
+}
 
 // ==========================================
-// 4. DOM INITIALIZATION & EVENT HANDLERS
+// 5. INITIALIZATION & EVEN LISTENERS
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
-    let sessionUser = null;
+    let currentUser = null;
+
+    // Session Management via Supabase
     if (supabaseClient) {
         const { data: { session } } = await supabaseClient.auth.getSession();
-        sessionUser = session ? session.user : null;
-    }
-
-    const currentPage = window.location.pathname.split('/').pop();
-
-    // Route Guard for Dashboard
-    if (currentPage === 'dashboard.html' && !sessionUser && !localStorage.getItem('llg_bypass_auth')) {
-        if (supabaseClient) {
+        if (session) {
+            currentUser = session.user;
+        } else if (window.location.pathname.includes('dashboard.html')) {
+            // Redirect if trying to view dashboard without active session
             window.location.href = 'index.html';
             return;
         }
     }
 
-    // --- A. LOGIN FORM HANDLER (index.html) ---
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const msgBox = document.getElementById('loginMessage');
-
-            msgBox.style.color = 'var(--text-muted)';
-            msgBox.textContent = 'Authenticating with network...';
-
-            if (supabaseClient) {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) {
-                    msgBox.style.color = 'var(--accent-red)';
-                    msgBox.textContent = error.message;
-                } else {
-                    msgBox.style.color = 'var(--accent-emerald)';
-                    msgBox.textContent = 'Authentication successful. Accessing portal...';
-                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
-                }
-            } else {
-                localStorage.setItem('llg_bypass_auth', email);
-                window.location.href = 'dashboard.html';
-            }
-        });
-    }
-
-    // --- B. SIGNUP FORM HANDLER (signup.html) ---
-    const signupForm = document.getElementById('signupForm');
-    if (signupForm) {
-        signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
-            const msgBox = document.getElementById('signupMessage');
-
-            msgBox.style.color = 'var(--text-muted)';
-            msgBox.textContent = 'Initializing associate profile...';
-
-            if (supabaseClient) {
-                const { data, error } = await supabaseClient.auth.signUp({ email, password });
-                if (error) {
-                    msgBox.style.color = 'var(--accent-red)';
-                    msgBox.textContent = error.message;
-                } else {
-                    msgBox.style.color = 'var(--accent-emerald)';
-                    msgBox.textContent = 'Account created successfully! Redirecting to login...';
-                    setTimeout(() => { window.location.href = 'index.html'; }, 1200);
-                }
-            } else {
-                msgBox.style.color = 'var(--accent-emerald)';
-                msgBox.textContent = 'Demo Mode: Registration simulated. You may login now.';
-            }
-        });
-    }
-
-    // --- C. DASHBOARD HANDLER (dashboard.html) ---
+    // Initialize Dashboard UI if on dashboard.html
     if (document.getElementById('coinBalance')) {
-        const userId = sessionUser ? sessionUser.id : null;
+        const userId = currentUser ? currentUser.id : null;
         
-        let userData = await fetchUserProfile(userId);
-        await updateDashboardUI(sessionUser, userData);
-
-        // Terminal Verification Key Submissions
-        const quizForm = document.getElementById('quizForm');
-        if (quizForm) {
-            quizForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const input = document.getElementById('answerInput');
-                const feedback = document.getElementById('quizFeedback');
-                const codeKey = input.value.trim().toUpperCase();
-
-                if (PUZZLE_CODES[codeKey]) {
-                    const reward = PUZZLE_CODES[codeKey];
-                    
-                    userData = await fetchUserProfile(userId);
-                    const alreadyUnlocked = userData.unlockedPages.some(p => p.url === reward.unlockedUrl);
-
-                    if (alreadyUnlocked) {
-                        feedback.style.color = 'var(--accent-gold)';
-                        feedback.textContent = 'Verification Key already authenticated in ledger.';
-                    } else {
-                        userData.coins += reward.rewardCoins;
-                        userData.rank = reward.newRank;
-                        userData.unlockedPages.push({
-                            title: reward.unlockedTitle,
-                            url: reward.unlockedUrl
-                        });
-
-                        await saveUserProfile(userId, userData);
-                        await updateDashboardUI(sessionUser, userData);
-
-                        feedback.style.color = 'var(--accent-emerald)';
-                        feedback.textContent = `Key Verified. Awarded ${reward.rewardCoins} LC. Rank updated to ${reward.newRank}.`;
-                        input.value = '';
-                    }
-                } else {
-                    feedback.style.color = 'var(--accent-red)';
-                    feedback.textContent = 'Invalid Verification Key. Security Incident Logged.';
-                }
-            });
+        if (currentUser) {
+            const userHandle = currentUser.email ? currentUser.email.split('@')[0] : 'Associate';
+            document.getElementById('navUser').textContent = currentUser.email;
+            document.getElementById('profileName').textContent = userHandle;
         }
 
-        // Logout Handler
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                if (supabaseClient) {
-                    await supabaseClient.auth.signOut();
+        // Fetch User Profile Data
+        const profile = await fetchUserProfile(userId);
+
+        // Update DOM elements
+        document.getElementById('coinBalance').textContent = profile.coins;
+        document.getElementById('profileRank').textContent = profile.rank;
+        
+        // Render Avatar & Unlocked Archives
+        renderAvatar(profile.avatarUrl);
+        renderUnlockedArchives(profile.unlockedPages);
+
+        // Fetch Leaderboard
+        fetchLeaderboard();
+    }
+
+    // Terminal / Puzzle Submit Form Handling
+    const quizForm = document.getElementById('quizForm');
+    if (quizForm) {
+        quizForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const inputField = document.getElementById('answerInput');
+            const feedback = document.getElementById('quizFeedback');
+            const userKey = inputField.value.trim().toUpperCase();
+
+            // Find matching puzzle rule
+            const matchedKey = Object.keys(PUZZLE_CODES).find(
+                key => key.toUpperCase() === userKey
+            );
+
+            if (matchedKey) {
+                const puzzleData = PUZZLE_CODES[matchedKey];
+                const userId = currentUser ? currentUser.id : null;
+                const currentProfile = await fetchUserProfile(userId);
+
+                // Check if key/archive has already been claimed
+                const alreadyUnlocked = currentProfile.unlockedPages.some(
+                    p => p.url === puzzleData.unlockedUrl
+                );
+
+                if (alreadyUnlocked) {
+                    feedback.style.color = "var(--accent-gold)";
+                    feedback.textContent = "Key recognized: Override already authorized for this account.";
+                    return;
                 }
-                localStorage.removeItem('llg_bypass_auth');
-                localStorage.removeItem('llg_user_data');
-                window.location.href = 'index.html';
-            });
-        }
+
+                // Award points & unlock page
+                const updatedCoins = currentProfile.coins + puzzleData.rewardCoins;
+                const updatedRank = puzzleData.newRank || currentProfile.rank;
+                const updatedUnlocked = [
+                    ...currentProfile.unlockedPages,
+                    { title: puzzleData.unlockedTitle, url: puzzleData.unlockedUrl }
+                ];
+
+                const updatedProfile = {
+                    coins: updatedCoins,
+                    rank: updatedRank,
+                    unlockedPages: updatedUnlocked,
+                    avatarUrl: currentProfile.avatarUrl
+                };
+
+                // Save to Cloud & Local Storage
+                await saveUserProfile(userId, updatedProfile);
+
+                // Update UI state
+                document.getElementById('coinBalance').textContent = updatedCoins;
+                document.getElementById('profileRank').textContent = updatedRank;
+                renderUnlockedArchives(updatedUnlocked);
+
+                // Re-fetch global leaderboard
+                fetchLeaderboard();
+
+                feedback.style.color = "var(--accent-emerald)";
+                feedback.textContent = `Key Verified. Awarded ${puzzleData.rewardCoins} LC. Rank updated to ${updatedRank}.`;
+                inputField.value = "";
+            } else {
+                feedback.style.color = "var(--accent-red)";
+                feedback.textContent = "Access Denied: Invalid authorization key or cipher.";
+            }
+        });
+    }
+
+    // Logout Handler
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            if (supabaseClient) {
+                await supabaseClient.auth.signOut();
+            }
+            localStorage.clear();
+            window.location.href = 'index.html';
+        });
     }
 });
-
-// ==========================================
-// 5. DASHBOARD UI RENDERER
-// ==========================================
-async function updateDashboardUI(user, userData) {
-    const userEmail = user ? user.email : (localStorage.getItem('llg_bypass_auth') || 'associate@legacy.com');
-    const username = userEmail.split('@')[0];
-
-    const navUser = document.getElementById('navUser');
-    const profileName = document.getElementById('profileName');
-    const profileRank = document.getElementById('profileRank');
-    const coinBalance = document.getElementById('coinBalance');
-
-    if (navUser) navUser.textContent = userEmail;
-    if (profileName) profileName.textContent = username;
-    if (profileRank) profileRank.textContent = userData.rank;
-    if (coinBalance) coinBalance.textContent = userData.coins;
-
-    // Render Unlocked Restricted Archives
-    const unlockedContainer = document.getElementById('unlockedLinks');
-    if (unlockedContainer) {
-        if (!userData.unlockedPages || userData.unlockedPages.length === 0) {
-            unlockedContainer.innerHTML = `<p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">No restricted archives unlocked yet.</p>`;
-        } else {
-            unlockedContainer.innerHTML = userData.unlockedPages.map(page => 
-                `<a href="${page.url}" class="unlocked-link" target="_blank">🔓 ${page.title}</a>`
-            ).join('');
-        }
-    }
-
-    // Render Dynamic Leaderboard Table from Supabase
-    const leaderboardContainer = document.getElementById('leaderboardTable');
-    if (leaderboardContainer) {
-        const topProfiles = await fetchLeaderboard();
-
-        if (topProfiles.length === 0) {
-            leaderboardContainer.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--text-muted);">No associate standings recorded yet.</td></tr>`;
-        } else {
-            leaderboardContainer.innerHTML = topProfiles.map((profile, index) => {
-                const associateHandle = profile.email ? profile.email.split('@')[0] : 'classified_associate';
-                const isCurrentUser = user && user.email === profile.email;
-                const highlightStyle = isCurrentUser ? 'style="background: rgba(212, 175, 55, 0.15); font-weight: bold;"' : '';
-
-                return `
-                    <tr ${highlightStyle}>
-                        <td>#${index + 1}</td>
-                        <td>${associateHandle} ${isCurrentUser ? '(You)' : ''}</td>
-                        <td>${profile.rank || 'Bronze Initiate'}</td>
-                        <td>${profile.coins || 0} LC</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-    }
-
-    // Modules Access State
-    const badgeM2 = document.getElementById('badge-m2');
-    if (badgeM2 && userData.coins >= 100) {
-        badgeM2.className = 'badge status-unlocked';
-        badgeM2.textContent = 'ACCESSIBLE';
-    }
-}
