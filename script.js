@@ -2,9 +2,10 @@
 // 1. SUPABASE INITIALIZATION
 // ==========================================
 const SUPABASE_URL = 'https://clnqxwyewtzofeiyzrbk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbnF4d3lld3R6b2ZlaXl6cmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTU2NzYwNDAsImV4cCI6MjAxMTI1MjA0MH0.82C3XW9q4J2XoH_R5K8Z6pX8x4Y6z5w2v1u0t9s8r7q';
+const SUPABASE_ANON_KEY = 'sb_publishable_ioU2uiw5NZqp8ShkzkYOHA_cxRXKJyx';
 
-const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+// Use 'supabaseClient' to prevent collisions with window.supabase
+const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 // ==========================================
 // 2. STATE MANAGEMENT & LOCAL STORAGE
@@ -43,8 +44,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Check Active Session for Dashboard Protection
     let sessionUser = null;
-    if (supabase) {
-        const { data: { session } } = await supabase.auth.getSession();
+    if (supabaseClient) {
+        const { data: { session } } = await supabaseClient.auth.getSession();
         sessionUser = session ? session.user : null;
     }
 
@@ -52,8 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Protect Dashboard Page
     if (currentPage === 'dashboard.html' && !sessionUser && !localStorage.getItem('llg_bypass_auth')) {
-        // Redirect to login if unauthenticated (allows local demo via fallback)
-        if (supabase) {
+        if (supabaseClient) {
             window.location.href = 'index.html';
             return;
         }
@@ -71,8 +71,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             msgBox.style.color = 'var(--text-muted)';
             msgBox.textContent = 'Authenticating with network...';
 
-            if (supabase) {
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            if (supabaseClient) {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
                 if (error) {
                     msgBox.style.color = 'var(--accent-red)';
                     msgBox.textContent = error.message;
@@ -82,7 +82,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
                 }
             } else {
-                // Fallback demo mode if Supabase fails to load
                 localStorage.setItem('llg_bypass_auth', email);
                 window.location.href = 'dashboard.html';
             }
@@ -101,8 +100,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             msgBox.style.color = 'var(--text-muted)';
             msgBox.textContent = 'Initializing associate profile...';
 
-            if (supabase) {
-                const { data, error } = await supabase.auth.signUp({ email, password });
+            if (supabaseClient) {
+                const { data, error } = await supabaseClient.auth.signUp({ email, password });
                 if (error) {
                     msgBox.style.color = 'var(--accent-red)';
                     msgBox.textContent = error.message;
@@ -134,14 +133,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const reward = PUZZLE_CODES[codeKey];
                     let userData = getUserData();
 
-                    // Check if code was already redeemed
                     const alreadyUnlocked = userData.unlockedPages.some(p => p.url === reward.unlockedUrl);
 
                     if (alreadyUnlocked) {
                         feedback.style.color = 'var(--accent-gold)';
                         feedback.textContent = 'Verification Key already authenticated in ledger.';
                     } else {
-                        // Grant Rewards
                         userData.coins += reward.rewardCoins;
                         userData.rank = reward.newRank;
                         userData.unlockedPages.push({
@@ -168,8 +165,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (logoutBtn) {
             logoutBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
-                if (supabase) {
-                    await supabase.auth.signOut();
+                if (supabaseClient) {
+                    await supabaseClient.auth.signOut();
                 }
                 localStorage.removeItem('llg_bypass_auth');
                 window.location.href = 'index.html';
@@ -186,7 +183,6 @@ function updateDashboardUI(user) {
     const userEmail = user ? user.email : (localStorage.getItem('llg_bypass_auth') || 'associate@legacy.com');
     const username = userEmail.split('@')[0];
 
-    // Profile & Header
     const navUser = document.getElementById('navUser');
     const profileName = document.getElementById('profileName');
     const profileRank = document.getElementById('profileRank');
@@ -204,7 +200,6 @@ function updateDashboardUI(user) {
     if (lbUserRank) lbUserRank.textContent = userData.rank;
     if (lbUserCoins) lbUserCoins.textContent = userData.coins;
 
-    // Unlocked Links Container
     const unlockedContainer = document.getElementById('unlockedLinks');
     if (unlockedContainer) {
         if (userData.unlockedPages.length === 0) {
@@ -216,7 +211,6 @@ function updateDashboardUI(user) {
         }
     }
 
-    // Dynamic Module Status Updates based on progress
     const cardM2 = document.getElementById('card-m2');
     const badgeM2 = document.getElementById('badge-m2');
     if (cardM2 && badgeM2 && userData.coins >= 100) {
