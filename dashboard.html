@@ -3,125 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Associate Portal | Lifetime Legacy Global</title>
+    <title>Lifetime Legacy Global | Executive Portal</title>
     <link rel="stylesheet" href="style.css">
-    
-    <!-- Supabase JS Library (v2) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="dashboard-body">
+<body>
 
-    <!-- Top Navigation Bar -->
     <header>
-        <div class="logo">LIFETIME <span>LEGACY</span> PORTAL</div>
-        <div class="user-status">
-            <span id="navUser">Loading Session...</span> | 
-            <span class="coin-badge">💰 <span id="coinBalance">0</span> Legacy Coins</span>
-            <button id="logoutBtn" class="btn-sm">Sign Out</button>
-        </div>
+        <nav>
+            <div class="logo">Lifetime Legacy Global</div>
+            <ul>
+                <li><span id="navUser" style="color: var(--text-muted); font-size: 0.9rem;"></span></li>
+                <li><a href="#" id="logoutBtn" style="color: var(--accent-red); font-weight: 600;">Logout</a></li>
+            </ul>
+        </nav>
     </header>
 
-    <div class="dashboard-container">
+    <main class="dashboard-grid">
         
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="profile-card">
-                <div class="avatar">👁️️</div>
-                <h3 id="profileName">Associate</h3>
-                <p class="rank-title" id="profileRank">Tier 1: Bronze Initiate</p>
+        <!-- Left Sidebar Panel -->
+        <aside class="sidebar-panel">
+            
+            <!-- User Profile Card -->
+            <div class="card">
+                <h3 style="margin-bottom: 0.8rem; font-size: 1.1rem; color: var(--text-primary);">Associate Profile</h3>
+                <div style="margin-bottom: 1rem;">
+                    <p style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Identity</p>
+                    <p id="profileName" style="font-size: 1.2rem; font-weight: 700; color: var(--accent-gold);"></p>
+                </div>
+                <div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Tier Status</p>
+                    <p id="profileRank" style="font-size: 1rem; font-weight: 600; color: var(--text-primary);">Bronze Initiate</p>
+                </div>
             </div>
-            <nav class="side-nav">
-                <a href="#courses" class="active">📚 Ascension Courses</a>
-                <a href="#submit">🔑 Submit Verification Code</a>
-                <a href="#leaderboard">🏆 Top Performers</a>
-                <!-- Dynamically populated secret links -->
-                <div id="unlockedLinks"></div>
-            </nav>
+
+            <!-- Legacy Coins Balance -->
+            <div class="card">
+                <h3 style="margin-bottom: 0.5rem; font-size: 1rem; color: var(--text-muted); text-transform: uppercase;">Legacy Ledger</h3>
+                <div class="stat-box">
+                    <div class="stat-value" id="coinBalance">0</div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem;">Legacy Coins (LC)</p>
+                </div>
+            </div>
+
+            <!-- Unlocked Secret Links -->
+            <div class="card">
+                <h3 style="margin-bottom: 0.8rem; font-size: 1.1rem; color: var(--text-primary);">Access Clearance</h3>
+                <div id="unlockedLinks">
+                    <p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">No restricted archives unlocked yet.</p>
+                </div>
+            </div>
+
         </aside>
 
         <!-- Main Content Area -->
-        <main class="main-content">
+        <section class="main-panel">
+            
+            <!-- Code Verification Unit -->
+            <div class="card" style="border: 1px solid var(--glass-border-gold);">
+                <h2 style="font-size: 1.4rem; margin-bottom: 0.5rem; color: var(--accent-gold);">System Verification Terminal</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                    Enter authenticated legacy verification keys below to unlock rewards and clearance tiers.
+                </p>
 
-            <!-- Section 1: Courses / Modules -->
-            <section id="courses" class="dash-section">
-                <h2>Ascension Training Modules</h2>
-                <p class="section-desc">Complete all modules and enter verification answers to earn Legacy Coins and advance your tier.</p>
+                <form id="quizForm" style="display: flex; gap: 1rem;">
+                    <input type="text" id="answerInput" placeholder="Enter Verification Key..." required style="flex: 1; padding: 0.85rem 1rem; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); border-radius: 10px; color: var(--text-primary); outline: none;">
+                    <button type="submit" class="btn-primary" style="width: auto; padding: 0.85rem 2rem;">Validate</button>
+                </form>
+                <div id="quizFeedback" class="status-message"></div>
+            </div>
+
+            <!-- Modules Grid -->
+            <div class="card">
+                <h2 style="font-size: 1.4rem; margin-bottom: 1.2rem; color: var(--text-primary);">Training & Asset Modules</h2>
                 
-                <div class="course-grid">
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    
                     <!-- Module 1 -->
-                    <div class="course-card unlocked" id="card-m1">
-                        <span class="badge status-unlocked">UNLOCKED</span>
-                        <h3>Module 1: The Mindset Matrix</h3>
-                        <p>Deconstruct limiting financial beliefs and integrate the Lifetime Paradigm.</p>
-                        <p class="clue-text"><em>Hint: Inspect the foundation to find what lies beneath.</em></p>
+                    <div id="card-m1" class="feature-card">
+                        <div class="feature-icon">📁</div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <h4>Module 01: Core System Architecture</h4>
+                                <span class="badge status-unlocked">ACCESSIBLE</span>
+                            </div>
+                            <p>Analyze network flow and uncover the system override key hidden in plain sight. Verification Key required.</p>
+                        </div>
                     </div>
 
                     <!-- Module 2 -->
-                    <div class="course-card locked" id="card-m2">
-                        <span class="badge status-locked" id="badge-m2">LOCKED (Requires 100 Coins)</span>
-                        <h3>Module 2: Downline Architecture</h3>
-                        <p>Learn how to recruit sub-nodes into your personal yield network.</p>
-                        <p class="clue-text"><em>Code hint word: "pioneer"</em></p>
+                    <div id="card-m2" class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <h4>Module 02: Redacted Executive Dossier</h4>
+                                <span id="badge-m2" class="badge status-locked">LOCKED (100 LC Required)</span>
+                            </div>
+                            <p>Higher level access requires Silver Visionary rank and 100 LC.</p>
+                        </div>
                     </div>
 
-                    <!-- Module 3 -->
-                    <div class="course-card locked" id="card-m3">
-                        <span class="badge status-locked" id="badge-m3">LOCKED (Requires 250 Coins)</span>
-                        <h3>Module 3: Subliminal Alignment</h3>
-                        <p>[REDACTED INSTRUCTIONAL DATA]</p>
-                    </div>
                 </div>
-            </section>
+            </div>
 
-            <!-- Section 2: Verification / Code Submission -->
-            <section id="submit" class="dash-section card-box">
-                <h2>Module Verification & Code Submission</h2>
-                <p>Found an answer inside a training course or source file? Submit the key below to claim Legacy Coins.</p>
-                
-                <form id="quizForm" class="inline-form">
-                    <input type="text" id="answerInput" placeholder="Enter solution key..." required>
-                    <button type="submit" class="submit-btn">Verify Key</button>
-                </form>
-                <div id="quizFeedback" class="feedback-msg"></div>
-            </section>
+            <!-- Network Leaderboard -->
+            <div class="card">
+                <h2 style="font-size: 1.4rem; margin-bottom: 1rem; color: var(--text-primary);">Associate Leaderboard</h2>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--glass-border); color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px;">
+                                <th style="padding: 0.8rem;">Associate</th>
+                                <th style="padding: 0.8rem;">Rank</th>
+                                <th style="padding: 0.8rem;">Legacy Coins</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <td style="padding: 0.8rem; font-weight: 600; color: var(--accent-gold);">Vanguard_Alpha</td>
+                                <td style="padding: 0.8rem;">Diamond Founding Partner</td>
+                                <td style="padding: 0.8rem;">12,450 LC</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <td style="padding: 0.8rem; font-weight: 600; color: #e5e7eb;">Apex_Visionary</td>
+                                <td style="padding: 0.8rem;">Platinum Director</td>
+                                <td style="padding: 0.8rem;">8,900 LC</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(212, 175, 55, 0.05);">
+                                <td id="lbUserName" style="padding: 0.8rem; font-weight: 700; color: var(--accent-gold);">You</td>
+                                <td id="lbUserRank" style="padding: 0.8rem;">Bronze Initiate</td>
+                                <td style="padding: 0.8rem;"><span id="lbUserCoins">0</span> LC</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-            <!-- Section 3: Global Leaderboard -->
-            <section id="leaderboard" class="dash-section">
-                <h2>Global Performance Leaderboard</h2>
-                <table class="leaderboard-table">
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Associate Name</th>
-                            <th>Tier</th>
-                            <th>Total Coins</th>
-                        </tr>
-                    </thead>
-                    <tbody id="leaderboardBody">
-                        <tr>
-                            <td>1</td>
-                            <td>Victoria Vance</td>
-                            <td>Diamond Paragon</td>
-                            <td>999,990</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Chadwick Thorne</td>
-                            <td>Emerald Executive</td>
-                            <td>450,200</td>
-                        </tr>
-                        <tr class="user-row">
-                            <td>40,192</td>
-                            <td id="lbUserName">You</td>
-                            <td id="lbUserRank">Bronze Initiate</td>
-                            <td id="lbUserCoins">0</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
+        </section>
 
-        </main>
-    </div>
+    </main>
+
+    <footer>
+        <p>&copy; Lifetime Legacy Global Network. All Rights Reserved. Secretum In Unitate.</p>
+    </footer>
 
     <script src="script.js"></script>
 </body>
