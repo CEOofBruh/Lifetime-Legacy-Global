@@ -2,7 +2,7 @@
 // 1. SUPABASE INITIALIZATION
 // ==========================================
 const SUPABASE_URL = "https://clnqxwyewtzofeiyzrbk.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbnF4d3lld3R6b2ZlaXl6cmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyOTAyMTYsImV4cCI6MjA1Njg2NjIxNn0.S0v9G38T1tI6g22x4YQ1eJ7dM2uT0kX9lO5n8b3v2X8"; // Replace with your exact anon key if different
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbnF4d3lld3R6b2ZlaXl6cmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5MTgzMzksImV4cCI6MjEwNjQ5NDMzOX0.pZa8UV-EBkI-hJmYdi4Cl406pTsC2B4WqyAyO_0f_Tg"; // Replace with your exact anon key if different
 
 let supabaseClient = null;
 if (typeof supabase !== 'undefined') {
