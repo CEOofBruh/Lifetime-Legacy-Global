@@ -460,3 +460,71 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 });
+
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log("Script loaded and DOM ready.");
+
+    // Sign Up Form Handler (signup.html)
+    const signupForm = document.getElementById('signupForm');
+    
+    if (signupForm) {
+        console.log("Signup form found! Attaching submit listener.");
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log("Signup submit event triggered!");
+
+            const emailInput = document.getElementById('signupEmail');
+            const passwordInput = document.getElementById('signupPassword');
+            const statusMsg = document.getElementById('signupStatus');
+
+            if (!emailInput || !passwordInput) {
+                console.error("Email or Password input fields missing from HTML!");
+                return;
+            }
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            if (statusMsg) {
+                statusMsg.style.color = 'var(--text-muted)';
+                statusMsg.textContent = 'Registering associate identity...';
+            }
+
+            if (!supabaseClient) {
+                console.error("Supabase client is null or failed to initialize!");
+                if (statusMsg) {
+                    statusMsg.style.color = 'var(--accent-red)';
+                    statusMsg.textContent = 'Error: Supabase client not initialized.';
+                }
+                return;
+            }
+
+            console.log("Attempting Supabase signUp for:", email);
+
+            const { data, error } = await supabaseClient.auth.signUp({
+                email,
+                password
+            });
+
+            if (error) {
+                console.error("Supabase Signup Error:", error);
+                if (statusMsg) {
+                    statusMsg.style.color = 'var(--accent-red)';
+                    statusMsg.textContent = error.message;
+                }
+            } else {
+                console.log("Signup successful:", data);
+                if (statusMsg) {
+                    statusMsg.style.color = 'var(--accent-emerald)';
+                    statusMsg.textContent = 'Registration successful! Redirecting to login...';
+                }
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            }
+        });
+    } else {
+        console.warn("signupForm not found on this page.");
+    }
+});
