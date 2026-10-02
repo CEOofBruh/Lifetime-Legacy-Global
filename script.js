@@ -149,32 +149,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // --- B. SIGNUP FORM HANDLER (signup.html) ---
-    const signupForm = document.getElementById('signupForm');
-    if (signupForm) {
-        signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
-            const msgBox = document.getElementById('signupMessage');
+const signupForm = document.getElementById('signupForm');
+if (signupForm) {
+    signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('signupEmail').value;
+        const password = document.getElementById('signupPassword').value;
+        const msgBox = document.getElementById('signupMessage');
 
-            msgBox.style.color = 'var(--text-muted)';
-            msgBox.textContent = 'Initializing associate profile...';
+        msgBox.style.color = 'var(--text-muted)';
+        msgBox.textContent = 'Initializing associate profile...';
 
-            if (supabaseClient) {
-                const { data, error } = await supabaseClient.auth.signUp({ email, password });
-                if (error) {
-                    msgBox.style.color = 'var(--accent-red)';
-                    msgBox.textContent = error.message;
-                } else {
-                    msgBox.style.color = 'var(--accent-emerald)';
-                    msgBox.textContent = 'Registration submitted. Check your email to confirm activation.';
-                }
+        if (supabaseClient) {
+            const { data, error } = await supabaseClient.auth.signUp({ email, password });
+            if (error) {
+                msgBox.style.color = 'var(--accent-red)';
+                msgBox.textContent = error.message;
             } else {
                 msgBox.style.color = 'var(--accent-emerald)';
-                msgBox.textContent = 'Demo Mode: Registration simulated. You may login now.';
+                msgBox.textContent = 'Account created successfully! Redirecting to login...';
+                setTimeout(() => { window.location.href = 'index.html'; }, 1200);
             }
-        });
-    }
+        } else {
+            msgBox.style.color = 'var(--accent-emerald)';
+            msgBox.textContent = 'Demo Mode: Registration simulated. You may login now.';
+        }
+    });
+}
 
     // --- C. DASHBOARD HANDLER (dashboard.html) ---
     if (document.getElementById('coinBalance')) {
