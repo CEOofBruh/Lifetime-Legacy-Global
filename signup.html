@@ -3,15 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lifetime Legacy Global | Register</title>
+    <title>Initialize Identity | Lifetime Legacy Global</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Supabase JS Client library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js" defer></script>
 </head>
 <body>
 
+    <!-- Public Site Header -->
     <header>
         <nav>
-            <div class="logo">❖ LIFETIME LEGACY GLOBAL</div>
+            <div class="logo">
+                <span>❖</span> LIFETIME LEGACY GLOBAL
+            </div>
             <ul>
                 <li><a href="index.html">Login</a></li>
                 <li><a href="signup.html" class="gold-text">Register ID</a></li>
@@ -19,68 +24,70 @@
         </nav>
     </header>
 
+    <!-- Main Split Hero Layout -->
     <main class="hero-wrapper">
         <div class="hero-container">
             
-            <!-- Left Side: Pitch -->
+            <!-- Left Info Panel -->
             <div class="hero-content">
-                <span class="hero-tag">Begin Your Onboarding</span>
+                <span class="hero-tag">Begin Your Journey</span>
                 <h1>Initialize Your <br><span class="gold-text">Associate Identity</span></h1>
                 <p class="hero-description">
-                    Join an elite tier of high-performance partners. Gain immediate access to tier-locked modules, reward structures, and corporate intelligence.
+                    Join an elite tier of high-performing partners. Gain immediate access to firm locked modules, reward structures, and corporate intelligence.
                 </p>
 
                 <div class="feature-grid">
                     <div class="feature-card">
-                        <div class="feature-icon">🛡️️</div>
+                        <span class="feature-icon">🛡️</span>
                         <div>
                             <h4>Verified Credentials</h4>
-                            <p>Direct integration into the legacy cloud ledger for seamless asset tracking.</p>
+                            <p>Direct integration into legacy ledger infrastructure for persistent reward tracking.</p>
                         </div>
                     </div>
 
                     <div class="feature-card">
-                        <div class="feature-icon">💎</div>
+                        <span class="feature-icon">⚡</span>
                         <div>
-                            <h4>Legacy Coin Distribution</h4>
-                            <p>Earn high-yield tokens upon module completion and milestone validation.</p>
+                            <h4>Legacy Code Distribution</h4>
+                            <p>Gain access to open restricted system archive nodes upon initialization.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Side: Auth Card -->
+            <!-- Right Registration Card -->
             <div class="auth-card">
                 <h2>Register Associate ID</h2>
                 <p class="subtitle">Create your credentials in the global network.</p>
 
                 <form id="signupForm">
-                    <div class="form-group">
-                        <label for="signupEmail">Associate Email Address</label>
-                        <input type="email" id="signupEmail" required placeholder="associate@legacy.com">
+                    <div class="input-group">
+                        <label for="signupEmail">ASSOCIATE EMAIL ADDRESS</label>
+                        <input type="email" id="signupEmail" placeholder="associate@domain.com" required autocomplete="email">
                     </div>
 
-                    <div class="form-group">
-                        <label for="signupPassword">Create Password</label>
-                        <input type="password" id="signupPassword" required minlength="6" placeholder="••••••••">
+                    <div class="input-group">
+                        <label for="signupPassword">CREATE PASSWORD</label>
+                        <input type="password" id="signupPassword" placeholder="••••••••" required minlength="6" autocomplete="new-password">
                     </div>
 
                     <button type="submit" class="btn-primary">Initialize Registration</button>
-                    <div id="signupMessage" class="status-message"></div>
                 </form>
 
+                <div id="signupStatus" class="status-message"></div>
+
                 <div class="auth-footer">
-                    Already registered? <a href="index.html">Login Here</a>
+                    Already an Associate? <a href="index.html">Login here</a>
                 </div>
             </div>
 
         </div>
     </main>
 
+    <!-- Footer -->
     <footer>
         <p>&copy; Lifetime Legacy Global Network. All Rights Reserved. Secretum In Unitate.</p>
     </footer>
 
-    <script src="script.js"></script>
 </body>
 </html>
