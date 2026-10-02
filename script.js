@@ -2,7 +2,7 @@
 // 1. SUPABASE INITIALIZATION
 // ==========================================
 const SUPABASE_URL = "https://clnqxwyewtzofeiyzrbk.supabase.co";
-// Replace this string with your exact fresh anon public key from Project Settings -> API
+// Paste your exact fresh anon public key below
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbnF4d3lld3R6b2ZlaXl6cmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5MTgzMzksImV4cCI6MjEwNjQ5NDMzOX0.pZa8UV-EBkI-hJmYdi4Cl406pTsC2B4WqyAyO_0f_Tg";
 
 let supabaseClient = null;
@@ -29,18 +29,25 @@ function saveLocalUserData(data) {
     localStorage.setItem('user_profile_data', JSON.stringify(updated));
 }
 
+// Helper to set status message safely without crashing on missing DOM elements
+function setStatusMessage(elementId, text, color) {
+    const el = document.getElementById(elementId);
+    if (el) {
+        el.textContent = text;
+        if (color) el.style.color = color;
+    }
+}
+
 // ==========================================
 // 3. PUZZLE / OVERRIDE CODES DATABASE
 // ==========================================
 const PUZZLE_CODES = {
-    // Decoded string target
     "LEGACY_INITIATE_2026": {
         rewardCoins: 50,
         newRank: "Silver Visionary",
         unlockedTitle: "Archive 01: Directive Memorandum",
         unlockedUrl: "archive_01.html"
     },
-    // Raw Base64 string fallback
     "TEVHQUNZX01OSVRJQVRFXzIwMjY=": {
         rewardCoins: 50,
         newRank: "Silver Visionary",
@@ -53,7 +60,6 @@ const PUZZLE_CODES = {
 // 4. SUPABASE PROFILE & LEADERBOARD API
 // ==========================================
 
-// Fetch profile data from database
 async function fetchUserProfile(userId) {
     if (!supabaseClient || !userId) {
         return getLocalUserData();
@@ -66,7 +72,6 @@ async function fetchUserProfile(userId) {
             .eq('id', userId)
             .maybeSingle();
 
-        // If row doesn't exist yet, construct and insert default row
         if (!data) {
             const { data: { user } } = await supabaseClient.auth.getUser();
             const newProfile = {
@@ -103,7 +108,6 @@ async function fetchUserProfile(userId) {
     }
 }
 
-// Save profile updates to Cloud DB and Local Storage
 async function saveUserProfile(userId, data) {
     saveLocalUserData(data);
 
@@ -133,7 +137,6 @@ async function saveUserProfile(userId, data) {
     }
 }
 
-// Fetch global leaderboard standings
 async function fetchLeaderboard() {
     const leaderboardTable = document.getElementById('leaderboardTable');
     if (!leaderboardTable || !supabaseClient) return;
@@ -179,7 +182,6 @@ async function fetchLeaderboard() {
     }
 }
 
-// Upload Avatar to Supabase Storage Bucket
 async function uploadAvatar(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -197,31 +199,24 @@ async function uploadAvatar(event) {
     const filePath = `${user.id}/avatar.${fileExt}`;
 
     try {
-        // Upload image file to 'avatars' storage bucket
         let { error: uploadError } = await supabaseClient.storage
             .from('avatars')
             .upload(filePath, file, { upsert: true });
 
         if (uploadError) throw uploadError;
 
-        // Obtain public accessible URL
         const { data: publicUrlData } = supabaseClient.storage
             .from('avatars')
             .getPublicUrl(filePath);
 
-        // Add timestamp parameter to clear browser image cache
         const avatarUrl = publicUrlData.publicUrl + '?t=' + new Date().getTime();
 
-        // Update database record
         await supabaseClient
             .from('profiles')
             .update({ avatar_url: avatarUrl })
             .eq('id', user.id);
 
-        // Update local storage
         saveLocalUserData({ avatarUrl: avatarUrl });
-
-        // Update UI
         renderAvatar(avatarUrl);
         alert("Avatar updated successfully!");
     } catch (error) {
@@ -230,7 +225,6 @@ async function uploadAvatar(event) {
     }
 }
 
-// Render Avatar Image Helper
 function renderAvatar(url) {
     const avatarImg = document.getElementById('avatarImage');
     const avatarFallback = document.getElementById('avatarFallback');
@@ -247,7 +241,6 @@ function renderAvatar(url) {
     }
 }
 
-// Render Unlocked Archives Links Helper
 function renderUnlockedArchives(unlockedPages) {
     const container = document.getElementById('unlockedLinks');
     if (!container) return;
@@ -273,13 +266,11 @@ function renderUnlockedArchives(unlockedPages) {
 document.addEventListener('DOMContentLoaded', async () => {
     let currentUser = null;
 
-    // Session Management via Supabase
     if (supabaseClient) {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (session) {
             currentUser = session.user;
         } else if (window.location.pathname.includes('dashboard.html')) {
-            // Redirect if trying to view dashboard without active session
             window.location.href = 'index.html';
             return;
         }
@@ -290,16 +281,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (signupForm) {
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('signupEmail').value.trim();
-            const password = document.getElementById('signupPassword').value;
-            const statusMsg = document.getElementById('signupStatus');
+            const emailInput = document.getElementById('signupEmail');
+            const passwordInput = document.getElementById('signupPassword');
 
-            statusMsg.style.color = 'var(--text-muted)';
-            statusMsg.textContent = 'Registering associate identity...';
+            if (!emailInput || !passwordInput) return;
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            setStatusMessage('signupStatus', 'Registering associate identity...', 'var(--text-muted)');
 
             if (!supabaseClient) {
-                statusMsg.style.color = 'var(--accent-red)';
-                statusMsg.textContent = 'Error: Supabase client not loaded.';
+                setStatusMessage('signupStatus', 'Error: Supabase client not loaded.', 'var(--accent-red)');
                 return;
             }
 
@@ -309,11 +302,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             if (error) {
-                statusMsg.style.color = 'var(--accent-red)';
-                statusMsg.textContent = error.message;
+                setStatusMessage('signupStatus', error.message, 'var(--accent-red)');
             } else {
-                statusMsg.style.color = 'var(--accent-emerald)';
-                statusMsg.textContent = 'Registration successful! Redirecting to login...';
+                setStatusMessage('signupStatus', 'Registration successful! Redirecting to login...', 'var(--accent-emerald)');
                 setTimeout(() => {
                     window.location.href = 'index.html';
                 }, 1500);
@@ -326,16 +317,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const statusMsg = document.getElementById('loginStatus');
+            const emailInput = document.getElementById('loginEmail');
+            const passwordInput = document.getElementById('loginPassword');
 
-            statusMsg.style.color = 'var(--text-muted)';
-            statusMsg.textContent = 'Authenticating clearance...';
+            if (!emailInput || !passwordInput) return;
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            setStatusMessage('loginStatus', 'Authenticating clearance...', 'var(--text-muted)');
 
             if (!supabaseClient) {
-                statusMsg.style.color = 'var(--accent-red)';
-                statusMsg.textContent = 'Error: Supabase client not loaded.';
+                setStatusMessage('loginStatus', 'Error: Supabase client not loaded.', 'var(--accent-red)');
                 return;
             }
 
@@ -345,11 +338,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             if (error) {
-                statusMsg.style.color = 'var(--accent-red)';
-                statusMsg.textContent = error.message;
+                setStatusMessage('loginStatus', error.message, 'var(--accent-red)');
             } else {
-                statusMsg.style.color = 'var(--accent-emerald)';
-                statusMsg.textContent = 'Access granted. Opening portal...';
+                setStatusMessage('loginStatus', 'Access granted. Opening portal...', 'var(--accent-emerald)');
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
                 }, 1000);
@@ -363,22 +354,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         if (currentUser) {
             const userHandle = currentUser.email ? currentUser.email.split('@')[0] : 'Associate';
-            document.getElementById('navUser').textContent = currentUser.email;
-            document.getElementById('profileName').textContent = userHandle;
+            const navUser = document.getElementById('navUser');
+            const profileName = document.getElementById('profileName');
+            
+            if (navUser) navUser.textContent = currentUser.email;
+            if (profileName) profileName.textContent = userHandle;
         }
 
-        // Fetch User Profile Data
         const profile = await fetchUserProfile(userId);
 
-        // Update DOM elements
-        document.getElementById('coinBalance').textContent = profile.coins;
-        document.getElementById('profileRank').textContent = profile.rank;
+        const coinBalance = document.getElementById('coinBalance');
+        const profileRank = document.getElementById('profileRank');
+
+        if (coinBalance) coinBalance.textContent = profile.coins;
+        if (profileRank) profileRank.textContent = profile.rank;
         
-        // Render Avatar & Unlocked Archives
         renderAvatar(profile.avatarUrl);
         renderUnlockedArchives(profile.unlockedPages);
-
-        // Fetch Leaderboard
         fetchLeaderboard();
     }
 
@@ -389,9 +381,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             e.preventDefault();
             const inputField = document.getElementById('answerInput');
             const feedback = document.getElementById('quizFeedback');
+            if (!inputField || !feedback) return;
+
             const userKey = inputField.value.trim().toUpperCase();
 
-            // Find matching puzzle rule
             const matchedKey = Object.keys(PUZZLE_CODES).find(
                 key => key.toUpperCase() === userKey
             );
@@ -401,7 +394,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const userId = currentUser ? currentUser.id : null;
                 const currentProfile = await fetchUserProfile(userId);
 
-                // Check if key/archive has already been claimed
                 const alreadyUnlocked = currentProfile.unlockedPages.some(
                     p => p.url === puzzleData.unlockedUrl
                 );
@@ -412,7 +404,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return;
                 }
 
-                // Award points & unlock page
                 const updatedCoins = currentProfile.coins + puzzleData.rewardCoins;
                 const updatedRank = puzzleData.newRank || currentProfile.rank;
                 const updatedUnlocked = [
@@ -427,15 +418,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                     avatarUrl: currentProfile.avatarUrl
                 };
 
-                // Save to Cloud & Local Storage
                 await saveUserProfile(userId, updatedProfile);
 
-                // Update UI state
-                document.getElementById('coinBalance').textContent = updatedCoins;
-                document.getElementById('profileRank').textContent = updatedRank;
-                renderUnlockedArchives(updatedUnlocked);
+                const coinBalance = document.getElementById('coinBalance');
+                const profileRank = document.getElementById('profileRank');
 
-                // Re-fetch global leaderboard
+                if (coinBalance) coinBalance.textContent = updatedCoins;
+                if (profileRank) profileRank.textContent = updatedRank;
+
+                renderUnlockedArchives(updatedUnlocked);
                 fetchLeaderboard();
 
                 feedback.style.color = "var(--accent-emerald)";
@@ -458,73 +449,5 @@ document.addEventListener('DOMContentLoaded', async () => {
             localStorage.clear();
             window.location.href = 'index.html';
         });
-    }
-});
-
-document.addEventListener('DOMContentLoaded', async () => {
-    console.log("Script loaded and DOM ready.");
-
-    // Sign Up Form Handler (signup.html)
-    const signupForm = document.getElementById('signupForm');
-    
-    if (signupForm) {
-        console.log("Signup form found! Attaching submit listener.");
-
-        signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            console.log("Signup submit event triggered!");
-
-            const emailInput = document.getElementById('signupEmail');
-            const passwordInput = document.getElementById('signupPassword');
-            const statusMsg = document.getElementById('signupStatus');
-
-            if (!emailInput || !passwordInput) {
-                console.error("Email or Password input fields missing from HTML!");
-                return;
-            }
-
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
-
-            if (statusMsg) {
-                statusMsg.style.color = 'var(--text-muted)';
-                statusMsg.textContent = 'Registering associate identity...';
-            }
-
-            if (!supabaseClient) {
-                console.error("Supabase client is null or failed to initialize!");
-                if (statusMsg) {
-                    statusMsg.style.color = 'var(--accent-red)';
-                    statusMsg.textContent = 'Error: Supabase client not initialized.';
-                }
-                return;
-            }
-
-            console.log("Attempting Supabase signUp for:", email);
-
-            const { data, error } = await supabaseClient.auth.signUp({
-                email,
-                password
-            });
-
-            if (error) {
-                console.error("Supabase Signup Error:", error);
-                if (statusMsg) {
-                    statusMsg.style.color = 'var(--accent-red)';
-                    statusMsg.textContent = error.message;
-                }
-            } else {
-                console.log("Signup successful:", data);
-                if (statusMsg) {
-                    statusMsg.style.color = 'var(--accent-emerald)';
-                    statusMsg.textContent = 'Registration successful! Redirecting to login...';
-                }
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1500);
-            }
-        });
-    } else {
-        console.warn("signupForm not found on this page.");
     }
 });
