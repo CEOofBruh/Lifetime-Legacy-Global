@@ -29,9 +29,19 @@
         <!-- Left Sidebar -->
         <aside class="dashboard-sidebar">
             <div class="profile-card">
-                <div class="avatar-circle">
-                    <span class="avatar-icon">👤</span>
+                
+                <!-- Interactive Upload Avatar Container -->
+                <div class="avatar-container" onclick="document.getElementById('avatarFileInput').click();" title="Click to upload custom avatar">
+                    <div class="avatar-circle" id="avatarDisplay">
+                        <span class="avatar-icon" id="avatarFallback">👤</span>
+                        <img id="avatarImage" src="" alt="Avatar" style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
+                    </div>
+                    <div class="avatar-overlay">📷 Upload</div>
                 </div>
+
+                <!-- Hidden Input Element -->
+                <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="uploadAvatar(event)">
+
                 <h2 id="profileName" class="profile-handle">Associate</h2>
                 <div class="rank-badge" id="profileRank">Bronze Initiate</div>
                 
@@ -60,6 +70,12 @@
                 <p class="card-subtitle">
                     Input authorization override keys below to authenticate system clearance and acquire network credits.
                 </p>
+
+                <!-- Encrypted Base64 Clue Banner -->
+                <div class="puzzle-hint-box">
+                    <span class="puzzle-hint-header">[TRANSMISSION INTERCEPT - ENCRYPTED KEY]</span>
+                    <code class="puzzle-hint-code">TEVHQUNZX01OSVRJQVRFXzIwMjY=</code>
+                </div>
                 
                 <form id="quizForm" class="terminal-form">
                     <div class="input-group-inline">
