@@ -8,7 +8,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_ioU2uiw5NZqp8ShkzkYOHA_cxRXKJyx';
 const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 // ==========================================
-// 2. STATE MANAGEMENT & LOCAL STORAGE
+// 2. STATE MANAGEMENT (SUPABASE + LOCALSTORAGE)
 // ==========================================
 const DEFAULT_USER_DATA = {
     coins: 0,
@@ -16,12 +16,67 @@ const DEFAULT_USER_DATA = {
     unlockedPages: []
 };
 
-function getUserData() {
+// Fetch user profile from Supabase Database (or fallback to localStorage)
+async function fetchUserProfile(userId) {
+    if (!supabaseClient || !userId) {
+        return getLocalUserData();
+    }
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('profiles')
+            .select('coins, rank, unlocked_pages')
+            .eq('id', userId)
+            .single();
+
+        if (error || !data) {
+            console.warn("Could not fetch profile from Supabase, loading local state:", error);
+            return getLocalUserData();
+        }
+
+        const formattedData = {
+            coins: data.coins || 0,
+            rank: data.rank || "Bronze Initiate",
+            unlockedPages: data.unlocked_pages || []
+        };
+
+        // Cache locally for offline/fast access
+        saveLocalUserData(formattedData);
+        return formattedData;
+    } catch (e) {
+        return getLocalUserData();
+    }
+}
+
+// Save/Update user profile in Supabase Database and localStorage
+async function saveUserProfile(userId, data) {
+    saveLocalUserData(data);
+
+    if (supabaseClient && userId) {
+        try {
+            const { error } = await supabaseClient
+                .from('profiles')
+                .update({
+                    coins: data.coins,
+                    rank: data.rank,
+                    unlocked_pages: data.unlockedPages,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', userId);
+
+            if (error) console.error("Error updating cloud profile:", error);
+        } catch (e) {
+            console.error("Cloud save failed:", e);
+        }
+    }
+}
+
+function getLocalUserData() {
     const saved = localStorage.getItem('llg_user_data');
     return saved ? JSON.parse(saved) : { ...DEFAULT_USER_DATA };
 }
 
-function saveUserData(data) {
+function saveLocalUserData(data) {
     localStorage.setItem('llg_user_data', JSON.stringify(data));
 }
 
@@ -118,12 +173,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- C. DASHBOARD HANDLER (dashboard.html) ---
     if (document.getElementById('coinBalance')) {
-        updateDashboardUI(sessionUser);
+        const userId = sessionUser ? sessionUser.id : null;
+        
+        // Load persistent profile from cloud
+        let userData = await fetchUserProfile(userId);
+        updateDashboardUI(sessionUser, userData);
 
         // System Verification Terminal Form Submissions
         const quizForm = document.getElementById('quizForm');
         if (quizForm) {
-            quizForm.addEventListener('submit', (e) => {
+            quizForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const input = document.getElementById('answerInput');
                 const feedback = document.getElementById('quizFeedback');
@@ -131,7 +190,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 if (PUZZLE_CODES[codeKey]) {
                     const reward = PUZZLE_CODES[codeKey];
-                    let userData = getUserData();
+                    
+                    // Reload latest profile before updating
+                    userData = await fetchUserProfile(userId);
 
                     const alreadyUnlocked = userData.unlockedPages.some(p => p.url === reward.unlockedUrl);
 
@@ -146,8 +207,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                             url: reward.unlockedUrl
                         });
 
-                        saveUserData(userData);
-                        updateDashboardUI(sessionUser);
+                        // Save directly to cloud DB
+                        await saveUserProfile(userId, userData);
+                        updateDashboardUI(sessionUser, userData);
 
                         feedback.style.color = 'var(--accent-emerald)';
                         feedback.textContent = `Key Verified. Awarded ${reward.rewardCoins} LC. Rank updated to ${reward.newRank}.`;
@@ -169,6 +231,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     await supabaseClient.auth.signOut();
                 }
                 localStorage.removeItem('llg_bypass_auth');
+                localStorage.removeItem('llg_user_data');
                 window.location.href = 'index.html';
             });
         }
@@ -178,8 +241,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ==========================================
 // 5. DASHBOARD UI RENDERER
 // ==========================================
-function updateDashboardUI(user) {
-    const userData = getUserData();
+function updateDashboardUI(user, userData) {
     const userEmail = user ? user.email : (localStorage.getItem('llg_bypass_auth') || 'associate@legacy.com');
     const username = userEmail.split('@')[0];
 
@@ -202,7 +264,7 @@ function updateDashboardUI(user) {
 
     const unlockedContainer = document.getElementById('unlockedLinks');
     if (unlockedContainer) {
-        if (userData.unlockedPages.length === 0) {
+        if (!userData.unlockedPages || userData.unlockedPages.length === 0) {
             unlockedContainer.innerHTML = `<p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">No restricted archives unlocked yet.</p>`;
         } else {
             unlockedContainer.innerHTML = userData.unlockedPages.map(page => 
