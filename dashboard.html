@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Associate Portal | Lifetime Legacy Global</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-body">
+
+    <header>
+        <div class="logo">LIFETIME <span>LEGACY</span> PORTAL</div>
+        <div class="user-status">
+            <span id="navUser">Associate</span> | 
+            <span class="coin-badge">💰 <span id="coinBalance">0</span> Legacy Coins</span>
+            <button id="logoutBtn" class="btn-sm">Sign Out</button>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="profile-card">
+                <div class="avatar">👁️</div>
+                <h3 id="profileName">Associate Name</h3>
+                <p class="rank-title" id="profileRank">Bronze Initiate</p>
+            </div>
+            <nav class="side-nav">
+                <a href="#courses" class="active">📚 Ascension Courses</a>
+                <a href="#submit">🔑 Submit Verification Code</a>
+                <a href="#leaderboard">🏆 Top Performers</a>
+                <div id="unlockedLinks"></div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+
+            <section id="courses" class="dash-section">
+                <h2>Ascension Training Modules</h2>
+                <p class="section-desc">Complete modules and enter verification answers to earn Legacy Coins and advance your tier.</p>
+                
+                <div class="course-grid">
+                    <div class="course-card unlocked" id="card-m1">
+                        <span class="badge status-unlocked">UNLOCKED</span>
+                        <h3>Module 1: The Mindset Matrix</h3>
+                        <p>Deconstruct limiting financial beliefs and integrate the Lifetime Paradigm.</p>
+                        <p class="clue-text"><em>Hint: Inspect the foundation to find what lies beneath.</em></p>
+                    </div>
+
+                    <div class="course-card locked" id="card-m2">
+                        <span class="badge status-locked" id="badge-m2">LOCKED (Requires 100 Coins)</span>
+                        <h3>Module 2: Downline Architecture</h3>
+                        <p>Learn how to recruit sub-nodes into your personal yield network.</p>
+                        <p class="clue-text"><em>Code hint word: "pioneer"</em></p>
+                    </div>
+
+                    <div class="course-card locked" id="card-m3">
+                        <span class="badge status-locked">LOCKED (Requires 250 Coins)</span>
+                        <h3>Module 3: Subliminal Alignment</h3>
+                        <p>[REDACTED INSTRUCTIONAL DATA]</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="submit" class="dash-section card-box">
+                <h2>Module Verification & Code Submission</h2>
+                <p>Found an answer inside a training course or source file? Submit the key below to claim Legacy Coins.</p>
+                
+                <form id="quizForm" class="inline-form">
+                    <input type="text" id="answerInput" placeholder="Enter solution key..." required>
+                    <button type="submit" class="submit-btn">Verify Key</button>
+                </form>
+                <div id="quizFeedback" class="feedback-msg"></div>
+            </section>
+
+            <section id="leaderboard" class="dash-section">
+                <h2>Global Performance Leaderboard</h2>
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Associate Name</th>
+                            <th>Tier</th>
+                            <th>Total Coins</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody">
+                        <tr>
+                            <td>1</td>
+                            <td>Victoria Vance</td>
+                            <td>Diamond Paragon</td>
+                            <td>999,990</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Chadwick Thorne</td>
+                            <td>Emerald Executive</td>
+                            <td>450,200</td>
+                        </tr>
+                        <tr class="user-row">
+                            <td>40,192</td>
+                            <td id="lbUserName">You</td>
+                            <td id="lbUserRank">Bronze Initiate</td>
+                            <td id="lbUserCoins">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
