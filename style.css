@@ -30,17 +30,7 @@ body {
     flex-direction: column;
 }
 
-/* Glassmorphism Card Utility */
-.glass-panel {
-    background: var(--glass-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-}
-
-/* Navigation Bar */
+/* Header & Navigation */
 header {
     background: rgba(10, 14, 23, 0.7);
     backdrop-filter: blur(12px);
@@ -87,15 +77,90 @@ nav a:hover {
     color: var(--accent-gold);
 }
 
-/* Auth Pages Container */
-.auth-container {
+/* Split Hero Landing & Auth Container */
+.hero-wrapper {
     flex: 1;
     display: flex;
-    justify-content: center;
     align-items: center;
-    padding: 2rem;
+    justify-content: center;
+    padding: 3rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
 }
 
+.hero-container {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 3rem;
+    align-items: center;
+    width: 100%;
+}
+
+.hero-tag {
+    color: var(--accent-gold);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.hero-content h1 {
+    font-size: 2.8rem;
+    line-height: 1.2;
+    margin: 0.8rem 0;
+}
+
+.gold-text {
+    color: var(--accent-gold);
+    text-shadow: 0 0 15px var(--accent-gold-glow);
+}
+
+.hero-description {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+/* Feature Cards inside Hero */
+.feature-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.feature-card {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1.2rem;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+}
+
+.feature-icon {
+    font-size: 1.4rem;
+    background: rgba(212, 175, 55, 0.1);
+    padding: 0.5rem;
+    border-radius: 8px;
+}
+
+.feature-card h4 {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    margin-bottom: 0.2rem;
+}
+
+.feature-card p {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+/* Auth Glass Card */
 .auth-card {
     background: var(--glass-bg);
     backdrop-filter: blur(20px);
@@ -105,7 +170,6 @@ nav a:hover {
     border-radius: 20px;
     padding: 3rem 2.5rem;
     width: 100%;
-    max-width: 420px;
     text-align: center;
 }
 
@@ -154,7 +218,7 @@ nav a:hover {
     background: rgba(255, 255, 255, 0.08);
 }
 
-/* Buttons */
+/* Form Buttons */
 .btn-primary {
     width: 100%;
     padding: 0.9rem;
@@ -187,7 +251,7 @@ nav a:hover {
     font-weight: 600;
 }
 
-/* Dashboard Layout */
+/* Dashboard Grid Layout */
 .dashboard-grid {
     max-width: 1200px;
     margin: 2rem auto;
@@ -195,6 +259,7 @@ nav a:hover {
     display: grid;
     grid-template-columns: 1fr 3fr;
     gap: 2rem;
+    width: 100%;
 }
 
 .sidebar-panel, .main-panel {
@@ -212,7 +277,7 @@ nav a:hover {
     padding: 1.5rem;
 }
 
-/* Status & Stats */
+/* Stats, Status & Badges */
 .stat-box {
     text-align: center;
     padding: 1rem;
@@ -228,7 +293,6 @@ nav a:hover {
     text-shadow: 0 0 10px var(--accent-gold-glow);
 }
 
-/* Badges & Unlocked Links */
 .badge {
     display: inline-block;
     padding: 0.3rem 0.8rem;
@@ -268,7 +332,6 @@ nav a:hover {
     box-shadow: 0 0 15px var(--accent-gold-glow);
 }
 
-/* Messages */
 .status-message {
     margin-top: 1rem;
     font-size: 0.85rem;
@@ -284,88 +347,14 @@ footer {
     margin-top: auto;
 }
 
-/* Split Layout for Hero Page */
-.hero-wrapper {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 1.5rem;
-}
-
-.hero-container {
-    max-width: 1200px;
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    gap: 4rem;
-    align-items: center;
-}
-
-.hero-tag {
-    color: var(--accent-gold);
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-.hero-content h1 {
-    font-size: 2.8rem;
-    line-height: 1.2;
-    margin: 0.8rem 0;
-}
-
-.gold-text {
-    color: var(--accent-gold);
-    text-shadow: 0 0 15px var(--accent-gold-glow);
-}
-
-.hero-description {
-    color: var(--text-muted);
-    font-size: 1.05rem;
-    margin-bottom: 2rem;
-    line-height: 1.6;
-}
-
-/* Features */
-.feature-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 1.2rem;
-}
-
-.feature-card {
-    display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-}
-
-.feature-icon {
-    font-size: 1.4rem;
-    background: rgba(212, 175, 55, 0.1);
-    padding: 0.5rem;
-    border-radius: 8px;
-}
-
-.feature-card h4 {
-    color: var(--text-primary);
-    font-size: 0.95rem;
-    margin-bottom: 0.2rem;
-}
-
-.feature-card p {
-    color: var(--text-muted);
-    font-size: 0.85rem;
-}
-
+/* Mobile Breakpoints */
 @media (max-width: 900px) {
     .hero-container {
         grid-template-columns: 1fr;
         gap: 2.5rem;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
     }
 }
