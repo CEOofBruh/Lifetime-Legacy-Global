@@ -4,7 +4,6 @@
 const SUPABASE_URL = 'https://clnqxwyewtzofeiyzrbk.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbnF4d3lld3R6b2ZlaXl6cmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5MTgzMzksImV4cCI6MjEwNjQ5NDMzOX0.pZa8UV-EBkI-hJmYdi4Cl406pTsC2B4WqyAyO_0f_Tg';
 
-// 'supabaseClient' prevents namespace collisions with window.supabase
 const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
         persistSession: true,
@@ -13,7 +12,7 @@ const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_U
 }) : null;
 
 // ==========================================
-// 2. STATE MANAGEMENT (SUPABASE + LOCALSTORAGE)
+// 2. STATE MANAGEMENT & LEADERBOARD FETCHING
 // ==========================================
 const DEFAULT_USER_DATA = {
     coins: 0,
@@ -21,7 +20,30 @@ const DEFAULT_USER_DATA = {
     unlockedPages: []
 };
 
-// Fetch user profile from Supabase Database (or fallback to localStorage)
+// Fetch Top 10 Profiles from Supabase for Global Leaderboard
+async function fetchLeaderboard() {
+    if (!supabaseClient) return [];
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('profiles')
+            .select('email, rank, coins')
+            .order('coins', { ascending: false })
+            .limit(10);
+
+        if (error) {
+            console.error("Error fetching leaderboard:", error);
+            return [];
+        }
+
+        return data || [];
+    } catch (e) {
+        console.error("Leaderboard fetch failed:", e);
+        return [];
+    }
+}
+
+// Fetch user profile from Supabase Database
 async function fetchUserProfile(userId) {
     if (!supabaseClient || !userId) {
         return getLocalUserData();
@@ -35,7 +57,6 @@ async function fetchUserProfile(userId) {
             .single();
 
         if (error || !data) {
-            console.warn("Could not fetch profile from Supabase, loading local state:", error);
             return getLocalUserData();
         }
 
@@ -45,7 +66,6 @@ async function fetchUserProfile(userId) {
             unlockedPages: data.unlocked_pages || []
         };
 
-        // Cache locally for fast access
         saveLocalUserData(formattedData);
         return formattedData;
     } catch (e) {
@@ -53,13 +73,13 @@ async function fetchUserProfile(userId) {
     }
 }
 
-// Save/Update user profile in Supabase Database and localStorage
+// Save profile updates to Cloud DB and Local Storage
 async function saveUserProfile(userId, data) {
     saveLocalUserData(data);
 
     if (supabaseClient && userId) {
         try {
-            const { error } = await supabaseClient
+            await supabaseClient
                 .from('profiles')
                 .update({
                     coins: data.coins,
@@ -68,8 +88,6 @@ async function saveUserProfile(userId, data) {
                     updated_at: new Date().toISOString()
                 })
                 .eq('id', userId);
-
-            if (error) console.error("Error updating cloud profile:", error);
         } catch (e) {
             console.error("Cloud save failed:", e);
         }
@@ -98,11 +116,9 @@ const PUZZLE_CODES = {
 };
 
 // ==========================================
-// 4. DOM INITIALIZATION
+// 4. DOM INITIALIZATION & EVENT HANDLERS
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
-    
-    // Check Active Session for Dashboard Protection
     let sessionUser = null;
     if (supabaseClient) {
         const { data: { session } } = await supabaseClient.auth.getSession();
@@ -111,7 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const currentPage = window.location.pathname.split('/').pop();
 
-    // Protect Dashboard Page
+    // Route Guard for Dashboard
     if (currentPage === 'dashboard.html' && !sessionUser && !localStorage.getItem('llg_bypass_auth')) {
         if (supabaseClient) {
             window.location.href = 'index.html';
@@ -149,43 +165,42 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // --- B. SIGNUP FORM HANDLER (signup.html) ---
-const signupForm = document.getElementById('signupForm');
-if (signupForm) {
-    signupForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('signupEmail').value;
-        const password = document.getElementById('signupPassword').value;
-        const msgBox = document.getElementById('signupMessage');
+    const signupForm = document.getElementById('signupForm');
+    if (signupForm) {
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const msgBox = document.getElementById('signupMessage');
 
-        msgBox.style.color = 'var(--text-muted)';
-        msgBox.textContent = 'Initializing associate profile...';
+            msgBox.style.color = 'var(--text-muted)';
+            msgBox.textContent = 'Initializing associate profile...';
 
-        if (supabaseClient) {
-            const { data, error } = await supabaseClient.auth.signUp({ email, password });
-            if (error) {
-                msgBox.style.color = 'var(--accent-red)';
-                msgBox.textContent = error.message;
+            if (supabaseClient) {
+                const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                if (error) {
+                    msgBox.style.color = 'var(--accent-red)';
+                    msgBox.textContent = error.message;
+                } else {
+                    msgBox.style.color = 'var(--accent-emerald)';
+                    msgBox.textContent = 'Account created successfully! Redirecting to login...';
+                    setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+                }
             } else {
                 msgBox.style.color = 'var(--accent-emerald)';
-                msgBox.textContent = 'Account created successfully! Redirecting to login...';
-                setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+                msgBox.textContent = 'Demo Mode: Registration simulated. You may login now.';
             }
-        } else {
-            msgBox.style.color = 'var(--accent-emerald)';
-            msgBox.textContent = 'Demo Mode: Registration simulated. You may login now.';
-        }
-    });
-}
+        });
+    }
 
     // --- C. DASHBOARD HANDLER (dashboard.html) ---
     if (document.getElementById('coinBalance')) {
         const userId = sessionUser ? sessionUser.id : null;
         
-        // Load persistent profile from cloud
         let userData = await fetchUserProfile(userId);
-        updateDashboardUI(sessionUser, userData);
+        await updateDashboardUI(sessionUser, userData);
 
-        // System Verification Terminal Form Submissions
+        // Terminal Verification Key Submissions
         const quizForm = document.getElementById('quizForm');
         if (quizForm) {
             quizForm.addEventListener('submit', async (e) => {
@@ -197,9 +212,7 @@ if (signupForm) {
                 if (PUZZLE_CODES[codeKey]) {
                     const reward = PUZZLE_CODES[codeKey];
                     
-                    // Reload latest profile before updating
                     userData = await fetchUserProfile(userId);
-
                     const alreadyUnlocked = userData.unlockedPages.some(p => p.url === reward.unlockedUrl);
 
                     if (alreadyUnlocked) {
@@ -213,9 +226,8 @@ if (signupForm) {
                             url: reward.unlockedUrl
                         });
 
-                        // Save directly to cloud DB
                         await saveUserProfile(userId, userData);
-                        updateDashboardUI(sessionUser, userData);
+                        await updateDashboardUI(sessionUser, userData);
 
                         feedback.style.color = 'var(--accent-emerald)';
                         feedback.textContent = `Key Verified. Awarded ${reward.rewardCoins} LC. Rank updated to ${reward.newRank}.`;
@@ -247,7 +259,7 @@ if (signupForm) {
 // ==========================================
 // 5. DASHBOARD UI RENDERER
 // ==========================================
-function updateDashboardUI(user, userData) {
+async function updateDashboardUI(user, userData) {
     const userEmail = user ? user.email : (localStorage.getItem('llg_bypass_auth') || 'associate@legacy.com');
     const username = userEmail.split('@')[0];
 
@@ -255,19 +267,13 @@ function updateDashboardUI(user, userData) {
     const profileName = document.getElementById('profileName');
     const profileRank = document.getElementById('profileRank');
     const coinBalance = document.getElementById('coinBalance');
-    const lbUserName = document.getElementById('lbUserName');
-    const lbUserRank = document.getElementById('lbUserRank');
-    const lbUserCoins = document.getElementById('lbUserCoins');
 
     if (navUser) navUser.textContent = userEmail;
     if (profileName) profileName.textContent = username;
     if (profileRank) profileRank.textContent = userData.rank;
     if (coinBalance) coinBalance.textContent = userData.coins;
-    
-    if (lbUserName) lbUserName.textContent = username;
-    if (lbUserRank) lbUserRank.textContent = userData.rank;
-    if (lbUserCoins) lbUserCoins.textContent = userData.coins;
 
+    // Render Unlocked Restricted Archives
     const unlockedContainer = document.getElementById('unlockedLinks');
     if (unlockedContainer) {
         if (!userData.unlockedPages || userData.unlockedPages.length === 0) {
@@ -279,9 +285,34 @@ function updateDashboardUI(user, userData) {
         }
     }
 
-    const cardM2 = document.getElementById('card-m2');
+    // Render Dynamic Leaderboard Table from Supabase
+    const leaderboardContainer = document.getElementById('leaderboardTable');
+    if (leaderboardContainer) {
+        const topProfiles = await fetchLeaderboard();
+
+        if (topProfiles.length === 0) {
+            leaderboardContainer.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--text-muted);">No associate standings recorded yet.</td></tr>`;
+        } else {
+            leaderboardContainer.innerHTML = topProfiles.map((profile, index) => {
+                const associateHandle = profile.email ? profile.email.split('@')[0] : 'classified_associate';
+                const isCurrentUser = user && user.email === profile.email;
+                const highlightStyle = isCurrentUser ? 'style="background: rgba(212, 175, 55, 0.15); font-weight: bold;"' : '';
+
+                return `
+                    <tr ${highlightStyle}>
+                        <td>#${index + 1}</td>
+                        <td>${associateHandle} ${isCurrentUser ? '(You)' : ''}</td>
+                        <td>${profile.rank || 'Bronze Initiate'}</td>
+                        <td>${profile.coins || 0} LC</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+    }
+
+    // Modules Access State
     const badgeM2 = document.getElementById('badge-m2');
-    if (cardM2 && badgeM2 && userData.coins >= 100) {
+    if (badgeM2 && userData.coins >= 100) {
         badgeM2.className = 'badge status-unlocked';
         badgeM2.textContent = 'ACCESSIBLE';
     }
