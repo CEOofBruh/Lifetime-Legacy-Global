@@ -2,7 +2,8 @@
 // 1. SUPABASE INITIALIZATION
 // ==========================================
 const SUPABASE_URL = "https://clnqxwyewtzofeiyzrbk.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbnF4d3lld3R6b2ZlaXl6cmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5MTgzMzksImV4cCI6MjEwNjQ5NDMzOX0.pZa8UV-EBkI-hJmYdi4Cl406pTsC2B4WqyAyO_0f_Tg"; // Replace with your exact anon key if different
+// Replace this string with your exact fresh anon public key from Project Settings -> API
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbnF4d3lld3R6b2ZlaXl6cmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5MTgzMzksImV4cCI6MjEwNjQ5NDMzOX0.pZa8UV-EBkI-hJmYdi4Cl406pTsC2B4WqyAyO_0f_Tg";
 
 let supabaseClient = null;
 if (typeof supabase !== 'undefined') {
@@ -49,7 +50,7 @@ const PUZZLE_CODES = {
 };
 
 // ==========================================
-// 4. SUPABASE PROFILE API INTERACTIONS
+// 4. SUPABASE PROFILE & LEADERBOARD API
 // ==========================================
 
 // Fetch profile data from database
@@ -267,7 +268,7 @@ function renderUnlockedArchives(unlockedPages) {
 }
 
 // ==========================================
-// 5. INITIALIZATION & EVEN LISTENERS
+// 5. EVENT LISTENERS & INITIALIZATION
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
     let currentUser = null;
@@ -282,6 +283,78 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.location.href = 'index.html';
             return;
         }
+    }
+
+    // Sign Up Form Handler (signup.html)
+    const signupForm = document.getElementById('signupForm');
+    if (signupForm) {
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const statusMsg = document.getElementById('signupStatus');
+
+            statusMsg.style.color = 'var(--text-muted)';
+            statusMsg.textContent = 'Registering associate identity...';
+
+            if (!supabaseClient) {
+                statusMsg.style.color = 'var(--accent-red)';
+                statusMsg.textContent = 'Error: Supabase client not loaded.';
+                return;
+            }
+
+            const { data, error } = await supabaseClient.auth.signUp({
+                email,
+                password
+            });
+
+            if (error) {
+                statusMsg.style.color = 'var(--accent-red)';
+                statusMsg.textContent = error.message;
+            } else {
+                statusMsg.style.color = 'var(--accent-emerald)';
+                statusMsg.textContent = 'Registration successful! Redirecting to login...';
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            }
+        });
+    }
+
+    // Login Form Handler (index.html)
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const statusMsg = document.getElementById('loginStatus');
+
+            statusMsg.style.color = 'var(--text-muted)';
+            statusMsg.textContent = 'Authenticating clearance...';
+
+            if (!supabaseClient) {
+                statusMsg.style.color = 'var(--accent-red)';
+                statusMsg.textContent = 'Error: Supabase client not loaded.';
+                return;
+            }
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            if (error) {
+                statusMsg.style.color = 'var(--accent-red)';
+                statusMsg.textContent = error.message;
+            } else {
+                statusMsg.style.color = 'var(--accent-emerald)';
+                statusMsg.textContent = 'Access granted. Opening portal...';
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
+            }
+        });
     }
 
     // Initialize Dashboard UI if on dashboard.html
