@@ -1,33 +1,118 @@
-document.addEventListener("DOMContentLoaded", () => {
-    // 1. Initialize or Load User Data
-    let userData = JSON.parse(localStorage.getItem("llg_user")) || {
-        username: "Guest_Associate",
-        coins: 0,
-        rank: "Bronze Initiate",
-        solvedCodes: [],
-        unlockedPages: []
-    };
+// Supabase Project Credentials
+const SUPABASE_URL = "https://ioU2uiw5NZqp8ShkzkYOHA.supabase.co"; // Update with full URL if different
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ioU2uiw5NZqp8ShkzkYOHA_cxRXKJyx";
 
-    console.log("%c Lifetime Legacy Global - System Terminal v4.09 ", "background: #c5a059; color: #000; font-weight: bold;");
-    console.log("%c WARNING: Unencrypted node detected. Session monitoring active.", "color: #ef4444;");
+// Initialize Supabase Client
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
-    updateDashboardUI();
+let isSignUpMode = false;
+let currentUser = null;
 
-    // 2. Handle Login Submission on Landing Page
-    const loginForm = document.getElementById("loginForm");
-    if (loginForm) {
-        loginForm.addEventListener("submit", (e) => {
+// User Profile State (persisted per session in localStorage / ready for database integration)
+let userData = {
+    coins: 0,
+    rank: "Bronze Initiate",
+    solvedCodes: [],
+    unlockedPages: []
+};
+
+document.addEventListener("DOMContentLoaded", async () => {
+    
+    // Check current path
+    const isDashboard = window.location.pathname.includes("dashboard.html");
+
+    // Check for Active Supabase Session
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (isDashboard) {
+        if (!session) {
+            // Unauthenticated users are sent back to login page
+            window.location.href = "index.html";
+            return;
+        }
+        currentUser = session.user;
+        loadUserData();
+        updateDashboardUI();
+    } else if (session && !isDashboard) {
+        // If already logged in on index page, skip login and direct to dashboard
+        const loginForm = document.getElementById("authForm");
+        if (loginForm) {
+            window.location.href = "dashboard.html";
+            return;
+        }
+    }
+
+    // 1. Toggle Login / Register Modes on index.html
+    const toggleAuthMode = document.getElementById("toggleAuthMode");
+    const authTitle = document.getElementById("authTitle");
+    const authSubtitle = document.getElementById("authSubtitle");
+    const submitBtn = document.getElementById("submitBtn");
+    const toggleQuestion = document.getElementById("toggleQuestion");
+    const authMessage = document.getElementById("authMessage");
+
+    if (toggleAuthMode) {
+        toggleAuthMode.addEventListener("click", (e) => {
             e.preventDefault();
-            const usernameInput = document.getElementById("username").value.trim();
-            if (usernameInput) {
-                userData.username = usernameInput;
-                localStorage.setItem("llg_user", JSON.stringify(userData));
-                window.location.href = "dashboard.html";
+            isSignUpMode = !isSignUpMode;
+
+            if (isSignUpMode) {
+                authTitle.textContent = "Register Associate ID";
+                authSubtitle.textContent = "Create your account credentials in the global network.";
+                submitBtn.textContent = "Initialize Registration";
+                toggleQuestion.textContent = "Already registered?";
+                toggleAuthMode.textContent = "Login Here";
+            } else {
+                authTitle.textContent = "Associate Access Portal";
+                authSubtitle.textContent = "Authenticate with your Associate Credentials.";
+                submitBtn.textContent = "Authenticate Session";
+                toggleQuestion.textContent = "Need an Associate ID?";
+                toggleAuthMode.textContent = "Register Here";
+            }
+            if (authMessage) authMessage.textContent = "";
+        });
+    }
+
+    // 2. Handle Login / Sign Up Submission
+    const authForm = document.getElementById("authForm");
+    if (authForm) {
+        authForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            authMessage.style.color = "#c5a059";
+            authMessage.textContent = "Processing payload...";
+
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+
+            if (isSignUpMode) {
+                // Real Supabase Sign Up
+                const { data, error } = await supabase.auth.signUp({ email, password });
+
+                if (error) {
+                    authMessage.style.color = "#ef4444";
+                    authMessage.textContent = error.message;
+                } else {
+                    authMessage.style.color = "#10b981";
+                    authMessage.textContent = "Associate Account Created! You can now log in.";
+                }
+            } else {
+                // Real Supabase Login
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+                if (error) {
+                    authMessage.style.color = "#ef4444";
+                    authMessage.textContent = error.message;
+                } else {
+                    authMessage.style.color = "#10b981";
+                    authMessage.textContent = "Session Authenticated! Redirecting...";
+                    setTimeout(() => {
+                        window.location.href = "dashboard.html";
+                    }, 1000);
+                }
             }
         });
     }
 
-    // 3. Handle Quiz / Code Submissions
+    // 3. Handle ARG Code / Verification Submissions on Dashboard
     const quizForm = document.getElementById("quizForm");
     const quizFeedback = document.getElementById("quizFeedback");
 
@@ -36,7 +121,6 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             const answer = document.getElementById("answerInput").value.trim().toLowerCase();
 
-            // Code 1: Found in index.html source comment
             if (answer === "0x88f_override" && !userData.solvedCodes.includes("m1")) {
                 userData.coins += 100;
                 userData.solvedCodes.push("m1");
@@ -44,7 +128,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 quizFeedback.style.color = "#10b981";
                 quizFeedback.textContent = "SUCCESS: Override key verified. +100 Legacy Coins awarded! Rank upgraded.";
             } 
-            // Code 2: Found in module hint
             else if (answer === "pioneer" && !userData.solvedCodes.includes("m2")) {
                 userData.coins += 150;
                 userData.solvedCodes.push("m2");
@@ -64,46 +147,71 @@ document.addEventListener("DOMContentLoaded", () => {
                 quizFeedback.textContent = "ERROR: Invalid verification key.";
             }
 
-            localStorage.setItem("llg_user", JSON.stringify(userData));
+            saveUserData();
             updateDashboardUI();
             document.getElementById("answerInput").value = "";
         });
     }
 
-    // 4. Handle Logout
+    // 4. Handle Logout button
     const logoutBtn = document.getElementById("logoutBtn");
     if (logoutBtn) {
-        logoutBtn.addEventListener("click", () => {
-            localStorage.removeItem("llg_user");
+        logoutBtn.addEventListener("click", async () => {
+            await supabase.auth.signOut();
             window.location.href = "index.html";
         });
     }
+});
 
-    // Synchronize UI elements with stored state
-    function updateDashboardUI() {
-        if (!document.getElementById("coinBalance")) return;
+// Load player state scoped to logged-in Supabase user ID
+function loadUserData() {
+    if (!currentUser) return;
+    const storageKey = `llg_user_${currentUser.id}`;
+    const savedData = localStorage.getItem(storageKey);
+    if (savedData) {
+        userData = JSON.parse(savedData);
+    }
+}
 
-        document.getElementById("coinBalance").textContent = userData.coins;
-        document.getElementById("navUser").textContent = userData.username;
-        document.getElementById("profileName").textContent = userData.username;
-        document.getElementById("profileRank").textContent = userData.rank;
+// Save player state scoped to logged-in Supabase user ID
+function saveUserData() {
+    if (!currentUser) return;
+    const storageKey = `llg_user_${currentUser.id}`;
+    localStorage.setItem(storageKey, JSON.stringify(userData));
+}
 
-        document.getElementById("lbUserName").textContent = userData.username + " (You)";
-        document.getElementById("lbUserRank").textContent = userData.rank;
-        document.getElementById("lbUserCoins").textContent = userData.coins;
+// Update DOM elements on Dashboard
+function updateDashboardUI() {
+    if (!document.getElementById("coinBalance") || !currentUser) return;
 
-        // Unlock Module 2 automatically if balance >= 100
-        if (userData.coins >= 100) {
-            const card2 = document.getElementById("card-m2");
+    const userDisplayName = currentUser.email.split("@")[0];
+
+    document.getElementById("coinBalance").textContent = userData.coins;
+    document.getElementById("navUser").textContent = currentUser.email;
+    document.getElementById("profileName").textContent = userDisplayName;
+    document.getElementById("profileRank").textContent = userData.rank;
+
+    document.getElementById("lbUserName").textContent = userDisplayName + " (You)";
+    document.getElementById("lbUserRank").textContent = userData.rank;
+    document.getElementById("lbUserCoins").textContent = userData.coins;
+
+    // Module 2 Auto-unlock visual state when balance >= 100
+    if (userData.coins >= 100) {
+        const card2 = document.getElementById("card-m2");
+        if (card2) {
             card2.classList.remove("locked");
             card2.classList.add("unlocked");
             const badge2 = document.getElementById("badge-m2");
-            badge2.className = "badge status-unlocked";
-            badge2.textContent = "UNLOCKED";
+            if (badge2) {
+                badge2.className = "badge status-unlocked";
+                badge2.textContent = "UNLOCKED";
+            }
         }
+    }
 
-        // Dynamically populate unlocked sidebar links
-        const unlockedContainer = document.getElementById("unlockedLinks");
+    // Populate sidebar with unlocked links
+    const unlockedContainer = document.getElementById("unlockedLinks");
+    if (unlockedContainer) {
         unlockedContainer.innerHTML = "";
         if (userData.unlockedPages.includes("secret-archive.html")) {
             const link = document.createElement("a");
@@ -113,4 +221,4 @@ document.addEventListener("DOMContentLoaded", () => {
             unlockedContainer.appendChild(link);
         }
     }
-});
+}
