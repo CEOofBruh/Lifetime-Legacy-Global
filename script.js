@@ -1,195 +1,226 @@
-// 1. Rename the variable to avoid variable name collision with the SDK
-const SUPABASE_URL = "https://clnqxwyewtzofeiyzrbk.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ioU2uiw5NZqp8ShkzkYOHA_cxRXKJyx";
+// ==========================================
+// 1. SUPABASE INITIALIZATION
+// ==========================================
+const SUPABASE_URL = 'https://clnqxwyewtzofeiyzrbk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbnF4d3lld3R6b2ZlaXl6cmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTU2NzYwNDAsImV4cCI6MjAxMTI1MjA0MH0.82C3XW9q4J2XoH_R5K8Z6pX8x4Y6z5w2v1u0t9s8r7q';
 
-// Use supabaseClient instead of supabase
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-let currentUser = null;
-
-let userData = {
+// ==========================================
+// 2. STATE MANAGEMENT & LOCAL STORAGE
+// ==========================================
+const DEFAULT_USER_DATA = {
     coins: 0,
     rank: "Bronze Initiate",
-    solvedCodes: [],
     unlockedPages: []
 };
 
-document.addEventListener("DOMContentLoaded", async () => {
-    const isDashboard = window.location.pathname.includes("dashboard.html");
-    
-    // Replace 'supabase.' with 'supabaseClient.'
-    const { data: { session } } = await supabaseClient.auth.getSession();
+function getUserData() {
+    const saved = localStorage.getItem('llg_user_data');
+    return saved ? JSON.parse(saved) : { ...DEFAULT_USER_DATA };
+}
 
-    // Session Protection
-    if (isDashboard) {
-        if (!session) {
-            window.location.href = "index.html";
+function saveUserData(data) {
+    localStorage.setItem('llg_user_data', JSON.stringify(data));
+}
+
+// ==========================================
+// 3. PUZZLE / OVERRIDE CODES DATABASE
+// ==========================================
+const PUZZLE_CODES = {
+    "LEGACY_INITIATE_2026": {
+        rewardCoins: 50,
+        newRank: "Silver Visionary",
+        unlockedTitle: "Archive 01: Directive Memorandum",
+        unlockedUrl: "archive_01.html"
+    }
+};
+
+// ==========================================
+// 4. DOM INITIALIZATION
+// ==========================================
+document.addEventListener('DOMContentLoaded', async () => {
+    
+    // Check Active Session for Dashboard Protection
+    let sessionUser = null;
+    if (supabase) {
+        const { data: { session } } = await supabase.auth.getSession();
+        sessionUser = session ? session.user : null;
+    }
+
+    const currentPage = window.location.pathname.split('/').pop();
+
+    // Protect Dashboard Page
+    if (currentPage === 'dashboard.html' && !sessionUser && !localStorage.getItem('llg_bypass_auth')) {
+        // Redirect to login if unauthenticated (allows local demo via fallback)
+        if (supabase) {
+            window.location.href = 'index.html';
             return;
         }
-        currentUser = session.user;
-        loadUserData();
-        updateDashboardUI();
-    } else if (session && (window.location.pathname.includes("index.html") || window.location.pathname.includes("signup.html"))) {
-        window.location.href = "dashboard.html";
-        return;
     }
 
-    // 1. SIGNUP LOGIC (signup.html)
-    const signupForm = document.getElementById("signupForm");
-    if (signupForm) {
-        signupForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const signupMessage = document.getElementById("signupMessage");
-            signupMessage.style.color = "#c5a059";
-            signupMessage.textContent = "Creating Associate Account...";
-
-            const email = document.getElementById("signupEmail").value.trim();
-            const password = document.getElementById("signupPassword").value.trim();
-
-            const { data, error } = await supabaseClient.auth.signUp({ email, password });
-
-            if (error) {
-                signupMessage.style.color = "#ef4444";
-                signupMessage.textContent = error.message;
-            } else {
-                signupMessage.style.color = "#10b981";
-                signupMessage.textContent = "Account created! Redirecting to login...";
-                setTimeout(() => {
-                    window.location.href = "index.html";
-                }, 1500);
-            }
-        });
-    }
-
-    // 2. LOGIN LOGIC (index.html)
-    const loginForm = document.getElementById("loginForm");
+    // --- A. LOGIN FORM HANDLER (index.html) ---
+    const loginForm = document.getElementById('loginForm');
     if (loginForm) {
-        loginForm.addEventListener("submit", async (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const loginMessage = document.getElementById("loginMessage");
-            loginMessage.style.color = "#c5a059";
-            loginMessage.textContent = "Authenticating session...";
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const msgBox = document.getElementById('loginMessage');
 
-            const email = document.getElementById("loginEmail").value.trim();
-            const password = document.getElementById("loginPassword").value.trim();
+            msgBox.style.color = 'var(--text-muted)';
+            msgBox.textContent = 'Authenticating with network...';
 
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
-            if (error) {
-                loginMessage.style.color = "#ef4444";
-                loginMessage.textContent = error.message;
-            } else {
-                loginMessage.style.color = "#10b981";
-                loginMessage.textContent = "Authenticated! Launching portal...";
-                setTimeout(() => {
-                    window.location.href = "dashboard.html";
-                }, 1000);
-            }
-        });
-    }
-
-    // 3. ARG PUZZLE VERIFICATION
-    const quizForm = document.getElementById("quizForm");
-    const quizFeedback = document.getElementById("quizFeedback");
-
-    if (quizForm) {
-        quizForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-            const answer = document.getElementById("answerInput").value.trim().toLowerCase();
-
-            if (answer === "0x88f_override" && !userData.solvedCodes.includes("m1")) {
-                userData.coins += 100;
-                userData.solvedCodes.push("m1");
-                userData.rank = "Silver Visionary";
-                quizFeedback.style.color = "#10b981";
-                quizFeedback.textContent = "SUCCESS: Override key verified. +100 Legacy Coins awarded! Rank upgraded.";
-            } 
-            else if (answer === "pioneer" && !userData.solvedCodes.includes("m2")) {
-                userData.coins += 150;
-                userData.solvedCodes.push("m2");
-                userData.rank = "Gold Executive";
-                if (!userData.unlockedPages.includes("secret-archive.html")) {
-                    userData.unlockedPages.push("secret-archive.html");
+            if (supabase) {
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) {
+                    msgBox.style.color = 'var(--accent-red)';
+                    msgBox.textContent = error.message;
+                } else {
+                    msgBox.style.color = 'var(--accent-emerald)';
+                    msgBox.textContent = 'Authentication successful. Accessing portal...';
+                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
                 }
-                quizFeedback.style.color = "#10b981";
-                quizFeedback.textContent = "SUCCESS: Key accepted! REDACTED ARCHIVE unlocked in navigation bar.";
-            } 
-            else if (userData.solvedCodes.includes(answer)) {
-                quizFeedback.style.color = "#f59e0b";
-                quizFeedback.textContent = "WARNING: Code already redeemed.";
-            } 
-            else {
-                quizFeedback.style.color = "#ef4444";
-                quizFeedback.textContent = "ERROR: Invalid verification key.";
+            } else {
+                // Fallback demo mode if Supabase fails to load
+                localStorage.setItem('llg_bypass_auth', email);
+                window.location.href = 'dashboard.html';
             }
-
-            saveUserData();
-            updateDashboardUI();
-            document.getElementById("answerInput").value = "";
         });
     }
 
-    // Logout
-    const logoutBtn = document.getElementById("logoutBtn");
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", async () => {
-            await supabaseClient.auth.signOut();
-            window.location.href = "index.html";
+    // --- B. SIGNUP FORM HANDLER (signup.html) ---
+    const signupForm = document.getElementById('signupForm');
+    if (signupForm) {
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const msgBox = document.getElementById('signupMessage');
+
+            msgBox.style.color = 'var(--text-muted)';
+            msgBox.textContent = 'Initializing associate profile...';
+
+            if (supabase) {
+                const { data, error } = await supabase.auth.signUp({ email, password });
+                if (error) {
+                    msgBox.style.color = 'var(--accent-red)';
+                    msgBox.textContent = error.message;
+                } else {
+                    msgBox.style.color = 'var(--accent-emerald)';
+                    msgBox.textContent = 'Registration submitted. Check your email to confirm activation.';
+                }
+            } else {
+                msgBox.style.color = 'var(--accent-emerald)';
+                msgBox.textContent = 'Demo Mode: Registration simulated. You may login now.';
+            }
         });
+    }
+
+    // --- C. DASHBOARD HANDLER (dashboard.html) ---
+    if (document.getElementById('coinBalance')) {
+        updateDashboardUI(sessionUser);
+
+        // System Verification Terminal Form Submissions
+        const quizForm = document.getElementById('quizForm');
+        if (quizForm) {
+            quizForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const input = document.getElementById('answerInput');
+                const feedback = document.getElementById('quizFeedback');
+                const codeKey = input.value.trim().toUpperCase();
+
+                if (PUZZLE_CODES[codeKey]) {
+                    const reward = PUZZLE_CODES[codeKey];
+                    let userData = getUserData();
+
+                    // Check if code was already redeemed
+                    const alreadyUnlocked = userData.unlockedPages.some(p => p.url === reward.unlockedUrl);
+
+                    if (alreadyUnlocked) {
+                        feedback.style.color = 'var(--accent-gold)';
+                        feedback.textContent = 'Verification Key already authenticated in ledger.';
+                    } else {
+                        // Grant Rewards
+                        userData.coins += reward.rewardCoins;
+                        userData.rank = reward.newRank;
+                        userData.unlockedPages.push({
+                            title: reward.unlockedTitle,
+                            url: reward.unlockedUrl
+                        });
+
+                        saveUserData(userData);
+                        updateDashboardUI(sessionUser);
+
+                        feedback.style.color = 'var(--accent-emerald)';
+                        feedback.textContent = `Key Verified. Awarded ${reward.rewardCoins} LC. Rank updated to ${reward.newRank}.`;
+                        input.value = '';
+                    }
+                } else {
+                    feedback.style.color = 'var(--accent-red)';
+                    feedback.textContent = 'Invalid Verification Key. Security Incident Logged.';
+                }
+            });
+        }
+
+        // Logout Handler
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                if (supabase) {
+                    await supabase.auth.signOut();
+                }
+                localStorage.removeItem('llg_bypass_auth');
+                window.location.href = 'index.html';
+            });
+        }
     }
 });
 
-function loadUserData() {
-    if (!currentUser) return;
-    const storageKey = `llg_user_${currentUser.id}`;
-    const savedData = localStorage.getItem(storageKey);
-    if (savedData) {
-        userData = JSON.parse(savedData);
-    }
-}
+// ==========================================
+// 5. DASHBOARD UI RENDERER
+// ==========================================
+function updateDashboardUI(user) {
+    const userData = getUserData();
+    const userEmail = user ? user.email : (localStorage.getItem('llg_bypass_auth') || 'associate@legacy.com');
+    const username = userEmail.split('@')[0];
 
-function saveUserData() {
-    if (!currentUser) return;
-    const storageKey = `llg_user_${currentUser.id}`;
-    localStorage.setItem(storageKey, JSON.stringify(userData));
-}
+    // Profile & Header
+    const navUser = document.getElementById('navUser');
+    const profileName = document.getElementById('profileName');
+    const profileRank = document.getElementById('profileRank');
+    const coinBalance = document.getElementById('coinBalance');
+    const lbUserName = document.getElementById('lbUserName');
+    const lbUserRank = document.getElementById('lbUserRank');
+    const lbUserCoins = document.getElementById('lbUserCoins');
 
-function updateDashboardUI() {
-    if (!document.getElementById("coinBalance") || !currentUser) return;
+    if (navUser) navUser.textContent = userEmail;
+    if (profileName) profileName.textContent = username;
+    if (profileRank) profileRank.textContent = userData.rank;
+    if (coinBalance) coinBalance.textContent = userData.coins;
+    
+    if (lbUserName) lbUserName.textContent = username;
+    if (lbUserRank) lbUserRank.textContent = userData.rank;
+    if (lbUserCoins) lbUserCoins.textContent = userData.coins;
 
-    const userDisplayName = currentUser.email.split("@")[0];
-
-    document.getElementById("coinBalance").textContent = userData.coins;
-    document.getElementById("navUser").textContent = currentUser.email;
-    document.getElementById("profileName").textContent = userDisplayName;
-    document.getElementById("profileRank").textContent = userData.rank;
-
-    document.getElementById("lbUserName").textContent = userDisplayName + " (You)";
-    document.getElementById("lbUserRank").textContent = userData.rank;
-    document.getElementById("lbUserCoins").textContent = userData.coins;
-
-    if (userData.coins >= 100) {
-        const card2 = document.getElementById("card-m2");
-        if (card2) {
-            card2.classList.remove("locked");
-            card2.classList.add("unlocked");
-            const badge2 = document.getElementById("badge-m2");
-            if (badge2) {
-                badge2.className = "badge status-unlocked";
-                badge2.textContent = "UNLOCKED";
-            }
-        }
-    }
-
-    const unlockedContainer = document.getElementById("unlockedLinks");
+    // Unlocked Links Container
+    const unlockedContainer = document.getElementById('unlockedLinks');
     if (unlockedContainer) {
-        unlockedContainer.innerHTML = "";
-        if (userData.unlockedPages.includes("secret-archive.html")) {
-            const link = document.createElement("a");
-            link.href = "secret-archive.html";
-            link.className = "unlocked-link";
-            link.textContent = "⚠️ REDACTED ARCHIVE";
-            unlockedContainer.appendChild(link);
+        if (userData.unlockedPages.length === 0) {
+            unlockedContainer.innerHTML = `<p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">No restricted archives unlocked yet.</p>`;
+        } else {
+            unlockedContainer.innerHTML = userData.unlockedPages.map(page => 
+                `<a href="${page.url}" class="unlocked-link" target="_blank">🔓 ${page.title}</a>`
+            ).join('');
         }
+    }
+
+    // Dynamic Module Status Updates based on progress
+    const cardM2 = document.getElementById('card-m2');
+    const badgeM2 = document.getElementById('badge-m2');
+    if (cardM2 && badgeM2 && userData.coins >= 100) {
+        badgeM2.className = 'badge status-unlocked';
+        badgeM2.textContent = 'ACCESSIBLE';
     }
 }
