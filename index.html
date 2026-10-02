@@ -8,69 +8,85 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <!-- ARG Clue Hidden in Source -->
-    <!-- DIRECTIVE_01: DO NOT ALLOW UNVERIFIED ASSOCIATES PAST LEVEL 1 COURSES -->
-    <!-- LEGACY_KEY: 0x88f_override -->
 
     <header>
-        <div class="logo">LIFETIME <span>LEGACY</span> GLOBAL</div>
         <nav>
-            <a href="#about">About Us</a>
-            <a href="signup.html" class="btn-login">Register ID</a>
+            <div class="logo">Lifetime Legacy Global</div>
+            <ul>
+                <li><a href="index.html">Login</a></li>
+                <li><a href="signup.html">Register ID</a></li>
+            </ul>
         </nav>
     </header>
 
-    <section class="hero">
-        <h1>Unlock Unlimited Generational Wealth</h1>
-        <p>Join over 40,000 global partners leveraging our proprietary digital ecosystem.</p>
-        <a href="#auth" class="cta-button">Claim Your Legacy Portal</a>
-    </section>
-
-    <section id="about" class="grid-section">
-        <div class="card">
-            <h3>Automated Synergy</h3>
-            <p>Our proprietary affiliate sequence handles the friction while you harvest residual income streams.</p>
-        </div>
-        <div class="card">
-            <h3>Mindset Re-Engineering</h3>
-            <p>Access tier-locked masterclasses engineered to strip away non-performing belief frameworks.</p>
-        </div>
-        <div class="card">
-            <h3>Downline Acceleration</h3>
-            <p>Multiply your legacy index by onboarding sub-affiliates into your personal ecosystem grid.</p>
-        </div>
-    </section>
-
-    <!-- LOGIN FORM -->
-    <section id="auth" class="auth-container">
-        <div class="auth-box">
-            <h2>Associate Access Portal</h2>
-            <p>Authenticate with your Associate Credentials.</p>
+    <main class="hero-wrapper">
+        <div class="hero-container">
             
-            <form id="loginForm">
-                <div class="input-group">
-                    <label for="loginEmail">Associate Email Address</label>
-                    <input type="email" id="loginEmail" placeholder="associate@legacy.com" required>
-                </div>
-                <div class="input-group">
-                    <label for="loginPassword">Password</label>
-                    <input type="password" id="loginPassword" placeholder="••••••••" required minlength="6">
-                </div>
-                
-                <button type="submit" class="submit-btn">Authenticate Session</button>
-            </form>
+            <!-- Left Side: Pitch -->
+            <div class="hero-content">
+                <span class="hero-tag">The Premier Wealth Network</span>
+                <h1>Unlock Unlimited <br><span class="gold-text">Generational Wealth</span></h1>
+                <p class="hero-description">
+                    Join over 40,000 global partners leveraging our proprietary digital ecosystem to maximize residual performance.
+                </p>
 
-            <p style="text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">
-                Need an Associate ID? 
-                <a href="signup.html" style="color: var(--accent-gold); font-weight: bold; text-decoration: none;">Register Here</a>
-            </p>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <div>
+                            <h4>Automated Synergy</h4>
+                            <p>Our proprietary affiliate sequence handles friction while you harvest residual streams.</p>
+                        </div>
+                    </div>
 
-            <div id="loginMessage" class="feedback-msg" style="text-align: center; margin-top: 1rem;"></div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🧠</div>
+                        <div>
+                            <h4>Mindset Re-Engineering</h4>
+                            <p>Access tier-locked masterclasses engineered to strip away non-performing belief frameworks.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">📈</div>
+                        <div>
+                            <h4>Downline Acceleration</h4>
+                            <p>Multiply your legacy index by onboarding sub-affiliates into your personal ecosystem grid.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Clean Glass Form -->
+            <div class="auth-card">
+                <h2>Associate Portal</h2>
+                <p class="subtitle">Authenticate with your Associate Credentials.</p>
+
+                <form id="loginForm">
+                    <div class="input-group">
+                        <label for="loginEmail">Associate Email Address</label>
+                        <input type="email" id="loginEmail" required placeholder="associate@legacy.com">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" required placeholder="••••••••">
+                    </div>
+
+                    <button type="submit" class="btn-primary">Authenticate Session</button>
+                    <div id="loginMessage" class="status-message"></div>
+                </form>
+
+                <div class="auth-footer">
+                    Don't have an Associate ID? <a href="signup.html">Register Here</a>
+                </div>
+            </div>
+
         </div>
-    </section>
+    </main>
 
     <footer>
-        <p>&copy; 2026 Lifetime Legacy Global Holdings Inc. All Rights Reserved.</p>
+        <p>&copy; Lifetime Legacy Global Network. All Rights Reserved. Secretum In Unitate.</p>
     </footer>
 
     <script src="script.js"></script>
