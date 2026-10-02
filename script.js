@@ -2,10 +2,9 @@
 // 1. SUPABASE INITIALIZATION
 // ==========================================
 const SUPABASE_URL = 'https://clnqxwyewtzofeiyzrbk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbnF4d3lld3R6b2ZlaXl6cmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5MTgzMzksImV4cCI6MjEwNjQ5NDMzOX0.pZa8UV-EBkI-hJmYdi4Cl406pTsC2B4WqyAyO_0f_Tg';
 
-// Legacy JWT Anon Key format ensures headers are included on all SDK versions
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbnF4d3lld3R6b2ZlaXl6cmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTU2NzYwNDAsImV4cCI6MjAxMTI1MjA0MH0.82C3XW9q4J2XoH_R5K8Z6pX8x4Y6z5w2v1u0t9s8r7q';
-
+// 'supabaseClient' prevents namespace collisions with window.supabase
 const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
         persistSession: true,
@@ -46,7 +45,7 @@ async function fetchUserProfile(userId) {
             unlockedPages: data.unlocked_pages || []
         };
 
-        // Cache locally for offline/fast access
+        // Cache locally for fast access
         saveLocalUserData(formattedData);
         return formattedData;
     } catch (e) {
