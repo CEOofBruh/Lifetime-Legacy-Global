@@ -36,34 +36,8 @@ function setStatusMessage(elementId, text, color) {
     }
 }
 
-async function hashInput(text) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(text.toUpperCase().trim());
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
 // ==========================================
-// 3. PUZZLE HASHS (1317 & LEGACY_INITIATE_2026)
-// ==========================================
-const PUZZLE_HASHES = {
-    "350284df24a354c0e66c72d627b0eb51493b890a2a4b3d2b2746c591c27e997f": { // 1317
-        rewardCoins: 25,
-        newRank: "Bronze Associate",
-        unlockedTitle: "Node 01: Master Matrix Ledger",
-        unlockedUrl: "index2.html"
-    },
-    "0c9bf869688bc8a90626359df3ba8bd6693821034f19b2aa0f7793d40d99990e": { // LEGACY_INITIATE_2026
-        rewardCoins: 50,
-        newRank: "Silver Visionary",
-        unlockedTitle: "Archive 01: Directive Memorandum",
-        unlockedUrl: "archive_01.html"
-    }
-};
-
-// ==========================================
-// 4. SUPABASE PROFILE & LEADERBOARD API
+// 3. SUPABASE PROFILE & LEADERBOARD API
 // ==========================================
 async function fetchUserProfile(userId) {
     if (!supabaseClient || !userId) {
@@ -266,7 +240,7 @@ function renderUnlockedArchives(unlockedPages) {
 }
 
 // ==========================================
-// 5. MAIN PIPELINE LOGIC & DOM HANDLERS
+// 4. MAIN PIPELINE LOGIC & DOM HANDLERS
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
     let currentUser = null;
@@ -390,7 +364,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         fetchLeaderboard();
     }
 
-    // --- PUZZLE & TERMINAL OVERRIDE SUBMISSION ---
+    // --- PUZZLE & TERMINAL OVERRIDE SUBMISSION (SUPABASE DIRECT VERIFICATION) ---
     const quizForm = document.getElementById('quizForm');
     if (quizForm) {
         quizForm.addEventListener('submit', async (e) => {
@@ -399,55 +373,78 @@ document.addEventListener('DOMContentLoaded', async () => {
             const feedback = document.getElementById('quizFeedback');
             if (!inputField || !feedback) return;
 
-            const userInput = inputField.value.trim();
-            const inputHash = await hashInput(userInput);
+            const userInput = inputField.value.trim().toUpperCase();
+            setStatusMessage('quizFeedback', 'Querying network ledger...', 'var(--text-muted)');
 
-            if (PUZZLE_HASHES[inputHash]) {
-                const puzzleData = PUZZLE_HASHES[inputHash];
-                const userId = currentUser ? currentUser.id : null;
-                const currentProfile = await fetchUserProfile(userId);
+            if (!supabaseClient) {
+                setStatusMessage('quizFeedback', 'Error: Cloud database client unavailable.', 'var(--accent-red)');
+                return;
+            }
 
-                const alreadyUnlocked = currentProfile.unlockedPages.some(
-                    p => p.url === puzzleData.unlockedUrl
-                );
+            try {
+                // Query Supabase puzzle_codes table
+                const { data: puzzleData, error } = await supabaseClient
+                    .from('puzzle_codes')
+                    .select('*')
+                    .eq('code', userInput)
+                    .maybeSingle();
 
-                if (alreadyUnlocked) {
+                if (error) throw error;
+
+                if (puzzleData) {
+                    const userId = currentUser ? currentUser.id : null;
+                    const currentProfile = await fetchUserProfile(userId);
+
+                    // Check if page/archive is already unlocked
+                    const alreadyUnlocked = currentProfile.unlockedPages.some(
+                        p => p.url === puzzleData.unlocked_url
+                    );
+
+                    if (alreadyUnlocked) {
+                        feedback.style.color = "var(--gold)";
+                        feedback.textContent = "Key recognized: Override already authorized for this account.";
+                        return;
+                    }
+
+                    // Update local profile stats
+                    const updatedCoins = currentProfile.coins + puzzleData.reward_coins;
+                    const updatedRank = puzzleData.new_rank || currentProfile.rank;
+                    const updatedUnlocked = [
+                        ...currentProfile.unlockedPages,
+                        { title: puzzleData.unlocked_title, url: puzzleData.unlocked_url }
+                    ];
+
+                    const updatedProfile = {
+                        coins: updatedCoins,
+                        rank: updatedRank,
+                        unlockedPages: updatedUnlocked,
+                        avatarUrl: currentProfile.avatarUrl
+                    };
+
+                    // Persist to Supabase profiles
+                    await saveUserProfile(userId, updatedProfile);
+
+                    // Update UI elements
+                    const coinBalance = document.getElementById('coinBalance');
+                    const profileRank = document.getElementById('profileRank');
+
+                    if (coinBalance) coinBalance.textContent = updatedCoins;
+                    if (profileRank) profileRank.textContent = updatedRank;
+
+                    renderUnlockedArchives(updatedUnlocked);
+                    fetchLeaderboard();
+
                     feedback.style.color = "var(--gold)";
-                    feedback.textContent = "Key recognized: Override already authorized for this account.";
-                    return;
+                    feedback.textContent = `Key Verified. Awarded ${puzzleData.reward_coins} LC. Rank updated to ${updatedRank}.`;
+                    inputField.value = "";
+                } else {
+                    feedback.style.color = "var(--accent-red)";
+                    feedback.textContent = "Access Denied: Invalid authorization key or cipher.";
                 }
-
-                const updatedCoins = currentProfile.coins + puzzleData.rewardCoins;
-                const updatedRank = puzzleData.newRank || currentProfile.rank;
-                const updatedUnlocked = [
-                    ...currentProfile.unlockedPages,
-                    { title: puzzleData.unlockedTitle, url: puzzleData.unlockedUrl }
-                ];
-
-                const updatedProfile = {
-                    coins: updatedCoins,
-                    rank: updatedRank,
-                    unlockedPages: updatedUnlocked,
-                    avatarUrl: currentProfile.avatarUrl
-                };
-
-                await saveUserProfile(userId, updatedProfile);
-
-                const coinBalance = document.getElementById('coinBalance');
-                const profileRank = document.getElementById('profileRank');
-
-                if (coinBalance) coinBalance.textContent = updatedCoins;
-                if (profileRank) profileRank.textContent = updatedRank;
-
-                renderUnlockedArchives(updatedUnlocked);
-                fetchLeaderboard();
-
-                feedback.style.color = "var(--gold)";
-                feedback.textContent = `Key Verified. Awarded ${puzzleData.rewardCoins} LC. Rank updated to ${updatedRank}.`;
-                inputField.value = "";
-            } else {
+            } catch (err) {
+                console.error("Puzzle submission error:", err);
                 feedback.style.color = "var(--accent-red)";
-                feedback.textContent = "Access Denied: Invalid authorization key or cipher.";
+                feedback.textContent = "System error during clearance check.";
             }
         });
     }
