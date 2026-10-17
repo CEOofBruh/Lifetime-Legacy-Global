@@ -9,7 +9,7 @@
     <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/CEOofBruh/Lifetime-Legacy-Global/refs/heads/main/LLG%20-%20Icon.ico">
     <!-- Supabase JS Client library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js?v=8" defer></script>
+    <script src="script.js?v=9" defer></script>
 </head>
 <body data-system-epoch="1998">
 
@@ -37,14 +37,14 @@
         </nav>
     </header>
 
-    <!-- 3-COLUMN AD-INTEGRATED LAYOUT -->
-    <div class="page-with-ads-layout">
+    <!-- 3-COLUMN UNFILTERED PORTAL LAYOUT -->
+    <div class="page-portal-layout">
 
-        <!-- LEFT SIDEBAR SKYSCRAPER AD (Ads-Vert.mp4) -->
-        <aside class="ad-sidebar left-ad">
-            <div class="pure-ad-banner">
-                <video autoplay loop muted playsinline preload="auto" class="ad-video-element">
-                    <source src="./Ads-Vert.mp4" type="video/mp4">
+        <!-- LEFT AMBIENT FLANK (RENAMED PATH: stream-left.mp4) -->
+        <aside class="flank-column flank-left">
+            <div class="media-stream-box">
+                <video autoplay loop muted playsinline preload="auto" class="ambient-video">
+                    <source src="./stream-left.mp4" type="video/mp4">
                     Your browser does not support HTML5 video.
                 </video>
             </div>
@@ -124,8 +124,8 @@
                             <h2>Associate Global Leaderboard</h2>
                             <p class="subtitle">Real-time network hierarchy ordered by accumulated Legacy Credits.</p>
                             
-                            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-                                <table class="leaderboard-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; min-width: 480px;">
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
                                     <thead>
                                         <tr style="border-bottom: 1px solid var(--card-border); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
                                             <th style="padding: 0.8rem;">Rank</th>
@@ -152,7 +152,6 @@
                             
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
                                 
-                                <!-- Active Module 01 card linking to workshops.html -->
                                 <a href="workshops.html" class="feature-card" style="flex-direction: column; gap: 0.5rem; text-decoration: none; color: inherit; transition: transform 0.2s;" data-node-id="1" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                                     <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
                                         <span style="font-size: 0.7rem; color: var(--gold); font-family: var(--font-mono);">MODULE 01</span>
@@ -179,11 +178,11 @@
             </div>
         </div>
 
-        <!-- RIGHT SIDEBAR SKYSCRAPER AD (Ads-Vert2.mp4) -->
-        <aside class="ad-sidebar right-ad">
-            <div class="pure-ad-banner">
-                <video autoplay loop muted playsinline preload="auto" class="ad-video-element">
-                    <source src="./Ads-Vert2.mp4" type="video/mp4">
+        <!-- RIGHT AMBIENT FLANK (RENAMED PATH: stream-right.mp4) -->
+        <aside class="flank-column flank-right">
+            <div class="media-stream-box">
+                <video autoplay loop muted playsinline preload="auto" class="ambient-video">
+                    <source src="./stream-right.mp4" type="video/mp4">
                     Your browser does not support HTML5 video.
                 </video>
             </div>
@@ -193,8 +192,26 @@
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 2025–<span id="current-year">2026</span> Lifetime Legacy Global Network. All Rights Reserved. <span class="latin-motto" title="Look beneath the surface">Secretum In Unitate</span>.</p>
+        <p>&copy; 1998–<span id="current-year">2026</span> Lifetime Legacy Global Network. All Rights Reserved. <span class="latin-motto" title="Look beneath the surface">Secretum In Unitate</span>.</p>
     </footer>
 
+    <!-- Developer Console Diagnostic Script -->
+    <script>
+        console.log(
+            "%c[LLG ASSOCIATE PORTAL]\n" +
+            "--------------------------------------------------\n" +
+            "Associate Session Authenticated.\n" +
+            "Voucher redemption portal active.\n" +
+            "--------------------------------------------------",
+            "color: #d4af37; font-family: monospace; font-size: 12px; font-weight: bold;"
+        );
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const streams = document.querySelectorAll('.ambient-video');
+            streams.forEach((v) => {
+                v.play().catch((err) => console.warn('[LLG MEDIA NOTICE]', err));
+            });
+        });
+    </script>
 </body>
 </html>
