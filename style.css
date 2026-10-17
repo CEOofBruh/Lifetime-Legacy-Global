@@ -348,68 +348,63 @@ input[type="password"]:focus {
    PERMANENT 3-COLUMN LAYOUT & SIDE MEDIA PANELS
    ========================================== */
 .page-with-wings-layout {
-    display: grid !important;
-    grid-template-columns: 180px minmax(0, 1fr) 180px !important;
-    gap: 1.5rem;
-    width: 100%;
-    max-width: 1600px;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    gap: 1.5rem !important;
+    width: 100% !important;
+    max-width: 1600px !important;
     margin: 1.5rem auto !important;
-    padding: 0 1rem;
-    align-items: start;
-    box-sizing: border-box;
+    padding: 0 1rem !important;
+    box-sizing: border-box !important;
 }
 
-/* HARD-CAP SIDEBAR WIDTH & HEIGHT TO PREVENT VIDEO BLOWOUT */
+.main-content-column {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    width: 100% !important;
+}
+
+/* SIDEBAR WRAPPER LOCKED TO 180px */
 .wing-sidebar {
+    flex: 0 0 180px !important;
     width: 180px !important;
     min-width: 180px !important;
     max-width: 180px !important;
-    height: calc(100vh - 7rem) !important;
-    max-height: 800px !important;
+    position: sticky !important;
+    top: 5.5rem !important;
     display: block !important;
-    position: sticky;
-    top: 5.5rem;
-    overflow: hidden;
 }
 
-/* HARD-CAP INNER CONTAINER */
+/* INNER FRAME LOCKED TO 180px & HEIGHT CAPS */
 .media-stream-frame {
-    width: 100% !important;
-    height: 100% !important;
-    max-height: 100% !important;
-    background: #000;
-    border: 1px solid var(--card-border);
-    border-radius: 6px;
-    overflow: hidden;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
+    width: 180px !important;
+    max-width: 180px !important;
+    height: 700px !important;
+    max-height: calc(100vh - 7rem) !important;
+    background: #000 !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 6px !important;
+    overflow: hidden !important;
+    display: block !important;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .media-stream-frame:hover {
-    border-color: var(--gold);
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
+    border-color: var(--gold) !important;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.25) !important;
 }
 
-/* FORCE HTML5 VIDEO TO CLIP WITHIN 180px BOUNDS */
+/* STRICT SIZING ON VIDEO TAG TO PREVENT NATURAL DIMENSION BLOWOUT */
 .stream-video-element {
-    width: 100% !important;
-    height: 100% !important;
+    width: 180px !important;
+    min-width: 180px !important;
     max-width: 180px !important;
+    height: 100% !important;
     max-height: 100% !important;
     object-fit: cover !important;
     display: block !important;
-    transition: transform 0.3s ease;
-}
-
-.media-stream-frame:hover .stream-video-element {
-    transform: scale(1.02);
-}
-
-.main-content-column {
-    min-width: 0 !important;
-    width: 100% !important;
 }
 
 /* ==========================================
@@ -459,9 +454,50 @@ footer {
 }
 
 /* ==========================================
-   RESPONSIVE OVERRIDES (MOBILE & TABLET ONLY)
+   RESPONSIVE OVERRIDES (MOBILE ONLY)
    ========================================== */
 
-@media (max-width: 1024px) {
+/* Mobile & Small screens ONLY: Stack layout below 768px */
+@media (max-width: 768px) {
     .page-with-wings-layout {
-        gap:
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+
+    .wing-sidebar {
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        position: relative !important;
+        top: 0 !important;
+    }
+
+    .media-stream-frame {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 160px !important;
+        max-height: 160px !important;
+    }
+
+    .stream-video-element {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .hero-container {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+    }
+}
+
+@media (max-width: 500px) {
+    .wing-sidebar {
+        display: none !important;
+    }
+
+    .auth-card {
+        padding: 1.25rem;
+    }
+}
