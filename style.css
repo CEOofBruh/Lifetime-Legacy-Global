@@ -147,7 +147,7 @@ nav a:hover {
 }
 
 /* ==========================================
-   BUTTONS & FORM INPUTS (WITH HOVER EFFECTS)
+   BUTTONS & FORM INPUTS
    ========================================== */
 .btn-primary {
     display: inline-block;
@@ -350,39 +350,40 @@ input[type="password"]:focus {
 .page-with-wings-layout {
     display: grid !important;
     grid-template-columns: 180px minmax(0, 1fr) 180px !important;
-    gap: 1.8rem;
+    gap: 1.5rem;
     width: 100%;
-    max-width: 1700px;
-    margin: 2rem auto 1.5rem auto !important;
-    padding: 0.5rem 1rem 1.5rem 1rem;
+    max-width: 1600px;
+    margin: 1.5rem auto !important;
+    padding: 0 1rem;
     align-items: start;
     box-sizing: border-box;
 }
 
+/* HARD-CAP SIDEBAR WIDTH & HEIGHT TO PREVENT VIDEO BLOWOUT */
 .wing-sidebar {
     width: 180px !important;
     min-width: 180px !important;
     max-width: 180px !important;
+    height: calc(100vh - 7rem) !important;
+    max-height: 800px !important;
     display: block !important;
+    position: sticky;
+    top: 5.5rem;
+    overflow: hidden;
 }
 
-.main-content-column {
-    min-width: 0 !important;
-    width: 100% !important;
-}
-
-/* Dynamic desktop skyscraper frame fixed at 180px width */
+/* HARD-CAP INNER CONTAINER */
 .media-stream-frame {
-    width: 180px !important;
-    height: calc(100vh - 7.5rem) !important;
-    min-height: 520px !important;
-    max-height: 880px !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
     background: #000;
     border: 1px solid var(--card-border);
     border-radius: 6px;
     overflow: hidden;
-    position: sticky;
-    top: 5.5rem;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -391,9 +392,12 @@ input[type="password"]:focus {
     box-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
 }
 
+/* FORCE HTML5 VIDEO TO CLIP WITHIN 180px BOUNDS */
 .stream-video-element {
     width: 100% !important;
     height: 100% !important;
+    max-width: 180px !important;
+    max-height: 100% !important;
     object-fit: cover !important;
     display: block !important;
     transition: transform 0.3s ease;
@@ -401,6 +405,11 @@ input[type="password"]:focus {
 
 .media-stream-frame:hover .stream-video-element {
     transform: scale(1.02);
+}
+
+.main-content-column {
+    min-width: 0 !important;
+    width: 100% !important;
 }
 
 /* ==========================================
@@ -453,49 +462,6 @@ footer {
    RESPONSIVE OVERRIDES (MOBILE & TABLET ONLY)
    ========================================== */
 
-/* Medium screens & tablets: keep layout side-by-side with tighter gap */
 @media (max-width: 1024px) {
     .page-with-wings-layout {
-        gap: 1rem;
-        padding: 0.5rem;
-    }
-}
-
-/* Mobile & small screens ONLY: Trigger stacking below 800px */
-@media (max-width: 800px) {
-    .page-with-wings-layout {
-        grid-template-columns: 1fr !important;
-        margin-top: 1rem !important;
-    }
-
-    .wing-sidebar {
-        width: 100% !important;
-        min-width: 100% !important;
-        max-width: 100% !important;
-    }
-
-    .media-stream-frame {
-        width: 100% !important;
-        height: 160px !important;
-        min-height: 160px !important;
-        max-height: 160px !important;
-        position: relative !important;
-        top: 0 !important;
-        margin-bottom: 1rem;
-    }
-
-    .hero-container {
-        grid-template-columns: 1fr !important;
-        gap: 1.5rem !important;
-    }
-}
-
-@media (max-width: 500px) {
-    .media-stream-frame {
-        display: none !important; /* Hide side videos on phones */
-    }
-
-    .auth-card {
-        padding: 1.25rem;
-    }
-}
+        gap:
