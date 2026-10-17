@@ -346,7 +346,6 @@ input[type="password"]:focus {
 
 /* ==========================================
    PERMANENT 3-COLUMN LAYOUT & SIDE MEDIA PANELS
-   (Neutralized class names to prevent adblocker triggers)
    ========================================== */
 .page-with-wings-layout {
     display: grid !important;
@@ -372,9 +371,9 @@ input[type="password"]:focus {
     width: 100% !important;
 }
 
-/* Dynamic full-height sticky video frame */
+/* Dynamic desktop skyscraper frame fixed at 180px width */
 .media-stream-frame {
-    width: 100% !important;
+    width: 180px !important;
     height: calc(100vh - 7.5rem) !important;
     min-height: 520px !important;
     max-height: 880px !important;
@@ -451,54 +450,49 @@ footer {
 }
 
 /* ==========================================
-   RESPONSIVE OVERRIDES & MOBILE STACKING
+   RESPONSIVE OVERRIDES (MOBILE & TABLET ONLY)
    ========================================== */
-@media (max-width: 1180px) {
-    /* Collapse 3-column layout into single-column stack */
+
+/* Medium screens & tablets: keep layout side-by-side with tighter gap */
+@media (max-width: 1024px) {
+    .page-with-wings-layout {
+        gap: 1rem;
+        padding: 0.5rem;
+    }
+}
+
+/* Mobile & small screens ONLY: Trigger stacking below 800px */
+@media (max-width: 800px) {
     .page-with-wings-layout {
         grid-template-columns: 1fr !important;
-        padding: 1rem !important;
+        margin-top: 1rem !important;
     }
-    
+
     .wing-sidebar {
         width: 100% !important;
         min-width: 100% !important;
         max-width: 100% !important;
     }
 
-    /* Transform skyscraper sidebars into responsive top/bottom banners */
     .media-stream-frame {
-        height: 180px !important;
-        min-height: 180px !important;
-        max-height: 180px !important;
+        width: 100% !important;
+        height: 160px !important;
+        min-height: 160px !important;
+        max-height: 160px !important;
         position: relative !important;
         top: 0 !important;
         margin-bottom: 1rem;
     }
 
-    .stream-video-element {
-        object-fit: cover !important;
-        object-position: center !important;
-    }
-
-    /* Stack inner profile sidebar and main content */
     .hero-container {
         grid-template-columns: 1fr !important;
         gap: 1.5rem !important;
     }
 }
 
-@media (max-width: 960px) {
-    .hero-container {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-    }
-}
-
-@media (max-width: 600px) {
-    /* Hide video sidebars on small screens for clean mobile reading */
+@media (max-width: 500px) {
     .media-stream-frame {
-        display: none !important;
+        display: none !important; /* Hide side videos on phones */
     }
 
     .auth-card {
