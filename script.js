@@ -5,7 +5,7 @@
 
 // Global State & Supabase Initialization
 const SUPABASE_URL = "https://dnqxwywtzofeiyzrbk.supabase.co"; 
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // Ensure your public anon key is present here
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // Insert public anon key
 
 let supabaseClient = null;
 let currentUser = null;
@@ -93,24 +93,31 @@ async function saveUserProfile(userId, profileData) {
 }
 
 // ==========================================
-// 3. AUTH ROUTING & DASHBOARD INITIALIZATION
+// 3. AUTH ROUTING, LOGIN & DASHBOARD ENGINE
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
-    const currentPage = window.location.pathname.split('/').pop();
-    const isPublicPage = currentPage === '' || currentPage === 'index.html' || currentPage === 'login.html';
+    const rawPage = window.location.pathname.split('/').pop().toLowerCase();
+    const currentPage = rawPage === '' ? 'index.html' : rawPage;
+    const isPublicPage = currentPage === 'index.html' || currentPage === 'login.html';
 
-    // Verify session
+    // Session Verification & Auth Guard
     if (supabaseClient) {
         const { data: { session } } = await supabaseClient.auth.getSession();
         currentUser = session ? session.user : null;
 
-        // Redirect unauthenticated visitors away from protected portal pages
+        // Auto-redirect authenticated associates away from login page to dashboard
+        if (currentUser && isPublicPage) {
+            window.location.href = 'dashboard.html';
+            return;
+        }
+
+        // Redirect unauthenticated visitors away from protected pages to login
         if (!currentUser && !isPublicPage) {
             window.location.href = 'index.html';
             return;
         }
 
-        supabaseClient.auth.onAuthStateChange((_event, session) => {
+        supabaseClient.auth.onAuthStateChange((event, session) => {
             currentUser = session ? session.user : null;
             if (!currentUser && !isPublicPage) {
                 window.location.href = 'index.html';
@@ -118,21 +125,67 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    const userId = currentUser ? currentUser.id : null;
-    const profile = await fetchUserProfile(userId);
+    // Attach Login Listener (for index.html)
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const emailInput = document.getElementById('loginEmail');
+            const passwordInput = document.getElementById('loginPassword');
+            const feedback = document.getElementById('loginFeedback');
 
-    // Update Dashboard UI Elements
-    const coinBalance = document.getElementById('coinBalance');
-    const profileRank = document.getElementById('profileRank');
+            if (!emailInput || !passwordInput) return;
 
-    if (coinBalance) coinBalance.textContent = profile.coins;
-    if (profileRank) profileRank.textContent = profile.rank;
+            if (feedback) {
+                feedback.style.color = "var(--text-muted)";
+                feedback.textContent = "Authenticating associate credentials...";
+            }
 
-    renderUnlockedArchives(profile.unlockedPages);
-    fetchLeaderboard();
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: emailInput.value.trim(),
+                    password: passwordInput.value
+                });
+
+                if (error) throw error;
+
+                if (feedback) {
+                    feedback.style.color = "var(--gold)";
+                    feedback.textContent = "Authentication successful. Accessing portal...";
+                }
+
+                currentUser = data.user;
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 600);
+
+            } catch (err) {
+                console.error("Login Error:", err);
+                if (feedback) {
+                    feedback.style.color = "var(--accent-red)";
+                    feedback.textContent = err.message || "Invalid credentials. Contact Regional Director.";
+                }
+            }
+        });
+    }
+
+    // Initialize Dashboard UI on Protected Pages
+    if (!isPublicPage) {
+        const userId = currentUser ? currentUser.id : null;
+        const profile = await fetchUserProfile(userId);
+
+        const coinBalance = document.getElementById('coinBalance');
+        const profileRank = document.getElementById('profileRank');
+
+        if (coinBalance) coinBalance.textContent = profile.coins;
+        if (profileRank) profileRank.textContent = profile.rank;
+
+        renderUnlockedArchives(profile.unlockedPages);
+        fetchLeaderboard();
+    }
 });
 
-// Logout handler for header/nav button
+// Global Logout Procedure
 async function handleLogout() {
     if (supabaseClient) {
         await supabaseClient.auth.signOut();
@@ -219,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                // Secure RPC Function call
+                // Execute Secure RPC Function
                 const { data: puzzleResults, error } = await supabaseClient
                     .rpc('verify_puzzle_code', { input_code: userInput });
 
@@ -283,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// 5. THREE.JS 3D HOLOGRAM ENGINE (INVERTED ANAMORPHIC HASHED REVEAL)
+// 5. THREE.JS 3D HOLOGRAM ENGINE (INVERTED ANAMORPHIC REVEAL)
 // ==========================================
 let hologramScene, hologramCamera, hologramRenderer, hologramControls, hologramAnimationId;
 let invertedApexNode = null;
@@ -325,7 +378,6 @@ function initHologram3D() {
     const container = document.getElementById('hologramCanvasContainer');
     if (!container || typeof THREE === 'undefined') return;
 
-    // Vector instantiated safely inside function execution
     const targetInvertedAngle = new THREE.Vector3(0.0, -4.2, 3.5);
 
     const width = container.clientWidth;
@@ -474,7 +526,7 @@ function initHologram3D() {
         }
     });
 
-    // ANIMATION & HASH-VERIFIED ALIGNMENT LOOP
+    // ANIMATION & ALIGNMENT LOOP
     function animate() {
         hologramAnimationId = requestAnimationFrame(animate);
         hologramControls.update();
