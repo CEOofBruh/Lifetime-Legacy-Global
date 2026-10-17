@@ -5,176 +5,165 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Associate Portal | Lifetime Legacy Global</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Lifetime Legacy Global Favicon -->
     <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/CEOofBruh/Lifetime-Legacy-Global/refs/heads/main/LLG%20-%20Icon.ico">
-    <!-- Supabase JS Client library -->
+    
+    <!-- Supabase JS Library & Global Script -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js?v=5" defer></script>
+    <script src="script.js?v=8" defer></script>
 </head>
-<body data-system-epoch="1998">
+<body data-system-epoch="2026">
 
-    <!-- Header Navigation -->
     <header>
         <nav>
-            <a href="index.html" class="logo-link">
-                <img 
-                    src="https://raw.githubusercontent.com/CEOofBruh/Lifetime-Legacy-Global/refs/heads/main/LLG%20-%20Icon.ico" 
-                    alt="Lifetime Legacy Global Logo" 
-                    id="brand-logo" 
-                    class="logo-img" 
-                    data-tier-id="0"
-                >
+            <a href="dashboard.html" class="logo-link">
+                <img src="https://raw.githubusercontent.com/CEOofBruh/Lifetime-Legacy-Global/refs/heads/main/LLG%20-%20Icon.ico" alt="Logo" class="logo-img">
                 <span class="logo-text">LIFETIME LEGACY GLOBAL</span>
             </a>
             <ul>
-                <li class="nav-user-status">
-                    <span id="navUser" class="gold-text">Loading profile...</span>
-                </li>
-                <li>
-                    <button id="logoutBtn" class="btn-primary" style="padding: 0.4rem 0.9rem; font-size: 0.85rem;">Disconnect</button>
-                </li>
+                <li><a href="workshops.html" class="gold-text">Masterclasses & Puzzles</a></li>
+                <li id="navUser" style="color: var(--text-muted); font-size: 0.85rem; font-family: var(--font-mono);">Session Loading...</li>
+                <li><button id="logoutBtn" class="btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;">Disconnect</button></li>
             </ul>
         </nav>
     </header>
 
-    <!-- Main Dashboard Container -->
-    <div class="hero-wrapper">
-        <div class="hero-container" style="align-items: start; grid-template-columns: 320px 1fr;">
-            
-            <!-- Left Sidebar -->
-            <aside class="hero-content">
-                
-                <!-- Profile Card -->
-                <div class="auth-card" style="margin-bottom: 1.5rem; text-align: center;">
-                    <span class="hero-tag">Active Associate</span>
+    
+    <div class="page-with-ads-layout">
+        
+        
+        <aside class="ad-sidebar left-ad">
+            <div class="pure-ad-banner">
+                <video autoplay loop muted playsinline class="ad-video-element">
+                    <source src="Ads-Vert.mp4" type="video/mp4">
+                    Your browser does not support HTML5 video.
+                </video>
+            </div>
+        </aside>
+
+        <!-- MIDDLE MAIN CONTENT COLUMN -->
+        <div class="main-content-column">
+            <main class="hero-wrapper" style="padding: 0;">
+                <div class="hero-container" style="grid-template-columns: 1fr 1fr; width: 100%; max-width: 100%;">
                     
-                    <!-- Avatar Upload Trigger -->
-                    <div class="avatar-container" onclick="document.getElementById('avatarInput').click();" title="Click to upload custom avatar" style="cursor: pointer; position: relative; width: 90px; height: 90px; margin: 0 auto 1rem auto;">
-                        <div class="avatar-circle" id="avatarDisplay" style="width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--gold); overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(10, 12, 16, 0.8);">
-                            <span class="avatar-icon" id="avatarFallback" style="font-size: 2.2rem;">👤</span>
-                            <img id="avatarImage" src="" alt="Avatar" style="display: none; width: 100%; height: 100%; object-fit: cover;" />
+                    <!-- LEFT COLUMN: ASSOCIATE PROFILE CARD -->
+                    <div class="auth-card" style="width: 100%; border-color: rgba(212, 175, 55, 0.4); background: #0a0c10;">
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); padding-bottom: 0.8rem; margin-bottom: 1.2rem;">
+                            <div>
+                                <span class="hero-tag" style="font-size: 0.65rem; background: var(--gold); color: #000; font-weight: bold;">ASSOCIATE PROFILE</span>
+                                <h2 id="profileName" style="margin-top: 0.4rem; font-family: var(--font-mono); font-size: 1.3rem;">Associate Account</h2>
+                            </div>
+                            <span style="font-size: 0.75rem; color: var(--gold); font-family: var(--font-mono);">STATUS: ACTIVE</span>
                         </div>
+
+                        <!-- AVATAR DISPLAY & UPLOAD SECTION -->
+                        <div style="display: flex; align-items: center; gap: 1.2rem; margin-bottom: 1.5rem; background: #000; padding: 1rem; border-radius: 6px; border: 1px solid var(--card-border);">
+                            <div style="position: relative; width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--gold); overflow: hidden; background: #111; display: flex; align-items: center; justify-content: center;">
+                                <img id="avatarImage" src="" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                <span id="avatarFallback" style="font-size: 1.8rem; color: var(--gold);">👤</span>
+                            </div>
+                            <div>
+                                <label for="avatarInput" class="btn-secondary" style="display: inline-block; padding: 0.4rem 0.8rem; font-size: 0.75rem; cursor: pointer; background: rgba(212, 175, 55, 0.1); border-color: var(--gold); color: var(--gold-bright);">
+                                    Upload Photo
+                                </label>
+                                <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+                                <span style="display: block; font-size: 0.68rem; color: var(--text-muted); margin-top: 0.4rem;">PNG/JPG up to 2MB</span>
+                            </div>
+                        </div>
+
+                        <!-- PROFILE STATS GRID -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div style="background: #000; padding: 0.8rem; border-radius: 4px; border: 1px solid #222;">
+                                <span style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block;">LEGACY CREDIT BALANCE</span>
+                                <span id="coinBalance" style="font-size: 1.4rem; font-weight: bold; color: var(--gold-bright); font-family: var(--font-mono);">0</span> <span style="font-size: 0.8rem; color: var(--gold);">LC</span>
+                            </div>
+                            <div style="background: #000; padding: 0.8rem; border-radius: 4px; border: 1px solid #222;">
+                                <span style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block;">ASSOCIATE TIER RANK</span>
+                                <span id="profileRank" style="font-size: 0.95rem; font-weight: bold; color: #fff; font-family: var(--font-mono);">Bronze Initiate</span>
+                            </div>
+                        </div>
+
+                        <!-- PROMO CODE / VOUCHER REDEMPTION FORM -->
+                        <div style="background: rgba(15, 18, 25, 0.8); border: 1px solid var(--card-border); padding: 1rem; border-radius: 6px;">
+                            <h4 style="margin: 0 0 0.5rem 0; font-family: var(--font-mono); font-size: 0.88rem; color: var(--gold);">🎟️ PROMO VOUCHER REDEMPTION</h4>
+                            <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.8rem;">Enter fast-track training voucher codes to unlock bonus credits and archive clearance.</p>
+                            
+                            <form id="quizForm" style="display: flex; gap: 0.5rem;">
+                                <input type="text" id="answerInput" placeholder="ENTER CODE (e.g., 1317)" required style="flex: 1; padding: 0.5rem; font-family: var(--font-mono); text-transform: uppercase;">
+                                <button type="submit" class="btn-primary" style="width: auto; padding: 0.5rem 1rem; font-size: 0.8rem;">REDEEM</button>
+                            </form>
+                            <p id="quizFeedback" style="font-size: 0.75rem; margin-top: 0.6rem; font-family: var(--font-mono);"></p>
+                        </div>
+
+                        <!-- UNLOCKED RESOURCES SECTION -->
+                        <div style="margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid #222;">
+                            <h4 style="margin: 0 0 0.5rem 0; font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted);">UNLOCKED ARCHIVE CLEARANCE</h4>
+                            <div id="unlockedLinks"></div>
+                        </div>
+
                     </div>
 
-                    <!-- Hidden File Input -->
-                    <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+                    <!-- RIGHT COLUMN: NETWORK LEADERBOARD -->
+                    <div class="auth-card" style="width: 100%; border-color: rgba(212, 175, 55, 0.4); background: #0a0c10;">
+                        
+                        <div style="border-bottom: 2px solid var(--gold); padding-bottom: 0.8rem; margin-bottom: 1.2rem;">
+                            <span class="hero-tag" style="font-size: 0.65rem; background: var(--gold); color: #000; font-weight: bold;">GLOBAL LEADERBOARD</span>
+                            <h2 style="margin-top: 0.4rem; font-family: var(--font-mono); font-size: 1.3rem;">Top Downline Earner Standings</h2>
+                        </div>
 
-                    <h2 id="profileName" style="font-size: 1.3rem; margin-bottom: 0.2rem;">Associate</h2>
-                    <div class="hero-tag" id="profileRank" style="font-size: 0.7rem; margin-bottom: 1.2rem;">Bronze Initiate</div>
-                    
-                    <div class="feature-card" style="flex-direction: column; align-items: center; text-align: center; background: rgba(10, 12, 16, 0.6);">
-                        <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;">Legacy Credits (LC)</span>
-                        <span id="coinBalance" class="gold-text" style="font-size: 1.8rem; font-weight: bold; font-family: var(--font-mono);">0</span>
-                    </div>
-                </div>
-
-                <!-- Partner Resource Library Card -->
-                <div class="auth-card">
-                    <h4 style="color: var(--text-main); margin-bottom: 0.8rem; font-size: 1rem;">Partner Resource Library</h4>
-                    <div id="unlockedLinks" class="unlocked-links-container">
-                        <p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">
-                            No bonus resources unlocked yet. Enter promo codes on the portal to access premium training.
+                        <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1.2rem;">
+                            Live associate standings synchronized with the Supabase core billing database.
                         </p>
-                    </div>
-                </div>
 
-            </aside>
-
-            <!-- Right Main Content Area -->
-            <main class="hero-content" style="display: flex; flex-direction: column; gap: 1.5rem;">
-                
-                <!-- Corporate Rewards & Promo Redemption Portal -->
-                <div class="auth-card">
-                    <h2>Distributor Rewards & Vouchers</h2>
-                    <p class="subtitle">Enter corporate promotion keys, affiliate gift codes, or tier bonus vouchers to claim Legacy Credits.</p>
-
-                    <!-- Clean Corporate Status Box -->
-                    <div class="feature-card" style="margin-bottom: 1.2rem; border-color: rgba(212, 175, 55, 0.2); flex-direction: row; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-primary);">ACCOUNT STATUS: ACTIVE ASSOCIATE</span>
-                        <span class="hero-tag" style="margin: 0; padding: 0.1rem 0.5rem; font-size: 0.65rem;">REDEEM PROMO</span>
-                    </div>
-                    
-                    <form id="quizForm">
-                        <div class="form-group" style="display: flex; gap: 0.8rem; margin-bottom: 0;">
-                            <input type="text" id="answerInput" placeholder="ENTER PROMO OR VOUCHER CODE" autocomplete="off" required style="font-family: var(--font-mono); text-transform: uppercase;">
-                            <button type="submit" class="btn-primary" style="width: auto; padding: 0 1.5rem; white-space: nowrap;">Redeem Code</button>
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.82rem;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid var(--gold); color: var(--gold); font-family: var(--font-mono);">
+                                        <th style="padding: 0.6rem 0.4rem;">POS</th>
+                                        <th style="padding: 0.6rem 0.4rem;">ASSOCIATE</th>
+                                        <th style="padding: 0.6rem 0.4rem;">TIER</th>
+                                        <th style="padding: 0.6rem 0.4rem;">YIELD</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaderboardTable" style="line-height: 1.8;">
+                                    <tr>
+                                        <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 1.5rem 0;">
+                                            Synchronizing network standings...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                    </form>
-                    <div id="quizFeedback" class="status-message" style="text-align: left;"></div>
-                </div>
 
-                <!-- Global Leaderboard Section -->
-                <div class="auth-card">
-                    <h2>Associate Global Leaderboard</h2>
-                    <p class="subtitle">Real-time network hierarchy ordered by accumulated Legacy Credits.</p>
-                    
-                    <div style="overflow-x: auto;">
-                        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
-                            <thead>
-                                <tr style="border-bottom: 1px solid var(--card-border); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
-                                    <th style="padding: 0.8rem;">Rank</th>
-                                    <th style="padding: 0.8rem;">Associate ID</th>
-                                    <th style="padding: 0.8rem;">Tier</th>
-                                    <th style="padding: 0.8rem;">Credits</th>
-                                </tr>
-                            </thead>
-                            <tbody id="leaderboardTable">
-                                <tr>
-                                    <td colspan="4" style="text-align:center; padding: 1.5rem; color: var(--text-muted);">
-                                        Querying network ledger...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Corporate Training Modules -->
-                <div class="auth-card">
-                    <h2>Associate Training Materials</h2>
-                    <p class="subtitle">Access proprietary network elevation materials.</p>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1rem;">
-                        
-                        
-                        <a href="workshops.html" class="feature-card" style="flex-direction: column; gap: 0.5rem; text-decoration: none; color: inherit; transition: transform 0.2s;" data-node-id="1" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-                                <span class="hero-tag" style="margin: 0; padding: 0.1rem 0.5rem; font-size: 0.65rem;">ACCESSIBLE</span>
-                            </div>
-                            <h4 style="margin: 0;">Workshops</h4>
-                            <p>Browse current orientation seminars and archived corporate leadership summits.</p>
-                        </a>
-
-                        <div class="feature-card" style="flex-direction: column; gap: 0.5rem; opacity: 0.6;" data-node-id="2">
-                            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-                                <span id="badge-m2" style="font-size: 0.65rem; color: var(--accent-red); border: 1px solid var(--accent-red); padding: 0.1rem 0.5rem; border-radius: 12px;">100 LC REQUIRED</span>
-                            </div>
-                            <h4 style="margin: 0;">Legacy Expansion</h4>
-                            <p>Advanced recruitment & financial tier leverage strategies.</p>
+                        <!-- MASTERCLASS TRAINING LINK -->
+                        <div style="margin-top: 1.5rem; padding: 1rem; background: #000; border: 1px dashed var(--gold); border-radius: 6px; text-align: center;">
+                            <span style="font-size: 0.75rem; color: var(--gold); font-family: var(--font-mono); display: block; margin-bottom: 0.4rem;">NEW MASTERCLASS AVAILABLE</span>
+                            <a href="workshops.html" class="btn-primary" style="display: inline-block; text-decoration: none; padding: 0.5rem 1.2rem; font-size: 0.82rem;">
+                                Enter Masterclass Portal →
+                            </a>
                         </div>
 
                     </div>
-                </div>
 
+                </div>
             </main>
         </div>
+
+        
+        <aside class="ad-sidebar right-ad">
+            <div class="pure-ad-banner">
+                <video autoplay loop muted playsinline class="ad-video-element">
+                    <source src="Ads-Vert2.mp4" type="video/mp4">
+                    Your browser does not support HTML5 video.
+                </video>
+            </div>
+        </aside>
+
     </div>
 
-    <!-- Footer -->
     <footer>
-        <p>&copy; 2025–<span id="current-year">2026</span> Lifetime Legacy Global Network. All Rights Reserved. <span class="latin-motto" title="Look beneath the surface">Secretum In Unitate</span>.</p>
+        <p>&copy; 2025–2026 Lifetime Legacy Global Network. All Rights Reserved. Secretum In Unitate.</p>
     </footer>
 
-    <!-- Developer Console Script -->
-    <script>
-        console.log(
-            "%c[LLG ASSOCIATE PORTAL]\n" +
-            "--------------------------------------------------\n" +
-            "Associate Session Authenticated.\n" +
-            "Voucher redemption portal active.\n" +
-            "--------------------------------------------------",
-            "color: #d4af37; font-family: monospace; font-size: 12px; font-weight: bold;"
-        );
-    </script>
 </body>
 </html>
