@@ -2,7 +2,6 @@
 // 1. SUPABASE INITIALIZATION
 // ==========================================
 const SUPABASE_URL = "https://clnqxwyewtzofeiyzrbk.supabase.co";
-// Paste your exact fresh anon public key below
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbnF4d3lld3R6b2ZlaXl6cmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5MTgzMzksImV4cCI6MjEwNjQ5NDMzOX0.pZa8UV-EBkI-hJmYdi4Cl406pTsC2B4WqyAyO_0f_Tg";
 
 let supabaseClient = null;
@@ -11,7 +10,7 @@ if (typeof supabase !== 'undefined') {
 }
 
 // ==========================================
-// 2. LOCAL STORAGE HELPERS
+// 2. LOCAL STORAGE & STATUS HELPERS
 // ==========================================
 function getLocalUserData() {
     const local = localStorage.getItem('user_profile_data');
@@ -29,7 +28,6 @@ function saveLocalUserData(data) {
     localStorage.setItem('user_profile_data', JSON.stringify(updated));
 }
 
-// Helper to set status message safely without crashing on missing DOM elements
 function setStatusMessage(elementId, text, color) {
     const el = document.getElementById(elementId);
     if (el) {
@@ -38,17 +36,25 @@ function setStatusMessage(elementId, text, color) {
     }
 }
 
+async function hashInput(text) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(text.toUpperCase().trim());
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 // ==========================================
-// 3. PUZZLE / OVERRIDE CODES DATABASE
+// 3. PUZZLE HASHS (1317 & LEGACY_INITIATE_2026)
 // ==========================================
-const PUZZLE_CODES = {
-    "LEGACY_INITIATE_2026": {
-        rewardCoins: 50,
-        newRank: "Silver Visionary",
-        unlockedTitle: "Archive 01: Directive Memorandum",
-        unlockedUrl: "archive_01.html"
+const PUZZLE_HASHES = {
+    "350284df24a354c0e66c72d627b0eb51493b890a2a4b3d2b2746c591c27e997f": { // 1317
+        rewardCoins: 25,
+        newRank: "Bronze Associate",
+        unlockedTitle: "Node 01: Master Matrix Ledger",
+        unlockedUrl: "index2.html"
     },
-    "TEVHQUNZX01OSVRJQVRFXzIwMjY=": {
+    "0c9bf869688bc8a90626359df3ba8bd6693821034f19b2aa0f7793d40d99990e": { // LEGACY_INITIATE_2026
         rewardCoins: 50,
         newRank: "Silver Visionary",
         unlockedTitle: "Archive 01: Directive Memorandum",
@@ -59,7 +65,6 @@ const PUZZLE_CODES = {
 // ==========================================
 // 4. SUPABASE PROFILE & LEADERBOARD API
 // ==========================================
-
 async function fetchUserProfile(userId) {
     if (!supabaseClient || !userId) {
         return getLocalUserData();
@@ -114,7 +119,7 @@ async function saveUserProfile(userId, data) {
     if (supabaseClient && userId) {
         try {
             const { data: { user } } = await supabaseClient.auth.getUser();
-            
+
             const payload = {
                 id: userId,
                 email: user ? user.email : '',
@@ -164,9 +169,9 @@ async function fetchLeaderboard() {
             const username = item.email ? item.email.split('@')[0] : `Associate #${index + 1}`;
             return `
                 <tr>
-                    <td style="font-family: var(--font-mono); color: var(--accent-gold);">#${index + 1}</td>
+                    <td style="font-family: var(--font-mono); color: var(--gold);">#${index + 1}</td>
                     <td style="font-weight: 600;">${username}</td>
-                    <td><span class="badge status-unlocked">${item.rank || 'Bronze Initiate'}</span></td>
+                    <td><span class="hero-tag" style="margin:0; padding:0.1rem 0.5rem; font-size:0.65rem;">${item.rank || 'Bronze Initiate'}</span></td>
                     <td style="font-family: var(--font-mono); font-weight: bold;">${item.coins || 0} LC</td>
                 </tr>
             `;
@@ -254,29 +259,46 @@ function renderUnlockedArchives(unlockedPages) {
     }
 
     container.innerHTML = unlockedPages.map(page => `
-        <a href="${page.url}" class="unlocked-link" target="_blank">
+        <a href="${page.url}" class="unlocked-link" target="_blank" style="display:block; color:var(--gold); margin-bottom:0.4rem; text-decoration:none;">
             🔓 ${page.title}
         </a>
     `).join('');
 }
 
 // ==========================================
-// 5. EVENT LISTENERS & INITIALIZATION
+// 5. MAIN PIPELINE LOGIC & DOM HANDLERS
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
     let currentUser = null;
+    const currentPath = window.location.pathname;
 
+    // --- PIPELINE STEP 1: AUTHENTICATION CHECK ---
     if (supabaseClient) {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (session) {
             currentUser = session.user;
-        } else if (window.location.pathname.includes('dashboard.html')) {
-            window.location.href = 'index.html';
-            return;
+            
+            // If logged in and visiting Landing or Signup, send directly to Dashboard
+            if (currentPath.endsWith('index.html') || currentPath.endsWith('signup.html') || currentPath === '/') {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+        } else {
+            // If NOT logged in and attempting to visit Dashboard, bounce to Landing page
+            if (currentPath.endsWith('dashboard.html')) {
+                window.location.href = 'index.html';
+                return;
+            }
         }
     }
 
-    // Sign Up Form Handler (signup.html)
+    // Avatar File Input Event Listener Setup
+    const avatarInput = document.getElementById('avatarInput') || document.getElementById('avatarFileInput');
+    if (avatarInput) {
+        avatarInput.addEventListener('change', uploadAvatar);
+    }
+
+    // --- PIPELINE STEP 2: SIGNUP FORM HANDLER (signup.html) ---
     const signupForm = document.getElementById('signupForm');
     if (signupForm) {
         signupForm.addEventListener('submit', async (e) => {
@@ -296,23 +318,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            const { data, error } = await supabaseClient.auth.signUp({
-                email,
-                password
-            });
+            const { data, error } = await supabaseClient.auth.signUp({ email, password });
 
             if (error) {
                 setStatusMessage('signupStatus', error.message, 'var(--accent-red)');
             } else {
-                setStatusMessage('signupStatus', 'Registration successful! Redirecting to login...', 'var(--accent-emerald)');
-                setTimeout(() => {
-                    window.location.href = 'index.html';
+                setStatusMessage('signupStatus', 'Registration successful! Redirecting to login portal...', 'var(--gold)');
+                setTimeout(() => { 
+                    window.location.href = 'index.html'; 
                 }, 1500);
             }
         });
     }
 
-    // Login Form Handler (index.html)
+    // --- PIPELINE STEP 3: LOGIN FORM HANDLER (index.html) ---
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
@@ -332,31 +351,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            const { data, error } = await supabaseClient.auth.signInWithPassword({
-                email,
-                password
-            });
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
             if (error) {
                 setStatusMessage('loginStatus', error.message, 'var(--accent-red)');
             } else {
-                setStatusMessage('loginStatus', 'Access granted. Opening portal...', 'var(--accent-emerald)');
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
+                setStatusMessage('loginStatus', 'Access granted. Opening Associate Portal...', 'var(--gold)');
+                setTimeout(() => { 
+                    window.location.href = 'dashboard.html'; 
                 }, 1000);
             }
         });
     }
 
-    // Initialize Dashboard UI if on dashboard.html
+    // --- PIPELINE STEP 4: DASHBOARD HYDRATION (dashboard.html) ---
     if (document.getElementById('coinBalance')) {
         const userId = currentUser ? currentUser.id : null;
-        
+
         if (currentUser) {
             const userHandle = currentUser.email ? currentUser.email.split('@')[0] : 'Associate';
             const navUser = document.getElementById('navUser');
             const profileName = document.getElementById('profileName');
-            
+
             if (navUser) navUser.textContent = currentUser.email;
             if (profileName) profileName.textContent = userHandle;
         }
@@ -368,13 +384,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (coinBalance) coinBalance.textContent = profile.coins;
         if (profileRank) profileRank.textContent = profile.rank;
-        
+
         renderAvatar(profile.avatarUrl);
         renderUnlockedArchives(profile.unlockedPages);
         fetchLeaderboard();
     }
 
-    // Terminal / Puzzle Submit Form Handling
+    // --- PUZZLE & TERMINAL OVERRIDE SUBMISSION ---
     const quizForm = document.getElementById('quizForm');
     if (quizForm) {
         quizForm.addEventListener('submit', async (e) => {
@@ -383,14 +399,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const feedback = document.getElementById('quizFeedback');
             if (!inputField || !feedback) return;
 
-            const userKey = inputField.value.trim().toUpperCase();
+            const userInput = inputField.value.trim();
+            const inputHash = await hashInput(userInput);
 
-            const matchedKey = Object.keys(PUZZLE_CODES).find(
-                key => key.toUpperCase() === userKey
-            );
-
-            if (matchedKey) {
-                const puzzleData = PUZZLE_CODES[matchedKey];
+            if (PUZZLE_HASHES[inputHash]) {
+                const puzzleData = PUZZLE_HASHES[inputHash];
                 const userId = currentUser ? currentUser.id : null;
                 const currentProfile = await fetchUserProfile(userId);
 
@@ -399,7 +412,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 );
 
                 if (alreadyUnlocked) {
-                    feedback.style.color = "var(--accent-gold)";
+                    feedback.style.color = "var(--gold)";
                     feedback.textContent = "Key recognized: Override already authorized for this account.";
                     return;
                 }
@@ -429,7 +442,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 renderUnlockedArchives(updatedUnlocked);
                 fetchLeaderboard();
 
-                feedback.style.color = "var(--accent-emerald)";
+                feedback.style.color = "var(--gold)";
                 feedback.textContent = `Key Verified. Awarded ${puzzleData.rewardCoins} LC. Rank updated to ${updatedRank}.`;
                 inputField.value = "";
             } else {
@@ -439,7 +452,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Logout Handler
+    // --- PIPELINE DISCONNECT / LOGOUT HANDLER ---
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
