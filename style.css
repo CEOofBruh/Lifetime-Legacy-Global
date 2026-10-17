@@ -221,33 +221,37 @@ input:focus {
 }
 
 /* ==========================================
-   BALANCED 3-COLUMN AD-INTEGRATED LAYOUT
+   PERMANENT 3-COLUMN AD-INTEGRATED LAYOUT
    ========================================== */
 .page-with-ads-layout {
-    display: grid;
-    /* Fixed 180px sidebars for clean video ad banners */
-    grid-template-columns: 180px 1fr 180px;
+    display: grid !important;
+    grid-template-columns: 180px minmax(0, 1fr) 180px !important;
     gap: 1.5rem;
     width: 100%;
     max-width: 1700px;
     margin: 1rem auto;
     padding: 0 1rem;
     align-items: start;
+    box-sizing: border-box;
+}
+
+/* Lock sidebar dimensions against JS re-render collapses */
+.ad-sidebar {
+    width: 180px !important;
+    min-width: 180px !important;
+    max-width: 180px !important;
+    display: block !important;
 }
 
 .main-content-column {
-    min-width: 0; /* Prevents center dashboard from overflowing */
-}
-
-.ad-sidebar {
-    width: 100%;
-    display: block !important;
+    min-width: 0 !important;
+    width: 100% !important;
 }
 
 /* Clean, Sticky Video Banner Box */
 .pure-ad-banner {
-    width: 100%;
-    height: 500px;
+    width: 100% !important;
+    height: 500px !important;
     background: #000;
     border: 1px solid var(--card-border);
     border-radius: 6px;
@@ -257,10 +261,10 @@ input:focus {
 }
 
 .ad-video-element {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
 }
 
 /* ==========================================
