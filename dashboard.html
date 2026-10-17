@@ -205,5 +205,37 @@
             "color: #d4af37; font-family: monospace; font-size: 12px; font-weight: bold;"
         );
     </script>
+
+    <!-- VIDEO DEBUG & AUTOPLAY ENFORCER -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const videos = document.querySelectorAll('.ad-video-element');
+        console.log(`[LLG AD DIAGNOSTIC] Found ${videos.length} video elements.`);
+
+        videos.forEach((video, index) => {
+            const source = video.querySelector('source');
+            const srcUrl = source ? source.getAttribute('src') : video.src;
+            console.log(`[LLG AD DIAGNOSTIC] Video #${index + 1} path: "${srcUrl}"`);
+
+            // Force browser play trigger
+            const playPromise = video.play();
+
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => {
+                        console.log(`%c[LLG AD SUCCESS] Video #${index + 1} ("${srcUrl}") is actively playing!`, "color: #00ff00; font-weight: bold;");
+                    })
+                    .catch((error) => {
+                        console.error(`[LLG AD ERROR] Video #${index + 1} ("${srcUrl}") failed to play:`, error);
+                    });
+            }
+
+            // Media error handling
+            video.addEventListener('error', (e) => {
+                console.error(`[LLG AD 404/MEDIA ERROR] Failed to load media resource for Video #${index + 1} at "${srcUrl}".`, video.error);
+            });
+        });
+    });
+</script>
 </body>
 </html>
