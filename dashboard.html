@@ -53,7 +53,9 @@
         <!-- MAIN DASHBOARD CONTENT -->
         <div class="main-content-column">
             <div class="hero-wrapper" style="padding: 0;">
-                <div class="hero-container" style="align-items: start; grid-template-columns: 320px 1fr;">
+                
+                <!-- INNER DASHBOARD GRID -->
+                <div class="hero-container" style="align-items: start; grid-template-columns: minmax(240px, 280px) 1fr;">
                     
                     <!-- Left Profile & Resources Sidebar -->
                     <aside class="hero-content">
@@ -148,7 +150,7 @@
                             <h2>Associate Training Modules</h2>
                             <p class="subtitle">Access proprietary network elevation materials.</p>
                             
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
                                 
                                 <!-- Active Module 01 card linking to workshops.html -->
                                 <a href="workshops.html" class="feature-card" style="flex-direction: column; gap: 0.5rem; text-decoration: none; color: inherit; transition: transform 0.2s;" data-node-id="1" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
@@ -191,10 +193,10 @@
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 1998–<span id="current-year">2026</span> Lifetime Legacy Global Network. All Rights Reserved. <span class="latin-motto" title="Look beneath the surface">Secretum In Unitate</span>.</p>
+        <p>&copy; 2025–<span id="current-year">2026</span> Lifetime Legacy Global Network. All Rights Reserved. <span class="latin-motto" title="Look beneath the surface">Secretum In Unitate</span>.</p>
     </footer>
 
-    <!-- Developer Console Script -->
+    <!-- Developer Console Diagnostic Script -->
     <script>
         console.log(
             "%c[LLG ASSOCIATE PORTAL]\n" +
@@ -204,38 +206,13 @@
             "--------------------------------------------------",
             "color: #d4af37; font-family: monospace; font-size: 12px; font-weight: bold;"
         );
-    </script>
 
-    <!-- VIDEO DEBUG & AUTOPLAY ENFORCER -->
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const videos = document.querySelectorAll('.ad-video-element');
-        console.log(`[LLG AD DIAGNOSTIC] Found ${videos.length} video elements.`);
-
-        videos.forEach((video, index) => {
-            const source = video.querySelector('source');
-            const srcUrl = source ? source.getAttribute('src') : video.src;
-            console.log(`[LLG AD DIAGNOSTIC] Video #${index + 1} path: "${srcUrl}"`);
-
-            // Force browser play trigger
-            const playPromise = video.play();
-
-            if (playPromise !== undefined) {
-                playPromise
-                    .then(() => {
-                        console.log(`%c[LLG AD SUCCESS] Video #${index + 1} ("${srcUrl}") is actively playing!`, "color: #00ff00; font-weight: bold;");
-                    })
-                    .catch((error) => {
-                        console.error(`[LLG AD ERROR] Video #${index + 1} ("${srcUrl}") failed to play:`, error);
-                    });
-            }
-
-            // Media error handling
-            video.addEventListener('error', (e) => {
-                console.error(`[LLG AD 404/MEDIA ERROR] Failed to load media resource for Video #${index + 1} at "${srcUrl}".`, video.error);
+        document.addEventListener("DOMContentLoaded", () => {
+            const videos = document.querySelectorAll('.ad-video-element');
+            videos.forEach((video) => {
+                video.play().catch((err) => console.warn('[LLG AD AUTOPLAY NOTICE]', err));
             });
         });
-    });
-</script>
+    </script>
 </body>
 </html>
