@@ -62,4 +62,446 @@ nav {
 }
 
 .logo-link:hover {
-    opacity: 0.9
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.logo-img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.logo-text {
+    font-family: var(--font-mono);
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    font-size: 1rem;
+    color: var(--gold);
+    transition: color 0.2s ease;
+}
+
+.logo-link:hover .logo-text {
+    color: var(--gold-bright);
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+nav a {
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 0.88rem;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+nav a:hover {
+    color: var(--gold-bright);
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+}
+
+.gold-text {
+    color: var(--gold) !important;
+}
+
+/* ==========================================
+   PUBLIC PAGES HERO (INDEX & SIGNUP)
+   ========================================== */
+.hero-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    width: 100%;
+}
+
+.hero-container {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 3rem;
+    max-width: 1100px;
+    width: 100%;
+    margin: 0 auto;
+    align-items: center;
+}
+
+.hero-title {
+    font-size: 2.8rem;
+    font-weight: 800;
+    line-height: 1.15;
+    color: #fff;
+    margin: 0.8rem 0 1rem 0;
+    letter-spacing: -0.5px;
+}
+
+.hero-subtitle {
+    font-size: 1rem;
+    color: var(--text-main);
+    margin-bottom: 2rem;
+    max-width: 580px;
+}
+
+/* ==========================================
+   BUTTONS & FORM INPUTS (WITH HOVER EFFECTS)
+   ========================================== */
+.btn-primary {
+    display: inline-block;
+    width: 100%;
+    background: var(--gold);
+    color: #000;
+    font-weight: bold;
+    font-family: var(--font-mono);
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.15);
+}
+
+.btn-primary:hover {
+    background: var(--gold-bright);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(255, 215, 0, 0.35);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(212, 175, 55, 0.2);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--text-main);
+    border: 1px solid var(--card-border);
+    font-family: var(--font-mono);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    border-color: var(--gold);
+    color: var(--gold-bright);
+    background: rgba(212, 175, 55, 0.05);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--text-main);
+    margin-bottom: 0.4rem;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    background: #000;
+    border: 1px solid var(--card-border);
+    color: #fff;
+    padding: 0.75rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+input[type="text"]:hover,
+input[type="email"]:hover,
+input[type="password"]:hover {
+    border-color: rgba(212, 175, 55, 0.5);
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+    background: #050608;
+}
+
+/* ==========================================
+   CARDS & BRUTALIST COMPONENTS
+   ========================================== */
+.auth-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-card:hover {
+    border-color: rgba(212, 175, 55, 0.3);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85);
+}
+
+.auth-card h2 {
+    font-family: var(--font-mono);
+    font-size: 1.25rem;
+    color: #fff;
+    margin-bottom: 0.3rem;
+}
+
+.auth-card p.subtitle {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.feature-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1.2rem;
+    background: #000;
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    transition: all 0.25s ease;
+}
+
+.feature-card:hover {
+    border-color: var(--gold);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+    background: #040508;
+}
+
+.feature-card h4 {
+    color: #fff;
+    font-size: 0.92rem;
+    margin-bottom: 0.2rem;
+    transition: color 0.2s ease;
+}
+
+.feature-card:hover h4 {
+    color: var(--gold-bright);
+}
+
+.feature-card p {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+}
+
+/* Avatar Styling */
+.avatar-container {
+    transition: transform 0.2s ease;
+    margin: 0.8rem auto 1rem auto !important;
+}
+
+.avatar-container:hover {
+    transform: scale(1.05);
+}
+
+.avatar-container:hover .avatar-circle {
+    border-color: var(--gold-bright) !important;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+/* Badge & Tag Styling */
+.hero-tag {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    transition: all 0.2s ease;
+}
+
+.hero-tag:hover {
+    background: rgba(212, 175, 55, 0.2);
+    color: var(--gold-bright);
+}
+
+.auth-card .hero-tag {
+    margin-bottom: 0.8rem !important;
+}
+
+.status-message {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    margin-top: 0.8rem;
+}
+
+/* ==========================================
+   PERMANENT 3-COLUMN LAYOUT & SIDE MEDIA PANELS
+   (Neutralized class names to prevent adblocker triggers)
+   ========================================== */
+.page-with-wings-layout {
+    display: grid !important;
+    grid-template-columns: 180px minmax(0, 1fr) 180px !important;
+    gap: 1.8rem;
+    width: 100%;
+    max-width: 1700px;
+    margin: 2rem auto 1.5rem auto !important;
+    padding: 0.5rem 1rem 1.5rem 1rem;
+    align-items: start;
+    box-sizing: border-box;
+}
+
+.wing-sidebar {
+    width: 180px !important;
+    min-width: 180px !important;
+    max-width: 180px !important;
+    display: block !important;
+}
+
+.main-content-column {
+    min-width: 0 !important;
+    width: 100% !important;
+}
+
+/* Dynamic full-height sticky video frame */
+.media-stream-frame {
+    width: 100% !important;
+    height: calc(100vh - 7.5rem) !important;
+    min-height: 520px !important;
+    max-height: 880px !important;
+    background: #000;
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    overflow: hidden;
+    position: sticky;
+    top: 5.5rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.media-stream-frame:hover {
+    border-color: var(--gold);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
+}
+
+.stream-video-element {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+    transition: transform 0.3s ease;
+}
+
+.media-stream-frame:hover .stream-video-element {
+    transform: scale(1.02);
+}
+
+/* ==========================================
+   LEADERBOARD FORMATTING & BADGES
+   ========================================== */
+.leaderboard-table th,
+.leaderboard-table td {
+    padding: 0.75rem 0.5rem;
+    white-space: nowrap;
+}
+
+.tier-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.65rem;
+    font-family: var(--font-mono);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    border-radius: 3px;
+    white-space: nowrap;
+    text-align: center;
+}
+
+/* ==========================================
+   FOOTER
+   ========================================== */
+footer {
+    background: #000;
+    border-top: 1px solid var(--card-border);
+    padding: 1.5rem;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: auto;
+}
+
+.latin-motto {
+    color: var(--gold);
+    cursor: help;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.latin-motto:hover {
+    color: var(--gold-bright);
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+}
+
+/* ==========================================
+   RESPONSIVE OVERRIDES & MOBILE STACKING
+   ========================================== */
+@media (max-width: 1180px) {
+    /* Collapse 3-column layout into single-column stack */
+    .page-with-wings-layout {
+        grid-template-columns: 1fr !important;
+        padding: 1rem !important;
+    }
+    
+    .wing-sidebar {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Transform skyscraper sidebars into responsive top/bottom banners */
+    .media-stream-frame {
+        height: 180px !important;
+        min-height: 180px !important;
+        max-height: 180px !important;
+        position: relative !important;
+        top: 0 !important;
+        margin-bottom: 1rem;
+    }
+
+    .stream-video-element {
+        object-fit: cover !important;
+        object-position: center !important;
+    }
+
+    /* Stack inner profile sidebar and main content */
+    .hero-container {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+    }
+}
+
+@media (max-width: 960px) {
+    .hero-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 600px) {
+    /* Hide video sidebars on small screens for clean mobile reading */
+    .media-stream-frame {
+        display: none !important;
+    }
+
+    .auth-card {
+        padding: 1.25rem;
+    }
+}
