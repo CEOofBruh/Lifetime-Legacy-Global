@@ -1,370 +1,30 @@
 // ==========================================
-// 1. SUPABASE INITIALIZATION
+// UTILITY: SHA-256 HASHING ENGINE FOR IN-CODE CLUES
 // ==========================================
-const SUPABASE_URL = "https://clnqxwyewtzofeiyzrbk.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbnF4d3lld3R6b2ZlaXl6cmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5MTgzMzksImV4cCI6MjEwNjQ5NDMzOX0.pZa8UV-EBkI-hJmYdi4Cl406pTsC2B4WqyAyO_0f_Tg";
-
-let supabaseClient = null;
-if (typeof supabase !== 'undefined') {
-    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+async function hashString(str) {
+    const buffer = new TextEncoder().encode(str.trim().toUpperCase());
+    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+    return Array.from(new Uint8Array(hashBuffer))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
 }
 
-// ==========================================
-// 2. UNIVERSAL AUTHENTICATION ROUTE GUARD
-// ==========================================
-async function enforceRouteSecurity() {
-    if (!supabaseClient) return null;
+// HASHED CLUE SIGNATURES
+// "ARCHON_WATCHES" -> 8f12c1b920042d385f86c23b207a9b0c2a8f8876b51342f1118bc27c62241d01
+// "ARCHON_00"      -> e23c8a98c0827233fbbbf4b986b627cf9fb4a45d06b3e648f5a54dbbfd7e279d
+const HASH_VISAGE_VOUCHER = "8f12c1b920042d385f86c23b207a9b0c2a8f8876b51342f1118bc27c62241d01";
 
-    const currentPath = window.location.pathname;
-    
-    // Public pages that do NOT require authentication
-    const isPublicPage = currentPath.endsWith('index.html') || 
-                         currentPath.endsWith('signup.html') || 
-                         currentPath === '/' || 
-                         currentPath === '';
-
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    const currentUser = session ? session.user : null;
-
-    if (!session && !isPublicPage) {
-        window.location.href = 'index.html';
-        return null;
-    } else if (session && isPublicPage) {
-        window.location.href = 'dashboard.html';
-        return currentUser;
-    }
-
-    return currentUser;
-}
+// ENCODED CLUE TEXT (Obfuscated arrays to prevent string searches)
+const OBFUSCATED_TELEMETRY_APEX = [
+    "\x5b\x41\x52\x43\x48\x49\x56\x41\x4c\x20\x55\x4e\x4c\x4f\x43\x4b\x20\x2f\x2f\x20\x4e\x4f\x44\x45\x20\x41\x52\x43\x48\x4f\x4e\x5f\x30\x30\x5d",
+    "\x57\x61\x72\x6e\x69\x6e\x67\x3a\x20\x53\x75\x62\x73\x70\x61\x63\x65\x20\x48\x61\x72\x76\x65\x73\x74\x20\x52\x65\x73\x65\x72\x76\x6f\x69\x72\x20\x49\x6e\x74\x65\x72\x72\x6f\x67\x61\x74\x65\x64\x2e",
+    "\x43\x69\x70\x68\x65\x72\x20\x4b\x65\x79\x20\x48\x69\x6e\x74\x3a\x20\x27\x31\x33\x27\x20\x41\x63\x74\x69\x76\x65\x20\x56\x65\x73\x73\x65\x6c\x73\x2c\x20\x27\x31\x37\x27\x20\x46\x65\x65\x64\x69\x6e\x67\x20\x4c\x69\x6e\x65\x73\x2e"
+];
 
 // ==========================================
-// 3. LOCAL STORAGE & STATUS HELPERS
+// 5. PROMO CODE SUBMISSION ENGINE (SECURE RPC)
 // ==========================================
-function getLocalUserData() {
-    const local = localStorage.getItem('user_profile_data');
-    if (!local) return { coins: 0, rank: "Bronze Initiate", unlockedPages: [], avatarUrl: null };
-    try {
-        return JSON.parse(local);
-    } catch (e) {
-        return { coins: 0, rank: "Bronze Initiate", unlockedPages: [], avatarUrl: null };
-    }
-}
-
-function saveLocalUserData(data) {
-    const current = getLocalUserData();
-    const updated = { ...current, ...data };
-    localStorage.setItem('user_profile_data', JSON.stringify(updated));
-}
-
-function setStatusMessage(elementId, text, color) {
-    const el = document.getElementById(elementId);
-    if (el) {
-        el.textContent = text;
-        if (color) el.style.color = color;
-    }
-}
-
-// ==========================================
-// 4. SUPABASE PROFILE & LEADERBOARD API
-// ==========================================
-async function fetchUserProfile(userId) {
-    if (!supabaseClient || !userId) {
-        return getLocalUserData();
-    }
-
-    try {
-        let { data, error } = await supabaseClient
-            .from('profiles')
-            .select('coins, rank, unlocked_pages, avatar_url')
-            .eq('id', userId)
-            .maybeSingle();
-
-        if (!data) {
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            const newProfile = {
-                id: userId,
-                email: user ? user.email : '',
-                coins: 0,
-                rank: "Bronze Initiate",
-                unlocked_pages: [],
-                avatar_url: null
-            };
-
-            await supabaseClient.from('profiles').upsert(newProfile);
-
-            return {
-                coins: 0,
-                rank: "Bronze Initiate",
-                unlockedPages: [],
-                avatarUrl: null
-            };
-        }
-
-        const formattedData = {
-            coins: data.coins || 0,
-            rank: data.rank || "Bronze Initiate",
-            unlockedPages: data.unlocked_pages || [],
-            avatarUrl: data.avatar_url || null
-        };
-
-        saveLocalUserData(formattedData);
-        return formattedData;
-    } catch (e) {
-        console.error("Fetch profile failed:", e);
-        return getLocalUserData();
-    }
-}
-
-async function saveUserProfile(userId, data) {
-    saveLocalUserData(data);
-
-    if (supabaseClient && userId) {
-        try {
-            const { data: { user } } = await supabaseClient.auth.getUser();
-
-            const payload = {
-                id: userId,
-                email: user ? user.email : '',
-                coins: data.coins,
-                rank: data.rank,
-                unlocked_pages: data.unlockedPages,
-                updated_at: new Date().toISOString()
-            };
-
-            if (data.avatarUrl !== undefined) {
-                payload.avatar_url = data.avatarUrl;
-            }
-
-            await supabaseClient
-                .from('profiles')
-                .upsert(payload);
-        } catch (e) {
-            console.error("Cloud save failed:", e);
-        }
-    }
-}
-
-async function fetchLeaderboard() {
-    const leaderboardTable = document.getElementById('leaderboardTable');
-    if (!leaderboardTable || !supabaseClient) return;
-
-    try {
-        const { data, error } = await supabaseClient
-            .from('profiles')
-            .select('email, rank, coins')
-            .order('coins', { ascending: false })
-            .limit(10);
-
-        if (error) throw error;
-
-        if (!data || data.length === 0) {
-            leaderboardTable.innerHTML = `
-                <tr>
-                    <td colspan="4" style="text-align:center; color: var(--text-muted);">
-                        No associate standings recorded yet.
-                    </td>
-                </tr>`;
-            return;
-        }
-
-        leaderboardTable.innerHTML = data.map((item, index) => {
-            const username = item.email ? item.email.split('@')[0] : `Associate #${index + 1}`;
-            return `
-                <tr>
-                    <td style="font-family: var(--font-mono); color: var(--gold);">#${index + 1}</td>
-                    <td style="font-weight: 600;">${username}</td>
-                    <td><span class="tier-badge">${item.rank || 'Bronze Initiate'}</span></td>
-                    <td style="font-family: var(--font-mono); font-weight: bold;">${item.coins || 0} LC</td>
-                </tr>
-            `;
-        }).join('');
-    } catch (e) {
-        console.error("Failed to load leaderboard:", e);
-        leaderboardTable.innerHTML = `
-            <tr>
-                <td colspan="4" style="text-align:center; color: var(--accent-red);">
-                    Failed to sync leaderboard with network.
-                </td>
-            </tr>`;
-    }
-}
-
-async function uploadAvatar(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    if (!supabaseClient) {
-        return alert("Cloud database connection unavailable.");
-    }
-
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (!user) {
-        return alert("Session expired. Please log in again.");
-    }
-
-    const fileExt = file.name.split('.').pop();
-    const filePath = `${user.id}/avatar.${fileExt}`;
-
-    try {
-        let { error: uploadError } = await supabaseClient.storage
-            .from('avatars')
-            .upload(filePath, file, { upsert: true });
-
-        if (uploadError) throw uploadError;
-
-        const { data: publicUrlData } = supabaseClient.storage
-            .from('avatars')
-            .getPublicUrl(filePath);
-
-        const avatarUrl = publicUrlData.publicUrl + '?t=' + new Date().getTime();
-
-        await supabaseClient
-            .from('profiles')
-            .update({ avatar_url: avatarUrl })
-            .eq('id', user.id);
-
-        saveLocalUserData({ avatarUrl: avatarUrl });
-        renderAvatar(avatarUrl);
-        alert("Avatar updated successfully!");
-    } catch (error) {
-        console.error("Error uploading avatar:", error);
-        alert("Failed to upload avatar: " + error.message);
-    }
-}
-
-function renderAvatar(url) {
-    const avatarImg = document.getElementById('avatarImage');
-    const avatarFallback = document.getElementById('avatarFallback');
-
-    if (!avatarImg) return;
-
-    if (url) {
-        avatarImg.src = url;
-        avatarImg.style.display = 'block';
-        if (avatarFallback) avatarFallback.style.display = 'none';
-    } else {
-        avatarImg.style.display = 'none';
-        if (avatarFallback) avatarFallback.style.display = 'inline';
-    }
-}
-
-function renderUnlockedArchives(unlockedPages) {
-    const container = document.getElementById('unlockedLinks');
-    if (!container) return;
-
-    if (!unlockedPages || unlockedPages.length === 0) {
-        container.innerHTML = `
-            <p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">
-                No bonus resources unlocked yet. Enter promo codes on the portal to access premium training.
-            </p>`;
-        return;
-    }
-
-    container.innerHTML = unlockedPages.map(page => `
-        <a href="${page.url}" class="unlocked-link" target="_blank" style="display:block; color:var(--gold); margin-bottom:0.4rem; text-decoration:none;">
-            🔓 ${page.title}
-        </a>
-    `).join('');
-}
-
-// ==========================================
-// 5. MAIN PIPELINE LOGIC & DOM HANDLERS
-// ==========================================
-document.addEventListener('DOMContentLoaded', async () => {
-    const currentUser = await enforceRouteSecurity();
-
-    const avatarInput = document.getElementById('avatarInput') || document.getElementById('avatarFileInput');
-    if (avatarInput) {
-        avatarInput.addEventListener('change', uploadAvatar);
-    }
-
-    // SIGNUP FORM
-    const signupForm = document.getElementById('signupForm');
-    if (signupForm) {
-        signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const emailInput = document.getElementById('signupEmail');
-            const passwordInput = document.getElementById('signupPassword');
-            if (!emailInput || !passwordInput) return;
-
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
-
-            setStatusMessage('signupStatus', 'Registering associate identity...', 'var(--text-muted)');
-
-            if (!supabaseClient) {
-                setStatusMessage('signupStatus', 'Error: Supabase client not loaded.', 'var(--accent-red)');
-                return;
-            }
-
-            const { data, error } = await supabaseClient.auth.signUp({ email, password });
-
-            if (error) {
-                setStatusMessage('signupStatus', error.message, 'var(--accent-red)');
-            } else {
-                setStatusMessage('signupStatus', 'Registration successful! Redirecting to login portal...', 'var(--gold)');
-                setTimeout(() => { window.location.href = 'index.html'; }, 1500);
-            }
-        });
-    }
-
-    // LOGIN FORM
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const emailInput = document.getElementById('loginEmail');
-            const passwordInput = document.getElementById('loginPassword');
-            if (!emailInput || !passwordInput) return;
-
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
-
-            setStatusMessage('loginStatus', 'Authenticating clearance...', 'var(--text-muted)');
-
-            if (!supabaseClient) {
-                setStatusMessage('loginStatus', 'Error: Supabase client not loaded.', 'var(--accent-red)');
-                return;
-            }
-
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
-            if (error) {
-                setStatusMessage('loginStatus', error.message, 'var(--accent-red)');
-            } else {
-                setStatusMessage('loginStatus', 'Access granted. Opening Associate Portal...', 'var(--gold)');
-                setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
-            }
-        });
-    }
-
-    // DASHBOARD HYDRATION
-    if (document.getElementById('coinBalance')) {
-        const userId = currentUser ? currentUser.id : null;
-
-        if (currentUser) {
-            const userHandle = currentUser.email ? currentUser.email.split('@')[0] : 'Associate';
-            const navUser = document.getElementById('navUser');
-            const profileName = document.getElementById('profileName');
-
-            if (navUser) navUser.textContent = currentUser.email;
-            if (profileName) profileName.textContent = userHandle;
-        }
-
-        const profile = await fetchUserProfile(userId);
-
-        const coinBalance = document.getElementById('coinBalance');
-        const profileRank = document.getElementById('profileRank');
-
-        if (coinBalance) coinBalance.textContent = profile.coins;
-        if (profileRank) profileRank.textContent = profile.rank;
-
-        renderAvatar(profile.avatarUrl);
-        renderUnlockedArchives(profile.unlockedPages);
-        fetchLeaderboard();
-    }
-
-    // PROMO CODE SUBMISSION
+document.addEventListener('DOMContentLoaded', () => {
     const quizForm = document.getElementById('quizForm');
     if (quizForm) {
         quizForm.addEventListener('submit', async (e) => {
@@ -374,21 +34,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!inputField || !feedback) return;
 
             const userInput = inputField.value.trim().toUpperCase();
-            setStatusMessage('quizFeedback', 'Verifying promo voucher with billing network...', 'var(--text-muted)');
+            if (typeof setStatusMessage === 'function') {
+                setStatusMessage('quizFeedback', 'Verifying promo voucher with billing network...', 'var(--text-muted)');
+            }
 
             if (!supabaseClient) {
-                setStatusMessage('quizFeedback', 'Error: Cloud database client unavailable.', 'var(--accent-red)');
+                if (typeof setStatusMessage === 'function') {
+                    setStatusMessage('quizFeedback', 'Error: Cloud database client unavailable.', 'var(--accent-red)');
+                }
                 return;
             }
 
             try {
-                const { data: puzzleData, error } = await supabaseClient
-                    .from('puzzle_codes')
-                    .select('*')
-                    .eq('code', userInput)
-                    .maybeSingle();
+                // Secure RPC Function call
+                const { data: puzzleResults, error } = await supabaseClient
+                    .rpc('verify_puzzle_code', { input_code: userInput });
 
                 if (error) throw error;
+
+                const puzzleData = (puzzleResults && puzzleResults.length > 0) ? puzzleResults[0] : null;
 
                 if (puzzleData) {
                     const userId = currentUser ? currentUser.id : null;
@@ -426,8 +90,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (coinBalance) coinBalance.textContent = updatedCoins;
                     if (profileRank) profileRank.textContent = updatedRank;
 
-                    renderUnlockedArchives(updatedUnlocked);
-                    fetchLeaderboard();
+                    if (typeof renderUnlockedArchives === 'function') renderUnlockedArchives(updatedUnlocked);
+                    if (typeof fetchLeaderboard === 'function') fetchLeaderboard();
 
                     feedback.style.color = "var(--gold)";
                     feedback.textContent = `Voucher Approved! Awarded ${puzzleData.reward_coins} LC. Associate tier updated to ${updatedRank}.`;
@@ -443,22 +107,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     }
-
-    // LOGOUT
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            if (supabaseClient) {
-                await supabaseClient.auth.signOut();
-            }
-            localStorage.clear();
-            window.location.href = 'index.html';
-        });
-    }
 });
 
 // ==========================================
-// 6. THREE.JS 3D MATRIX HOLOGRAM ENGINE (INVERTED ANAMORPHIC VISAGE)
+// 6. THREE.JS 3D HOLOGRAM ENGINE (SECURE ANAMORPHIC HASHED REVEAL)
 // ==========================================
 let hologramScene, hologramCamera, hologramRenderer, hologramControls, hologramAnimationId;
 let invertedApexNode = null;
@@ -466,7 +118,6 @@ let occultLinesGroup = null;
 let isSubspaceRevealed = false;
 let isVisageAligned = false;
 
-// Target camera position looking up from under the floor grid
 const targetInvertedAngle = new THREE.Vector3(0.0, -4.2, 3.5);
 
 function openProjectionModal() {
@@ -528,7 +179,7 @@ function initHologram3D() {
     pointLight.position.set(0, 5, 5);
     hologramScene.add(pointLight);
 
-    // 13 STANDARD EXECUTIVE NODES (With Z-depth offsets for forced perspective)
+    // 13 STANDARD EXECUTIVE NODES
     const tier1 = [new THREE.Vector3(0, 2.8, 0)];
     
     const tier2 = [
@@ -538,15 +189,15 @@ function initHologram3D() {
     ];
 
     const tier3 = [
-        new THREE.Vector3(-2.8, -1.0, 1.2),  // Left Eye Brow
-        new THREE.Vector3(-1.8, -1.0, 0.4),  // Left Eye Socket
-        new THREE.Vector3(-0.9, -1.0, -0.6), // Cheekbone Left
-        new THREE.Vector3(-0.5, -1.0, 1.0),  // Nose Bridge Left
-        new THREE.Vector3(0, -1.0, 0.2),     // Nose Apex
-        new THREE.Vector3(0.5, -1.0, 1.0),   // Nose Bridge Right
-        new THREE.Vector3(0.9, -1.0, -0.6),  // Cheekbone Right
-        new THREE.Vector3(1.8, -1.0, 0.4),   // Right Eye Socket
-        new THREE.Vector3(2.8, -1.0, 1.2)    // Right Eye Brow
+        new THREE.Vector3(-2.8, -1.0, 1.2),
+        new THREE.Vector3(-1.8, -1.0, 0.4),
+        new THREE.Vector3(-0.9, -1.0, -0.6),
+        new THREE.Vector3(-0.5, -1.0, 1.0),
+        new THREE.Vector3(0, -1.0, 0.2),
+        new THREE.Vector3(0.5, -1.0, 1.0),
+        new THREE.Vector3(0.9, -1.0, -0.6),
+        new THREE.Vector3(1.8, -1.0, 0.4),
+        new THREE.Vector3(2.8, -1.0, 1.2)
     ];
 
     const allStandardNodes = [...tier1, ...tier2, ...tier3];
@@ -586,13 +237,11 @@ function initHologram3D() {
         }
     }
 
-    // ==========================================
-    // HIDDEN INVERTED OCCULT GEOMETRY
-    // ==========================================
+    // OCCULT SUBSPACE LAYER
     occultLinesGroup = new THREE.Group();
-    occultLinesGroup.visible = false; // Hidden until camera moves below floor
+    occultLinesGroup.visible = false;
 
-    const hiddenApexPos = new THREE.Vector3(0, -3.8, 0); // [ARCHON_00] - Forms the core mouth/jaw of the visage
+    const hiddenApexPos = new THREE.Vector3(0, -3.8, 0);
     const darkNodeMaterial = new THREE.MeshStandardMaterial({
         color: 0xef4444,
         emissive: 0x990000,
@@ -602,10 +251,9 @@ function initHologram3D() {
 
     invertedApexNode = new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 16), darkNodeMaterial);
     invertedApexNode.position.copy(hiddenApexPos);
-    invertedApexNode.userData = { id: "ARCHON_00", type: "OCCULT_APEX" };
+    invertedApexNode.userData = { id: "SUB_APEX", type: "OCCULT_APEX" };
     occultLinesGroup.add(invertedApexNode);
 
-    // INVERTED CRIMSON VECTOR LINES
     const occultLineMaterial = new THREE.LineBasicMaterial({ color: 0xef4444, opacity: 0.8, transparent: true });
     
     tier3.forEach(parentPos => {
@@ -621,7 +269,7 @@ function initHologram3D() {
     gridHelper.position.y = -1.8;
     hologramScene.add(gridHelper);
 
-    // RAYCASTER CLICK DETECTOR FOR NODES
+    // RAYCASTER CLICK DETECTOR
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
@@ -639,12 +287,7 @@ function initHologram3D() {
             if (clickedObject.userData.type === "OCCULT_APEX") {
                 clickedObject.material.color.setHex(0xff0000);
                 console.warn(
-                    "%c[ARCHIVAL UNLOCK // NODE ARCHON_00]\n" +
-                    "--------------------------------------------------\n" +
-                    "Warning: Subspace Harvest Reservoir Interrogated.\n" +
-                    "Residual Yield Transferred To Higher Order.\n" +
-                    "Cipher Key Hint: '13' Active Vessels, '17' Feeding Lines.\n" +
-                    "--------------------------------------------------",
+                    `%c${OBFUSCATED_TELEMETRY_APEX[0]}\n--------------------------------------------------\n${OBFUSCATED_TELEMETRY_APEX[1]}\n${OBFUSCATED_TELEMETRY_APEX[2]}\n--------------------------------------------------`,
                     "color: #ef4444; font-family: monospace; font-size: 12px; font-weight: bold;"
                 );
             } else {
@@ -657,12 +300,12 @@ function initHologram3D() {
         }
     });
 
-    // ANIMATION & PERSPECTIVE CHECK LOOP
+    // ANIMATION & HASH-VERIFIED ALIGNMENT LOOP
     function animate() {
         hologramAnimationId = requestAnimationFrame(animate);
         hologramControls.update();
 
-        // 1. Check if camera is beneath the grid floor (Y < -0.8)
+        // 1. Orbit beneath grid check
         if (hologramCamera.position.y < -0.8) {
             if (!isSubspaceRevealed) {
                 isSubspaceRevealed = true;
@@ -670,93 +313,12 @@ function initHologram3D() {
                 hologramScene.background = new THREE.Color(0x1a0305);
             }
 
-            // 2. Check if camera hits the specific alignment angle looking up
+            // 2. Anamorphic perspective alignment
             const distToAngle = hologramCamera.position.distanceTo(targetInvertedAngle);
             if (distToAngle < 0.95) {
                 if (!isVisageAligned) {
                     isVisageAligned = true;
                     
-                    // Flash all standard nodes crimson to highlight the face
                     hologramScene.traverse((obj) => {
                         if (obj.isMesh && obj.userData.type === "EXECUTIVE") {
                             obj.material.color.setHex(0xef4444);
-                        }
-                    });
-
-                    const title = document.getElementById('modalHologramTitle');
-                    const statusHud = document.getElementById('statusHud');
-                    
-                    if (title) {
-                        title.textContent = "ANAMORPHIC REVEAL // ARCHON VISAGE";
-                        title.style.color = "var(--accent-red)";
-                    }
-                    if (statusHud) {
-                        statusHud.textContent = "CRITICAL ALIGNMENT • THE ARCHITECT IS WATCHING";
-                        statusHud.style.color = "var(--accent-red)";
-                    }
-
-                    console.warn(
-                        "%c[INVERTED VISAGE ALIGNMENT DETECTED]\n" +
-                        "--------------------------------------------------\n" +
-                        "Subspace geometry resolves into the countenance of the Founder.\n" +
-                        "Console Voucher: 'ARCHON_WATCHES'\n" +
-                        "--------------------------------------------------",
-                        "color: #ef4444; font-family: monospace; font-size: 12px; font-weight: bold;"
-                    );
-                }
-            } else if (isVisageAligned) {
-                isVisageAligned = false;
-                
-                // Revert nodes back to gold
-                hologramScene.traverse((obj) => {
-                    if (obj.isMesh && obj.userData.type === "EXECUTIVE") {
-                        obj.material.color.setHex(0xffd700);
-                    }
-                });
-
-                const title = document.getElementById('modalHologramTitle');
-                const statusHud = document.getElementById('statusHud');
-                
-                if (title) {
-                    title.textContent = "INVERTED SUBSPACE HARVEST MATRIX";
-                    title.style.color = "var(--accent-red)";
-                }
-                if (statusHud) {
-                    statusHud.textContent = "CRACKED TRANSMISSION • ARCHON_00 APEX FEED UNLOCKED";
-                    statusHud.style.color = "var(--accent-red)";
-                }
-            }
-
-        } else {
-            // Above grid floor -> hide occult layer and reset titles
-            if (isSubspaceRevealed) {
-                isSubspaceRevealed = false;
-                isVisageAligned = false;
-                occultLinesGroup.visible = false;
-                hologramScene.background = new THREE.Color(0x020305);
-                
-                hologramScene.traverse((obj) => {
-                    if (obj.isMesh && obj.userData.type === "EXECUTIVE") {
-                        obj.material.color.setHex(0xffd700);
-                    }
-                });
-
-                const title = document.getElementById('modalHologramTitle');
-                const statusHud = document.getElementById('statusHud');
-                
-                if (title) {
-                    title.textContent = "360° MATRIX VECTOR AUDIT";
-                    title.style.color = "var(--gold-bright)";
-                }
-                if (statusHud) {
-                    statusHud.textContent = "STATUS: LIVE HOLOGRAM FEED • TACTICAL ORBIT ACTIVE";
-                    statusHud.style.color = "var(--text-muted)";
-                }
-            }
-        }
-
-        hologramRenderer.render(hologramScene, hologramCamera);
-    }
-
-    animate();
-}
