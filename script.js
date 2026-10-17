@@ -458,12 +458,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ==========================================
-// 6. THREE.JS 3D MATRIX HOLOGRAM ENGINE (CAMERA-TRIGGERED EASTER EGG)
+// 6. THREE.JS 3D MATRIX HOLOGRAM ENGINE (INVERTED ANAMORPHIC VISAGE)
 // ==========================================
 let hologramScene, hologramCamera, hologramRenderer, hologramControls, hologramAnimationId;
 let invertedApexNode = null;
-let occultLinesGroup = null; // Container to toggle visibility
+let occultLinesGroup = null;
 let isSubspaceRevealed = false;
+let isVisageAligned = false;
+
+// Target camera position looking up from under the floor grid
+const targetInvertedAngle = new THREE.Vector3(0.0, -4.2, 3.5);
 
 function openProjectionModal() {
     const modal = document.getElementById('projectionModal');
@@ -492,6 +496,7 @@ function closeProjectionModal(event) {
             </div>`;
     }
     isSubspaceRevealed = false;
+    isVisageAligned = false;
 }
 
 function initHologram3D() {
@@ -515,8 +520,6 @@ function initHologram3D() {
     hologramControls = new THREE.OrbitControls(hologramCamera, hologramRenderer.domElement);
     hologramControls.enableDamping = true;
     hologramControls.dampingFactor = 0.05;
-    hologramControls.autoRotate = true;
-    hologramControls.autoRotateSpeed = 0.8;
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     hologramScene.add(ambientLight);
@@ -525,25 +528,25 @@ function initHologram3D() {
     pointLight.position.set(0, 5, 5);
     hologramScene.add(pointLight);
 
-    // 13 STANDARD EXECUTIVE NODES
+    // 13 STANDARD EXECUTIVE NODES (With Z-depth offsets for forced perspective)
     const tier1 = [new THREE.Vector3(0, 2.8, 0)];
     
     const tier2 = [
-        new THREE.Vector3(-1.8, 0.9, 0),
-        new THREE.Vector3(0, 0.9, 0.9),
-        new THREE.Vector3(1.8, 0.9, 0)
+        new THREE.Vector3(-1.8, 0.9, 0.8),
+        new THREE.Vector3(0, 0.9, -0.5),
+        new THREE.Vector3(1.8, 0.9, 0.8)
     ];
 
     const tier3 = [
-        new THREE.Vector3(-2.8, -1.0, 0.6),
-        new THREE.Vector3(-1.8, -1.0, 0),
-        new THREE.Vector3(-0.9, -1.0, -0.6),
-        new THREE.Vector3(-0.5, -1.0, 1.6),
-        new THREE.Vector3(0, -1.0, 1.1),
-        new THREE.Vector3(0.5, -1.0, 1.6),
-        new THREE.Vector3(0.9, -1.0, -0.6),
-        new THREE.Vector3(1.8, -1.0, 0),
-        new THREE.Vector3(2.8, -1.0, 0.6)
+        new THREE.Vector3(-2.8, -1.0, 1.2),  // Left Eye Brow
+        new THREE.Vector3(-1.8, -1.0, 0.4),  // Left Eye Socket
+        new THREE.Vector3(-0.9, -1.0, -0.6), // Cheekbone Left
+        new THREE.Vector3(-0.5, -1.0, 1.0),  // Nose Bridge Left
+        new THREE.Vector3(0, -1.0, 0.2),     // Nose Apex
+        new THREE.Vector3(0.5, -1.0, 1.0),   // Nose Bridge Right
+        new THREE.Vector3(0.9, -1.0, -0.6),  // Cheekbone Right
+        new THREE.Vector3(1.8, -1.0, 0.4),   // Right Eye Socket
+        new THREE.Vector3(2.8, -1.0, 1.2)    // Right Eye Brow
     ];
 
     const allStandardNodes = [...tier1, ...tier2, ...tier3];
@@ -584,12 +587,12 @@ function initHologram3D() {
     }
 
     // ==========================================
-    // HIDDEN OCCULT GEOMETRY (INITIALLY INVISIBLE)
+    // HIDDEN INVERTED OCCULT GEOMETRY
     // ==========================================
     occultLinesGroup = new THREE.Group();
-    occultLinesGroup.visible = false; // HIDDEN BY DEFAULT
+    occultLinesGroup.visible = false; // Hidden until camera moves below floor
 
-    const hiddenApexPos = new THREE.Vector3(0, -3.8, 0); // [ARCHON_00]
+    const hiddenApexPos = new THREE.Vector3(0, -3.8, 0); // [ARCHON_00] - Forms the core mouth/jaw of the visage
     const darkNodeMaterial = new THREE.MeshStandardMaterial({
         color: 0xef4444,
         emissive: 0x990000,
@@ -597,7 +600,7 @@ function initHologram3D() {
         roughness: 0.1
     });
 
-    invertedApexNode = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 16), darkNodeMaterial);
+    invertedApexNode = new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 16), darkNodeMaterial);
     invertedApexNode.position.copy(hiddenApexPos);
     invertedApexNode.userData = { id: "ARCHON_00", type: "OCCULT_APEX" };
     occultLinesGroup.add(invertedApexNode);
@@ -654,18 +657,63 @@ function initHologram3D() {
         }
     });
 
-    // ANIMATION & INVERSION ORBIT CHECK LOOP
+    // ANIMATION & PERSPECTIVE CHECK LOOP
     function animate() {
         hologramAnimationId = requestAnimationFrame(animate);
         hologramControls.update();
 
-        // Reveal hidden inverted pyramid ONLY when camera orbits below grid floor (Y < -0.8)
+        // 1. Check if camera is beneath the grid floor (Y < -0.8)
         if (hologramCamera.position.y < -0.8) {
             if (!isSubspaceRevealed) {
                 isSubspaceRevealed = true;
-                occultLinesGroup.visible = true; // REVEAL HIDDEN GEOMETRY
-                hologramScene.background = new THREE.Color(0x1a0305); // Shift background to blood-wine black
+                occultLinesGroup.visible = true;
+                hologramScene.background = new THREE.Color(0x1a0305);
+            }
+
+            // 2. Check if camera hits the specific alignment angle looking up
+            const distToAngle = hologramCamera.position.distanceTo(targetInvertedAngle);
+            if (distToAngle < 0.95) {
+                if (!isVisageAligned) {
+                    isVisageAligned = true;
+                    
+                    // Flash all standard nodes crimson to highlight the face
+                    hologramScene.traverse((obj) => {
+                        if (obj.isMesh && obj.userData.type === "EXECUTIVE") {
+                            obj.material.color.setHex(0xef4444);
+                        }
+                    });
+
+                    const title = document.getElementById('modalHologramTitle');
+                    const statusHud = document.getElementById('statusHud');
+                    
+                    if (title) {
+                        title.textContent = "ANAMORPHIC REVEAL // ARCHON VISAGE";
+                        title.style.color = "var(--accent-red)";
+                    }
+                    if (statusHud) {
+                        statusHud.textContent = "CRITICAL ALIGNMENT • THE ARCHITECT IS WATCHING";
+                        statusHud.style.color = "var(--accent-red)";
+                    }
+
+                    console.warn(
+                        "%c[INVERTED VISAGE ALIGNMENT DETECTED]\n" +
+                        "--------------------------------------------------\n" +
+                        "Subspace geometry resolves into the countenance of the Founder.\n" +
+                        "Console Voucher: 'ARCHON_WATCHES'\n" +
+                        "--------------------------------------------------",
+                        "color: #ef4444; font-family: monospace; font-size: 12px; font-weight: bold;"
+                    );
+                }
+            } else if (isVisageAligned) {
+                isVisageAligned = false;
                 
+                // Revert nodes back to gold
+                hologramScene.traverse((obj) => {
+                    if (obj.isMesh && obj.userData.type === "EXECUTIVE") {
+                        obj.material.color.setHex(0xffd700);
+                    }
+                });
+
                 const title = document.getElementById('modalHologramTitle');
                 const statusHud = document.getElementById('statusHud');
                 
@@ -677,19 +725,22 @@ function initHologram3D() {
                     statusHud.textContent = "CRACKED TRANSMISSION • ARCHON_00 APEX FEED UNLOCKED";
                     statusHud.style.color = "var(--accent-red)";
                 }
-
-                console.warn(
-                    "%c[INVERSION DETECTED]\n" +
-                    "The hierarchy feeds downward into ARCHON_00.",
-                    "color: #ef4444; font-family: monospace; font-weight: bold;"
-                );
             }
+
         } else {
+            // Above grid floor -> hide occult layer and reset titles
             if (isSubspaceRevealed) {
                 isSubspaceRevealed = false;
-                occultLinesGroup.visible = false; // HIDE GEOMETRY WHEN ABOVE GRID
+                isVisageAligned = false;
+                occultLinesGroup.visible = false;
                 hologramScene.background = new THREE.Color(0x020305);
                 
+                hologramScene.traverse((obj) => {
+                    if (obj.isMesh && obj.userData.type === "EXECUTIVE") {
+                        obj.material.color.setHex(0xffd700);
+                    }
+                });
+
                 const title = document.getElementById('modalHologramTitle');
                 const statusHud = document.getElementById('statusHud');
                 
