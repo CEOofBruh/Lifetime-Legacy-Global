@@ -10,7 +10,37 @@ if (typeof supabase !== 'undefined') {
 }
 
 // ==========================================
-// 2. LOCAL STORAGE & STATUS HELPERS
+// 2. UNIVERSAL AUTHENTICATION ROUTE GUARD
+// ==========================================
+async function enforceRouteSecurity() {
+    if (!supabaseClient) return null;
+
+    const currentPath = window.location.pathname;
+    
+    // Public pages that do NOT require authentication
+    const isPublicPage = currentPath.endsWith('index.html') || 
+                         currentPath.endsWith('signup.html') || 
+                         currentPath === '/' || 
+                         currentPath === '';
+
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const currentUser = session ? session.user : null;
+
+    if (!session && !isPublicPage) {
+        // Unauthenticated user attempting to access any restricted page -> bounce to login
+        window.location.href = 'index.html';
+        return null;
+    } else if (session && isPublicPage) {
+        // Authenticated user visiting landing/signup -> send to dashboard
+        window.location.href = 'dashboard.html';
+        return currentUser;
+    }
+
+    return currentUser;
+}
+
+// ==========================================
+// 3. LOCAL STORAGE & STATUS HELPERS
 // ==========================================
 function getLocalUserData() {
     const local = localStorage.getItem('user_profile_data');
@@ -37,7 +67,7 @@ function setStatusMessage(elementId, text, color) {
 }
 
 // ==========================================
-// 3. SUPABASE PROFILE & LEADERBOARD API
+// 4. SUPABASE PROFILE & LEADERBOARD API
 // ==========================================
 async function fetchUserProfile(userId) {
     if (!supabaseClient || !userId) {
@@ -240,39 +270,19 @@ function renderUnlockedArchives(unlockedPages) {
 }
 
 // ==========================================
-// 4. MAIN PIPELINE LOGIC & DOM HANDLERS
+// 5. MAIN PIPELINE LOGIC & DOM HANDLERS
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
-    let currentUser = null;
-    const currentPath = window.location.pathname;
+    // RUN AUTOMATIC ROUTE GUARD FOR ALL PAGES
+    const currentUser = await enforceRouteSecurity();
 
-    // --- PIPELINE STEP 1: AUTHENTICATION CHECK ---
-    if (supabaseClient) {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (session) {
-            currentUser = session.user;
-            
-            // Redirect authenticated users away from Login/Signup pages
-            if (currentPath.endsWith('index.html') || currentPath.endsWith('signup.html') || currentPath === '/') {
-                window.location.href = 'dashboard.html';
-                return;
-            }
-        } else {
-            // Protect Dashboard route
-            if (currentPath.endsWith('dashboard.html')) {
-                window.location.href = 'index.html';
-                return;
-            }
-        }
-    }
-
-    // Avatar File Input Binding
+    // Avatar File Input Listener
     const avatarInput = document.getElementById('avatarInput') || document.getElementById('avatarFileInput');
     if (avatarInput) {
         avatarInput.addEventListener('change', uploadAvatar);
     }
 
-    // --- PIPELINE STEP 2: SIGNUP FORM HANDLER ---
+    // --- SIGNUP FORM HANDLER (signup.html) ---
     const signupForm = document.getElementById('signupForm');
     if (signupForm) {
         signupForm.addEventListener('submit', async (e) => {
@@ -305,7 +315,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // --- PIPELINE STEP 3: LOGIN FORM HANDLER ---
+    // --- LOGIN FORM HANDLER (index.html) ---
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
@@ -338,7 +348,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // --- PIPELINE STEP 4: DASHBOARD HYDRATION ---
+    // --- DASHBOARD HYDRATION (dashboard.html) ---
     if (document.getElementById('coinBalance')) {
         const userId = currentUser ? currentUser.id : null;
 
@@ -406,7 +416,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         return;
                     }
 
-                    // Update local profile stats
+                    // Update profile stats
                     const updatedCoins = currentProfile.coins + puzzleData.reward_coins;
                     const updatedRank = puzzleData.new_rank || currentProfile.rank;
                     const updatedUnlocked = [
@@ -449,7 +459,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // --- PIPELINE DISCONNECT / LOGOUT HANDLER ---
+    // --- LOGOUT / DISCONNECT HANDLER ---
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
