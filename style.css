@@ -1,5 +1,5 @@
 /* ==========================================
-   LIFETIME LEGACY GLOBAL - CORE STYLESHEET
+   LIFETIME LEGACY GLOBAL - UNIFIED STYLESHEET
    Aesthetic: Noir Brutalism x MLM Hustle
    ========================================== */
 
@@ -33,7 +33,7 @@ body {
 }
 
 /* ==========================================
-   NAVIGATION & HEADER
+   HEADER & NAVIGATION (ALL PAGES)
    ========================================== */
 header {
     background: #000;
@@ -48,7 +48,7 @@ nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    max-width: 1700px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
@@ -97,6 +97,45 @@ nav a:hover {
 }
 
 /* ==========================================
+   PUBLIC PAGES HERO & AUTH (INDEX & SIGNUP)
+   ========================================== */
+.hero-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    width: 100%;
+}
+
+/* Constrains index.html and signup.html to a centered, professional width */
+.hero-container {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 3rem;
+    max-width: 1100px;
+    width: 100%;
+    margin: 0 auto;
+    align-items: center;
+}
+
+.hero-title {
+    font-size: 2.8rem;
+    font-weight: 800;
+    line-height: 1.15;
+    color: #fff;
+    margin: 0.8rem 0 1rem 0;
+    letter-spacing: -0.5px;
+}
+
+.hero-subtitle {
+    font-size: 1rem;
+    color: var(--text-main);
+    margin-bottom: 2rem;
+    max-width: 580px;
+}
+
+/* ==========================================
    BUTTONS & FORM INPUTS
    ========================================== */
 .btn-primary {
@@ -136,6 +175,17 @@ nav a:hover {
     color: var(--gold);
 }
 
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--text-main);
+    margin-bottom: 0.4rem;
+}
+
 input[type="text"],
 input[type="email"],
 input[type="password"] {
@@ -146,7 +196,6 @@ input[type="password"] {
     padding: 0.75rem;
     border-radius: 4px;
     font-size: 0.9rem;
-    margin-bottom: 1rem;
     outline: none;
     transition: border-color 0.2s ease;
 }
@@ -156,57 +205,56 @@ input:focus {
 }
 
 /* ==========================================
-   DASHBOARD CARDS & WRAPPERS
+   CARDS & BRUTALIST COMPONENTS
    ========================================== */
-.hero-wrapper {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem 0;
-}
-
-.hero-container {
-    display: grid;
-    gap: 1.5rem;
-    width: 100%;
-}
-
 .auth-card {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: 8px;
-    padding: 1.5rem;
+    padding: 2rem;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
 }
 
 .auth-card h2 {
     font-family: var(--font-mono);
-    font-size: 1.3rem;
+    font-size: 1.25rem;
     color: #fff;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.3rem;
 }
 
 .auth-card p.subtitle {
     font-size: 0.82rem;
     color: var(--text-muted);
-    margin-bottom: 1.2rem;
+    margin-bottom: 1.5rem;
 }
 
 .feature-card {
     display: flex;
     gap: 1rem;
-    padding: 1rem;
+    padding: 1.2rem;
     background: #000;
     border: 1px solid var(--card-border);
     border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.feature-card h4 {
+    color: #fff;
+    font-size: 0.92rem;
+    margin-bottom: 0.2rem;
+}
+
+.feature-card p {
+    color: var(--text-muted);
+    font-size: 0.82rem;
 }
 
 .hero-tag {
     display: inline-block;
-    padding: 0.2rem 0.6rem;
+    padding: 0.25rem 0.6rem;
     border-radius: 3px;
     font-family: var(--font-mono);
+    font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 1px;
     background: rgba(212, 175, 55, 0.1);
@@ -221,7 +269,7 @@ input:focus {
 }
 
 /* ==========================================
-   PERMANENT 3-COLUMN AD-INTEGRATED LAYOUT
+   PERMANENT 3-COLUMN AD LAYOUT (DASHBOARD)
    ========================================== */
 .page-with-ads-layout {
     display: grid !important;
@@ -235,7 +283,6 @@ input:focus {
     box-sizing: border-box;
 }
 
-/* Lock sidebar dimensions against JS re-render collapses */
 .ad-sidebar {
     width: 180px !important;
     min-width: 180px !important;
@@ -248,7 +295,6 @@ input:focus {
     width: 100% !important;
 }
 
-/* Clean, Sticky Video Banner Box */
 .pure-ad-banner {
     width: 100% !important;
     height: 500px !important;
@@ -287,8 +333,15 @@ footer {
 }
 
 /* ==========================================
-   RESPONSIVE DESIGN (HIDE ON SMALL SCREENS < 800px)
+   RESPONSIVE OVERRIDES
    ========================================== */
+@media (max-width: 960px) {
+    .hero-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+}
+
 @media (max-width: 800px) {
     .page-with-ads-layout {
         grid-template-columns: 1fr !important;
