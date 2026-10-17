@@ -6,144 +6,176 @@
     <title>Associate Portal | Lifetime Legacy Global</title>
     <link rel="stylesheet" href="style.css">
     <!-- Lifetime Legacy Global Favicon -->
-<link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/CEOofBruh/Lifetime-Legacy-Global/refs/heads/main/LLG%20-%20Icon.ico">
+    <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/CEOofBruh/Lifetime-Legacy-Global/refs/heads/main/LLG%20-%20Icon.ico">
     <!-- Supabase JS Client library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js" defer></script>
+    <script src="script.js?v=3" defer></script>
 </head>
-<body>
+<body data-system-epoch="1998">
 
-    <!-- Portal Navigation Header -->
-    <nav class="portal-nav">
-        <div class="nav-brand">
-            <span class="brand-logo">❖</span>
-            <span class="brand-title">LIFETIME LEGACY GLOBAL</span>
-        </div>
-        <div class="nav-user-status">
-            <span id="navUser" class="nav-email">Loading associate profile...</span>
-            <button id="logoutBtn" class="btn-logout">Disconnect</button>
-        </div>
-    </nav>
+    <!-- Header Navigation (Synchronized with index.html) -->
+    <header>
+        <nav>
+            <a href="index.html" class="logo-link">
+                <img 
+                    src="https://raw.githubusercontent.com/CEOofBruh/Lifetime-Legacy-Global/refs/heads/main/LLG%20-%20Icon.ico" 
+                    alt="Lifetime Legacy Global Logo" 
+                    id="brand-logo" 
+                    class="logo-img" 
+                    data-tier-id="0"
+                >
+                <span class="logo-text">LIFETIME LEGACY GLOBAL</span>
+            </a>
+            <ul>
+                <li class="nav-user-status">
+                    <span id="navUser" class="gold-text">Loading profile...</span>
+                </li>
+                <li>
+                    <button id="logoutBtn" class="btn-primary" style="padding: 0.4rem 0.9rem; font-size: 0.85rem;">Disconnect</button>
+                </li>
+            </ul>
+        </nav>
+    </header>
 
-    <!-- Main Container -->
-    <div class="dashboard-container">
-        
-        <!-- Left Sidebar -->
-        <aside class="dashboard-sidebar">
-            <div class="profile-card">
-                
-                <!-- Interactive Click-to-Upload Avatar Container -->
-                <div class="avatar-container" onclick="document.getElementById('avatarFileInput').click();" title="Click to upload custom avatar">
-                    <div class="avatar-circle" id="avatarDisplay">
-                        <span class="avatar-icon" id="avatarFallback">👤</span>
-                        <img id="avatarImage" src="" alt="Avatar" style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
-                    </div>
-                    <div class="avatar-overlay">📷 Upload</div>
-                </div>
-
-                <!-- Hidden Input Element -->
-                <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="uploadAvatar(event)">
-
-                <h2 id="profileName" class="profile-handle">Associate</h2>
-                <div class="rank-badge" id="profileRank">Bronze Initiate</div>
-                
-                <div class="credit-display">
-                    <span class="credit-label">Legacy Credits (LC)</span>
-                    <span id="coinBalance" class="credit-amount">0</span>
-                </div>
-            </div>
-
-            <div class="dashboard-card unlocked-card">
-                <h3>Unlocked System Archives</h3>
-                <div id="unlockedLinks" class="unlocked-links-container">
-                    <p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">
-                        No restricted archives unlocked yet.
-                    </p>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Right Content Area -->
-        <main class="dashboard-main">
+    <!-- Main Dashboard Container -->
+    <div class="hero-wrapper">
+        <div class="hero-container" style="align-items: start; grid-template-columns: 320px 1fr;">
             
-            <!-- Terminal Section -->
-            <div class="dashboard-card terminal-card">
-                <h3>System Verification Terminal</h3>
-                <p class="card-subtitle">
-                    Input authorization override keys below to authenticate system clearance and acquire network credits.
-                </p>
-
-                <!-- Encrypted Base64 Clue Banner -->
-                <div class="puzzle-hint-box">
-                    <span class="puzzle-hint-header">[TRANSMISSION INTERCEPT - ENCRYPTED KEY]</span>
-                    <code class="puzzle-hint-code">TEVHQUNZX01OSVRJQVRFXzIwMjY=</code>
-                </div>
+            <!-- Left Sidebar -->
+            <aside class="hero-content">
                 
-                <form id="quizForm" class="terminal-form">
-                    <div class="input-group-inline">
-                        <input type="text" id="answerInput" placeholder="ENTER VERIFICATION KEY" autocomplete="off" required>
-                        <button type="submit" class="btn-terminal">Submit Key</button>
-                    </div>
-                </form>
-                <div id="quizFeedback" class="feedback-msg"></div>
-            </div>
-
-            <!-- Leaderboard Section -->
-            <div class="dashboard-card leaderboard-card">
-                <h3>Associate Global Leaderboard</h3>
-                <p class="card-subtitle">
-                    Real-time network hierarchy ordered by accumulated Legacy Credits.
-                </p>
-                
-                <table class="leaderboard-table">
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Associate ID</th>
-                            <th>Tier</th>
-                            <th>Credits</th>
-                        </tr>
-                    </thead>
-                    <tbody id="leaderboardTable">
-                        <tr>
-                            <td colspan="4" style="text-align:center; color: var(--text-muted);">
-                                Querying network ledger...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Modules Section -->
-            <div class="dashboard-card modules-card">
-                <h3>Associate Training Modules</h3>
-                <div class="modules-grid">
-                    <div class="module-node">
-                        <div class="module-header">
-                            <span class="module-code">MODULE 01</span>
-                            <span class="badge status-unlocked">ACCESSIBLE</span>
+                <!-- Profile Card -->
+                <div class="auth-card" style="margin-bottom: 1.5rem; text-align: center;">
+                    <span class="hero-tag">Active Member</span>
+                    
+                    <!-- Avatar Upload Trigger -->
+                    <div class="avatar-container" onclick="document.getElementById('avatarInput').click();" title="Click to upload custom avatar" style="cursor: pointer; position: relative; width: 90px; height: 90px; margin: 0 auto 1rem auto;">
+                        <div class="avatar-circle" id="avatarDisplay" style="width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--gold); overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(10, 12, 16, 0.8);">
+                            <span class="avatar-icon" id="avatarFallback" style="font-size: 2.2rem;">👤</span>
+                            <img id="avatarImage" src="" alt="Avatar" style="display: none; width: 100%; height: 100%; object-fit: cover;" />
                         </div>
-                        <h4>Network Fundamentals</h4>
-                        <p>Core orientation protocols for newly assigned associates.</p>
                     </div>
 
-                    <div class="module-node">
-                        <div class="module-header">
-                            <span class="module-code">MODULE 02</span>
-                            <span id="badge-m2" class="badge status-locked">100 LC REQUIRED</span>
-                        </div>
-                        <h4>Legacy Expansion</h4>
-                        <p>Advanced recruitment & financial tier leverage strategies.</p>
+                    <!-- Hidden Input Element (Mapped to script.js event listener) -->
+                    <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+
+                    <h2 id="profileName" style="font-size: 1.3rem; margin-bottom: 0.2rem;">Associate</h2>
+                    <div class="hero-tag" id="profileRank" style="font-size: 0.7rem; margin-bottom: 1.2rem;">Bronze Initiate</div>
+                    
+                    <div class="feature-card" style="flex-direction: column; align-items: center; text-align: center; background: rgba(10, 12, 16, 0.6);">
+                        <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;">Legacy Credits (LC)</span>
+                        <span id="coinBalance" class="gold-text" style="font-size: 1.8rem; font-weight: bold; font-family: var(--font-mono);">0</span>
                     </div>
                 </div>
-            </div>
 
-        </main>
+                <!-- Unlocked System Archives Card -->
+                <div class="auth-card">
+                    <h4 style="color: var(--text-main); margin-bottom: 0.8rem; font-size: 1rem;">Unlocked System Archives</h4>
+                    <div id="unlockedLinks" class="unlocked-links-container">
+                        <p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">
+                            No restricted archives unlocked yet.
+                        </p>
+                    </div>
+                </div>
+
+            </aside>
+
+            <!-- Right Main Area -->
+            <main class="hero-content" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                
+                <!-- Terminal Card -->
+                <div class="auth-card">
+                    <h2>System Verification Terminal</h2>
+                    <p class="subtitle">Input authorization override keys below to authenticate clearance and acquire credits.</p>
+
+                    <!-- Encrypted Base64 Clue Banner -->
+                    <div class="feature-card" style="margin-bottom: 1.2rem; border-color: rgba(212, 175, 55, 0.4); flex-direction: column; gap: 0.4rem;">
+                        <span style="font-size: 0.7rem; color: var(--gold); letter-spacing: 1px; font-weight: bold;">[TRANSMISSION INTERCEPT - ENCRYPTED KEY]</span>
+                        <code style="font-family: var(--font-mono); color: var(--gold-bright); font-size: 0.95rem;">TEVHQUNZX01OSVRJQVRFXzIwMjY=</code>
+                    </div>
+                    
+                    <form id="quizForm">
+                        <div class="form-group" style="display: flex; gap: 0.8rem; margin-bottom: 0;">
+                            <input type="text" id="answerInput" placeholder="ENTER VERIFICATION KEY" autocomplete="off" required style="font-family: var(--font-mono);">
+                            <button type="submit" class="btn-primary" style="width: auto; padding: 0 1.5rem; white-space: nowrap;">Submit Key</button>
+                        </div>
+                    </form>
+                    <div id="quizFeedback" class="status-message" style="text-align: left;"></div>
+                </div>
+
+                <!-- Leaderboard Section -->
+                <div class="auth-card">
+                    <h2>Associate Global Leaderboard</h2>
+                    <p class="subtitle">Real-time network hierarchy ordered by accumulated Legacy Credits.</p>
+                    
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--card-border); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
+                                    <th style="padding: 0.8rem;">Rank</th>
+                                    <th style="padding: 0.8rem;">Associate ID</th>
+                                    <th style="padding: 0.8rem;">Tier</th>
+                                    <th style="padding: 0.8rem;">Credits</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboardTable">
+                                <tr>
+                                    <td colspan="4" style="text-align:center; padding: 1.5rem; color: var(--text-muted);">
+                                        Querying network ledger...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Modules Section -->
+                <div class="auth-card">
+                    <h2>Associate Training Modules</h2>
+                    <p class="subtitle">Access proprietary network elevation protocols.</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                        
+                        <div class="feature-card" style="flex-direction: column; gap: 0.5rem;" data-node-id="1">
+                            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                                <span style="font-size: 0.7rem; color: var(--gold); font-family: var(--font-mono);">MODULE 01</span>
+                                <span class="hero-tag" style="margin: 0; padding: 0.1rem 0.5rem; font-size: 0.65rem;">ACCESSIBLE</span>
+                            </div>
+                            <h4 style="margin: 0;">Network Fundamentals</h4>
+                            <p>Core orientation protocols for newly assigned associates.</p>
+                        </div>
+
+                        <div class="feature-card" style="flex-direction: column; gap: 0.5rem; opacity: 0.6;" data-node-id="2">
+                            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                                <span style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono);">MODULE 02</span>
+                                <span id="badge-m2" style="font-size: 0.65rem; color: var(--accent-red); border: 1px solid var(--accent-red); padding: 0.1rem 0.5rem; border-radius: 12px;">100 LC REQUIRED</span>
+                            </div>
+                            <h4 style="margin: 0;">Legacy Expansion</h4>
+                            <p>Advanced recruitment & financial tier leverage strategies.</p>
+                        </div>
+
+                    </div>
+                </div>
+
+            </main>
+        </div>
     </div>
 
+    <!-- Footer (Synchronized with index.html) -->
     <footer>
-        <p>&copy; Lifetime Legacy Global Network. All Rights Reserved. Secretum In Unitate.</p>
+        <p>&copy; 1998–<span id="current-year">2026</span> Lifetime Legacy Global Network. All Rights Reserved. <span class="latin-motto" title="Look beneath the surface">Secretum In Unitate</span>.</p>
     </footer>
 
+    <!-- Developer Console ARG Clue Trigger -->
+    <script>
+        console.log(
+            "%c[LLG PORTAL LOGGED IN]\n" +
+            "--------------------------------------------------\n" +
+            "Associate Session Authenticated.\n" +
+            "To test override ciphers, decode Base64 string in terminal banner or submit Node geometry.\n" +
+            "--------------------------------------------------",
+            "color: #d4af37; font-family: monospace; font-size: 12px; font-weight: bold;"
+        );
+    </script>
 </body>
 </html>
