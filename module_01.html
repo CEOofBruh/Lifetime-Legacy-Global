@@ -13,7 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
-    <script src="script.js?v=8" defer></script>
+    <script src="script.js?v=9" defer></script>
 </head>
 <body data-system-epoch="2026">
 
@@ -99,13 +99,9 @@
                             FIG 1.0 • VANCE BRANCH MATRIX AUDIT
                         </span>
 
-                        <!-- Interactive 3D Hologram Modal Trigger Wrapper -->
-                        <div onclick="openProjectionModal()" style="cursor: pointer; position: relative;" title="Click to open 3D Hologram Projection">
+                        <!-- DISCREET CLICK TRIGGER (NO BADGE OVERLAY) -->
+                        <div onclick="openProjectionModal()" style="cursor: pointer; position: relative;" title="Inspect matrix structure">
                             
-                            <div style="position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.85); border: 1px solid var(--gold); border-radius: 3px; padding: 0.2rem 0.5rem; font-family: var(--font-mono); font-size: 0.65rem; color: var(--gold-bright); display: flex; align-items: center; gap: 0.4rem; z-index: 10;">
-                                <span>💎</span> CLICK FOR 3D HOLOGRAM
-                            </div>
-
                             <!-- Pure SVG MLM Pyramid -->
                             <svg width="320" height="240" viewBox="0 0 320 240" style="margin: 0 auto; display: block;">
                                 <defs>
@@ -276,7 +272,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 0.8rem; margin-bottom: 1rem;">
                 <div>
                     <span class="hero-tag" style="font-size: 0.65rem;">TACTICAL 3D HOLOGRAM PROJECTION</span>
-                    <h4 style="margin: 0.2rem 0 0 0; font-family: var(--font-mono); color: var(--gold-bright);">360° MATRIX VECTOR AUDIT</h4>
+                    <h4 style="margin: 0.2rem 0 0 0; font-family: var(--font-mono); color: var(--gold-bright);" id="modalHologramTitle">360° MATRIX VECTOR AUDIT</h4>
                 </div>
                 <button class="modal-close" onclick="closeProjectionModal(event)">✕ CLOSE</button>
             </div>
@@ -284,13 +280,13 @@
             <!-- 3D Canvas Container -->
             <div id="hologramCanvasContainer" style="width: 100%; height: 480px; background: #000; border: 1px solid var(--card-border); border-radius: 6px; position: relative; overflow: hidden; cursor: grab;">
                 
-                <div style="position: absolute; top: 12px; left: 12px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--gold); background: rgba(0,0,0,0.7); padding: 0.4rem 0.8rem; border: 1px solid rgba(212,175,55,0.3); border-radius: 4px; pointer-events: none; text-align: left;">
+                <div style="position: absolute; top: 12px; left: 12px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--gold); background: rgba(0,0,0,0.7); padding: 0.4rem 0.8rem; border: 1px solid rgba(212,175,55,0.3); border-radius: 4px; pointer-events: none; text-align: left;" id="controlsHud">
                     <div>🖱️ <strong>Left Click + Drag:</strong> Rotate 360°</div>
                     <div>🔍 <strong>Scroll:</strong> Zoom In/Out</div>
                     <div>🖐️ <strong>Right Click + Drag:</strong> Pan Vector</div>
                 </div>
 
-                <div style="position: absolute; bottom: 12px; right: 12px; font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); background: rgba(0,0,0,0.7); padding: 0.3rem 0.6rem; border-radius: 4px; pointer-events: none;">
+                <div style="position: absolute; bottom: 12px; right: 12px; font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); background: rgba(0,0,0,0.7); padding: 0.3rem 0.6rem; border-radius: 4px; pointer-events: none;" id="statusHud">
                     STATUS: LIVE HOLOGRAM FEED • TACTICAL ORBIT ACTIVE
                 </div>
             </div>
