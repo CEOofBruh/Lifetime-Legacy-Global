@@ -227,7 +227,7 @@ function renderUnlockedArchives(unlockedPages) {
     if (!unlockedPages || unlockedPages.length === 0) {
         container.innerHTML = `
             <p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">
-                No restricted archives unlocked yet.
+                No bonus resources unlocked yet. Enter promo codes on the portal to access premium training.
             </p>`;
         return;
     }
@@ -252,13 +252,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (session) {
             currentUser = session.user;
             
-            // If logged in and visiting Landing or Signup, send directly to Dashboard
+            // Redirect authenticated users away from Login/Signup pages
             if (currentPath.endsWith('index.html') || currentPath.endsWith('signup.html') || currentPath === '/') {
                 window.location.href = 'dashboard.html';
                 return;
             }
         } else {
-            // If NOT logged in and attempting to visit Dashboard, bounce to Landing page
+            // Protect Dashboard route
             if (currentPath.endsWith('dashboard.html')) {
                 window.location.href = 'index.html';
                 return;
@@ -266,13 +266,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Avatar File Input Event Listener Setup
+    // Avatar File Input Binding
     const avatarInput = document.getElementById('avatarInput') || document.getElementById('avatarFileInput');
     if (avatarInput) {
         avatarInput.addEventListener('change', uploadAvatar);
     }
 
-    // --- PIPELINE STEP 2: SIGNUP FORM HANDLER (signup.html) ---
+    // --- PIPELINE STEP 2: SIGNUP FORM HANDLER ---
     const signupForm = document.getElementById('signupForm');
     if (signupForm) {
         signupForm.addEventListener('submit', async (e) => {
@@ -305,7 +305,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // --- PIPELINE STEP 3: LOGIN FORM HANDLER (index.html) ---
+    // --- PIPELINE STEP 3: LOGIN FORM HANDLER ---
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
@@ -338,7 +338,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // --- PIPELINE STEP 4: DASHBOARD HYDRATION (dashboard.html) ---
+    // --- PIPELINE STEP 4: DASHBOARD HYDRATION ---
     if (document.getElementById('coinBalance')) {
         const userId = currentUser ? currentUser.id : null;
 
@@ -364,7 +364,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         fetchLeaderboard();
     }
 
-    // --- PUZZLE & TERMINAL OVERRIDE SUBMISSION (SUPABASE DIRECT VERIFICATION) ---
+    // --- PROMO CODE / VOUCHER SUBMISSION (SUPABASE DIRECT VERIFICATION) ---
     const quizForm = document.getElementById('quizForm');
     if (quizForm) {
         quizForm.addEventListener('submit', async (e) => {
@@ -374,7 +374,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!inputField || !feedback) return;
 
             const userInput = inputField.value.trim().toUpperCase();
-            setStatusMessage('quizFeedback', 'Querying network ledger...', 'var(--text-muted)');
+            setStatusMessage('quizFeedback', 'Verifying promo voucher with billing network...', 'var(--text-muted)');
 
             if (!supabaseClient) {
                 setStatusMessage('quizFeedback', 'Error: Cloud database client unavailable.', 'var(--accent-red)');
@@ -395,14 +395,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const userId = currentUser ? currentUser.id : null;
                     const currentProfile = await fetchUserProfile(userId);
 
-                    // Check if page/archive is already unlocked
+                    // Check if already unlocked
                     const alreadyUnlocked = currentProfile.unlockedPages.some(
                         p => p.url === puzzleData.unlocked_url
                     );
 
                     if (alreadyUnlocked) {
                         feedback.style.color = "var(--gold)";
-                        feedback.textContent = "Key recognized: Override already authorized for this account.";
+                        feedback.textContent = "Voucher Notice: Promotion already claimed on this associate account.";
                         return;
                     }
 
@@ -435,16 +435,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                     fetchLeaderboard();
 
                     feedback.style.color = "var(--gold)";
-                    feedback.textContent = `Key Verified. Awarded ${puzzleData.reward_coins} LC. Rank updated to ${updatedRank}.`;
+                    feedback.textContent = `Voucher Approved! Awarded ${puzzleData.reward_coins} LC. Associate tier updated to ${updatedRank}.`;
                     inputField.value = "";
                 } else {
                     feedback.style.color = "var(--accent-red)";
-                    feedback.textContent = "Access Denied: Invalid authorization key or cipher.";
+                    feedback.textContent = "Invalid Code: Promo voucher not recognized or expired.";
                 }
             } catch (err) {
-                console.error("Puzzle submission error:", err);
+                console.error("Promo submission error:", err);
                 feedback.style.color = "var(--accent-red)";
-                feedback.textContent = "System error during clearance check.";
+                feedback.textContent = "System error during voucher verification.";
             }
         });
     }
