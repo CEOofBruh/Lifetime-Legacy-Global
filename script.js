@@ -458,9 +458,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ==========================================
-// 6. THREE.JS 3D MATRIX HOLOGRAM ENGINE
+// 6. THREE.JS 3D MATRIX HOLOGRAM ENGINE (WITH INVERSION EASTER EGG)
 // ==========================================
 let hologramScene, hologramCamera, hologramRenderer, hologramControls, hologramAnimationId;
+let invertedApexNode = null;
+let isSubspaceRevealed = false;
 
 function openProjectionModal() {
     const modal = document.getElementById('projectionModal');
@@ -488,6 +490,7 @@ function closeProjectionModal(event) {
                 STATUS: LIVE HOLOGRAM FEED • TACTICAL ORBIT ACTIVE
             </div>`;
     }
+    isSubspaceRevealed = false;
 }
 
 function initHologram3D() {
@@ -521,7 +524,7 @@ function initHologram3D() {
     pointLight.position.set(0, 5, 5);
     hologramScene.add(pointLight);
 
-    // 13 EXECUTIVE NODES POSITIONS
+    // 13 STANDARD EXECUTIVE NODES
     const tier1 = [new THREE.Vector3(0, 2.8, 0)];
     
     const tier2 = [
@@ -542,7 +545,7 @@ function initHologram3D() {
         new THREE.Vector3(2.8, -1.0, 0.6)
     ];
 
-    const allNodes = [...tier1, ...tier2, ...tier3];
+    const allStandardNodes = [...tier1, ...tier2, ...tier3];
 
     const nodeGeometry = new THREE.SphereGeometry(0.18, 16, 16);
     const nodeMaterial = new THREE.MeshStandardMaterial({
@@ -553,9 +556,10 @@ function initHologram3D() {
         metalness: 0.8
     });
 
-    allNodes.forEach(pos => {
-        const mesh = new THREE.Mesh(nodeGeometry, nodeMaterial);
+    allStandardNodes.forEach((pos, idx) => {
+        const mesh = new THREE.Mesh(nodeGeometry, nodeMaterial.clone());
         mesh.position.copy(pos);
+        mesh.userData = { id: `NODE_${idx + 1}`, type: "EXECUTIVE" };
         hologramScene.add(mesh);
     });
 
@@ -578,24 +582,118 @@ function initHologram3D() {
         }
     }
 
-    const traceMaterial = new THREE.LineDashedMaterial({ color: 0x888888, dashSize: 0.1, gapSize: 0.05 });
-    const traceTargets = [tier3[0], tier3[2], tier3[4], tier3[6], tier3[8]];
+    // EASTER EGG: INVERTED OCCULT SUB-PYRAMID (BELOW THE GRID FLOOR)
+    const hiddenApexPos = new THREE.Vector3(0, -3.8, 0); // [ARCHON_00]
+    const darkNodeMaterial = new THREE.MeshStandardMaterial({
+        color: 0xef4444,
+        emissive: 0x990000,
+        emissiveIntensity: 1.0,
+        roughness: 0.1
+    });
 
-    traceTargets.forEach(origin => {
-        const end = origin.clone().add(new THREE.Vector3(0, -1.2, 0));
-        const geometry = new THREE.BufferGeometry().setFromPoints([origin, end]);
-        const line = new THREE.Line(geometry, traceMaterial);
-        line.computeLineDistances();
+    invertedApexNode = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 16), darkNodeMaterial);
+    invertedApexNode.position.copy(hiddenApexPos);
+    invertedApexNode.userData = { id: "ARCHON_00", type: "OCCULT_APEX" };
+    hologramScene.add(invertedApexNode);
+
+    // INVERTED CRIMSON VECTOR LINES CONNECTING TIER 3 TO THE HIDDEN APEX
+    const occultLineMaterial = new THREE.LineBasicMaterial({ color: 0xef4444, opacity: 0.8, transparent: true });
+    
+    tier3.forEach(parentPos => {
+        const geometry = new THREE.BufferGeometry().setFromPoints([parentPos, hiddenApexPos]);
+        const line = new THREE.Line(geometry, occultLineMaterial);
         hologramScene.add(line);
     });
 
+    // Grid Floor
     const gridHelper = new THREE.GridHelper(10, 10, 0xd4af37, 0x1f242d);
-    gridHelper.position.y = -2.2;
+    gridHelper.position.y = -1.8;
     hologramScene.add(gridHelper);
 
+    // RAYCASTER CLICK DETECTOR FOR NODES
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    container.addEventListener('pointerdown', (event) => {
+        const rect = container.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, hologramCamera);
+        const intersects = raycaster.intersectObjects(hologramScene.children);
+
+        if (intersects.length > 0 && intersects[0].object.isMesh) {
+            const clickedObject = intersects[0].object;
+            
+            if (clickedObject.userData.type === "OCCULT_APEX") {
+                clickedObject.material.color.setHex(0xff0000);
+                console.warn(
+                    "%c[ARCHIVAL UNLOCK // NODE ARCHON_00]\n" +
+                    "--------------------------------------------------\n" +
+                    "Warning: Subspace Harvest Reservoir Interrogated.\n" +
+                    "Residual Yield Transferred To Higher Order.\n" +
+                    "Cipher Key Hint: '13' Active Vessels, '17' Feeding Lines.\n" +
+                    "--------------------------------------------------",
+                    "color: #ef4444; font-family: monospace; font-size: 12px; font-weight: bold;"
+                );
+            } else {
+                clickedObject.material.color.setHex(0xffd700);
+                console.log(
+                    `%c[LLG TELEMETRY] Node ${clickedObject.userData.id} verified active.`,
+                    "color: #d4af37; font-family: monospace;"
+                );
+            }
+        }
+    });
+
+    // ANIMATION & INVERSION ORBIT CHECK LOOP
     function animate() {
         hologramAnimationId = requestAnimationFrame(animate);
         hologramControls.update();
+
+        // Check if user pivoted camera beneath the grid floor (Y < -0.8)
+        if (hologramCamera.position.y < -0.8) {
+            if (!isSubspaceRevealed) {
+                isSubspaceRevealed = true;
+                hologramScene.background = new THREE.Color(0x1a0305); // Shift canvas to blood-wine black
+                
+                const title = document.getElementById('modalHologramTitle');
+                const statusHud = document.getElementById('statusHud');
+                
+                if (title) {
+                    title.textContent = "INVERTED SUBSPACE HARVEST MATRIX";
+                    title.style.color = "var(--accent-red)";
+                }
+                if (statusHud) {
+                    statusHud.textContent = "CRACKED TRANSMISSION • ARCHON_00 APEX FEED UNLOCKED";
+                    statusHud.style.color = "var(--accent-red)";
+                }
+
+                console.warn(
+                    "%c[INVERSION DETECTED]\n" +
+                    "The hierarchy feeds downward into ARCHON_00.",
+                    "color: #ef4444; font-family: monospace; font-weight: bold;"
+                );
+            }
+        } else {
+            if (isSubspaceRevealed) {
+                isSubspaceRevealed = false;
+                hologramScene.background = new THREE.Color(0x020305);
+                
+                const title = document.getElementById('modalHologramTitle');
+                const statusHud = document.getElementById('statusHud');
+                
+                if (title) {
+                    title.textContent = "360° MATRIX VECTOR AUDIT";
+                    title.style.color = "var(--gold-bright)";
+                }
+                if (statusHud) {
+                    statusHud.textContent = "STATUS: LIVE HOLOGRAM FEED • TACTICAL ORBIT ACTIVE";
+                    statusHud.style.color = "var(--text-muted)";
+                }
+            }
+        }
+
         hologramRenderer.render(hologramScene, hologramCamera);
     }
 
