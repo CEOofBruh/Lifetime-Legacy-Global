@@ -4,8 +4,8 @@
 // ==========================================
 
 // Global State & Supabase Initialization
-const SUPABASE_URL = "https://dnqxwywtzofeiyzrbk.supabase.co"; 
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // Insert public anon key
+const SUPABASE_URL = "https://clnqxwyewtzofeiyzrbk.supabase.co"; 
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // Paste public anon key here
 
 let supabaseClient = null;
 let currentUser = null;
@@ -98,20 +98,20 @@ async function saveUserProfile(userId, profileData) {
 document.addEventListener('DOMContentLoaded', async () => {
     const rawPage = window.location.pathname.split('/').pop().toLowerCase();
     const currentPage = rawPage === '' ? 'index.html' : rawPage;
-    const isPublicPage = currentPage === 'index.html' || currentPage === 'login.html';
+    const isPublicPage = currentPage === 'index.html' || currentPage === 'login.html' || currentPage === 'signup.html';
 
-    // Session Verification & Auth Guard
+    // Verify Session State
     if (supabaseClient) {
         const { data: { session } } = await supabaseClient.auth.getSession();
         currentUser = session ? session.user : null;
 
-        // Auto-redirect authenticated associates away from login page to dashboard
+        // Auto-redirect logged-in users directly to dashboard.html
         if (currentUser && isPublicPage) {
             window.location.href = 'dashboard.html';
             return;
         }
 
-        // Redirect unauthenticated visitors away from protected pages to login
+        // Redirect unauthenticated visitors away from protected portal pages
         if (!currentUser && !isPublicPage) {
             window.location.href = 'index.html';
             return;
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             e.preventDefault();
             const emailInput = document.getElementById('loginEmail');
             const passwordInput = document.getElementById('loginPassword');
-            const feedback = document.getElementById('loginFeedback');
+            const feedback = document.getElementById('loginFeedback') || document.getElementById('loginStatus');
 
             if (!emailInput || !passwordInput) return;
 
@@ -141,7 +141,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 feedback.textContent = "Authenticating associate credentials...";
             }
 
+            if (!supabaseClient) {
+                if (feedback) {
+                    feedback.style.color = "var(--accent-red)";
+                    feedback.textContent = "Error: Database client connection missing.";
+                }
+                return;
+            }
+
             try {
+                // Authenticate registered credentials with Supabase
                 const { data, error } = await supabaseClient.auth.signInWithPassword({
                     email: emailInput.value.trim(),
                     password: passwordInput.value
@@ -151,19 +160,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 if (feedback) {
                     feedback.style.color = "var(--gold)";
-                    feedback.textContent = "Authentication successful. Accessing portal...";
+                    feedback.textContent = "Authentication successful! Entering dashboard...";
                 }
 
                 currentUser = data.user;
+
+                // Redirect to dashboard immediately after success
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
-                }, 600);
+                }, 500);
 
             } catch (err) {
                 console.error("Login Error:", err);
                 if (feedback) {
                     feedback.style.color = "var(--accent-red)";
-                    feedback.textContent = err.message || "Invalid credentials. Contact Regional Director.";
+                    feedback.textContent = err.message || "Invalid credentials. Check email and password.";
                 }
             }
         });
