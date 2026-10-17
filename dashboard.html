@@ -9,11 +9,11 @@
     <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/CEOofBruh/Lifetime-Legacy-Global/refs/heads/main/LLG%20-%20Icon.ico">
     <!-- Supabase JS Client library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js?v=3" defer></script>
+    <script src="script.js?v=4" defer></script>
 </head>
 <body data-system-epoch="1998">
 
-    
+    <!-- Header Navigation -->
     <header>
         <nav>
             <a href="index.html" class="logo-link">
@@ -46,9 +46,9 @@
                 
                 <!-- Profile Card -->
                 <div class="auth-card" style="margin-bottom: 1.5rem; text-align: center;">
-                    <span class="hero-tag">Active Member</span>
+                    <span class="hero-tag">Active Associate</span>
                     
-                    
+                    <!-- Avatar Upload Trigger -->
                     <div class="avatar-container" onclick="document.getElementById('avatarInput').click();" title="Click to upload custom avatar" style="cursor: pointer; position: relative; width: 90px; height: 90px; margin: 0 auto 1rem auto;">
                         <div class="avatar-circle" id="avatarDisplay" style="width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--gold); overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(10, 12, 16, 0.8);">
                             <span class="avatar-icon" id="avatarFallback" style="font-size: 2.2rem;">👤</span>
@@ -56,7 +56,7 @@
                         </div>
                     </div>
 
-                   
+                    <!-- Hidden File Input -->
                     <input type="file" id="avatarInput" accept="image/*" style="display: none;">
 
                     <h2 id="profileName" style="font-size: 1.3rem; margin-bottom: 0.2rem;">Associate</h2>
@@ -68,42 +68,42 @@
                     </div>
                 </div>
 
-                <!-- Unlocked System Archives Card -->
+                <!-- Partner Resource Library Card -->
                 <div class="auth-card">
-                    <h4 style="color: var(--text-main); margin-bottom: 0.8rem; font-size: 1rem;">Unlocked System Archives</h4>
+                    <h4 style="color: var(--text-main); margin-bottom: 0.8rem; font-size: 1rem;">Partner Resource Library</h4>
                     <div id="unlockedLinks" class="unlocked-links-container">
                         <p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">
-                            No restricted archives unlocked yet.
+                            No bonus resources unlocked yet. Enter promo codes on the portal to access premium training.
                         </p>
                     </div>
                 </div>
 
             </aside>
 
-            <!-- Right Main Area -->
+            <!-- Right Main Content Area -->
             <main class="hero-content" style="display: flex; flex-direction: column; gap: 1.5rem;">
                 
-                <!-- Terminal Card -->
+                <!-- Corporate Rewards & Promo Redemption Portal -->
                 <div class="auth-card">
-                    <h2>System Verification Terminal</h2>
-                    <p class="subtitle">Input authorization override keys below to authenticate clearance and acquire credits.</p>
+                    <h2>Distributor Rewards & Vouchers</h2>
+                    <p class="subtitle">Enter corporate promotion keys, affiliate gift codes, or tier bonus vouchers to claim Legacy Credits.</p>
 
-                    
+                    <!-- Clean Corporate Status Box -->
                     <div class="feature-card" style="margin-bottom: 1.2rem; border-color: rgba(212, 175, 55, 0.2); flex-direction: row; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">TERMINAL_STATUS: ONLINE</span>
-                    <span class="hero-tag" style="margin: 0; padding: 0.1rem 0.5rem; font-size: 0.65rem;">AWAITING_CIPHER</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-primary);">ACCOUNT STATUS: ACTIVE ASSOCIATE</span>
+                        <span class="hero-tag" style="margin: 0; padding: 0.1rem 0.5rem; font-size: 0.65rem;">REDEEM PROMO</span>
                     </div>
                     
                     <form id="quizForm">
                         <div class="form-group" style="display: flex; gap: 0.8rem; margin-bottom: 0;">
-                            <input type="text" id="answerInput" placeholder="ENTER VERIFICATION KEY" autocomplete="off" required style="font-family: var(--font-mono);">
-                            <button type="submit" class="btn-primary" style="width: auto; padding: 0 1.5rem; white-space: nowrap;">Submit Key</button>
+                            <input type="text" id="answerInput" placeholder="ENTER PROMO OR VOUCHER CODE" autocomplete="off" required style="font-family: var(--font-mono); text-transform: uppercase;">
+                            <button type="submit" class="btn-primary" style="width: auto; padding: 0 1.5rem; white-space: nowrap;">Redeem Code</button>
                         </div>
                     </form>
                     <div id="quizFeedback" class="status-message" style="text-align: left;"></div>
                 </div>
 
-                <!-- Leaderboard Section -->
+                <!-- Global Leaderboard Section -->
                 <div class="auth-card">
                     <h2>Associate Global Leaderboard</h2>
                     <p class="subtitle">Real-time network hierarchy ordered by accumulated Legacy Credits.</p>
@@ -129,10 +129,10 @@
                     </div>
                 </div>
 
-                <!-- Modules Section -->
+                <!-- Corporate Training Modules -->
                 <div class="auth-card">
                     <h2>Associate Training Modules</h2>
-                    <p class="subtitle">Access proprietary network elevation protocols.</p>
+                    <p class="subtitle">Access proprietary network elevation materials.</p>
                     
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1rem;">
                         
@@ -161,9 +161,21 @@
         </div>
     </div>
 
-    <!-- Footer (Synchronized with index.html) -->
+    <!-- Footer -->
     <footer>
         <p>&copy; 1998–<span id="current-year">2026</span> Lifetime Legacy Global Network. All Rights Reserved. <span class="latin-motto" title="Look beneath the surface">Secretum In Unitate</span>.</p>
     </footer>
+
+    <!-- Developer Console Script -->
+    <script>
+        console.log(
+            "%c[LLG ASSOCIATE PORTAL]\n" +
+            "--------------------------------------------------\n" +
+            "Associate Session Authenticated.\n" +
+            "Voucher redemption portal active.\n" +
+            "--------------------------------------------------",
+            "color: #d4af37; font-family: monospace; font-size: 12px; font-weight: bold;"
+        );
+    </script>
 </body>
 </html>
