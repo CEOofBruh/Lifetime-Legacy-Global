@@ -5,7 +5,7 @@
 
 // Global State & Supabase Initialization
 const SUPABASE_URL = "https://dnqxwywtzofeiyzrbk.supabase.co"; 
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; 
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // Ensure your public anon key is present here
 
 let supabaseClient = null;
 let currentUser = null;
@@ -15,7 +15,7 @@ if (typeof supabase !== 'undefined' && SUPABASE_URL && SUPABASE_ANON_KEY) {
 }
 
 // ==========================================
-// 1. SHA-256HASHING UTILITY
+// 1. SHA-256 CRYPTOGRAPHIC HASHING UTILITY
 // ==========================================
 async function hashString(str) {
     const buffer = new TextEncoder().encode(str.trim().toUpperCase());
@@ -25,7 +25,7 @@ async function hashString(str) {
         .join('');
 }
 
-
+// SHA-256 HASH SIGNATURES & OBFUSCATED STRINGS
 const HASH_VISAGE_VOUCHER = "8f12c1b920042d385f86c23b207a9b0c2a8f8876b51342f1118bc27c62241d01";
 
 const OBFUSCATED_TELEMETRY_APEX = [
@@ -93,16 +93,28 @@ async function saveUserProfile(userId, profileData) {
 }
 
 // ==========================================
-// 3. UI INITIALIZATION & DASHBOARD RENDER
+// 3. AUTH ROUTING & DASHBOARD INITIALIZATION
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
-    // Check Supabase session
+    const currentPage = window.location.pathname.split('/').pop();
+    const isPublicPage = currentPage === '' || currentPage === 'index.html' || currentPage === 'login.html';
+
+    // Verify session
     if (supabaseClient) {
         const { data: { session } } = await supabaseClient.auth.getSession();
-        if (session) currentUser = session.user;
+        currentUser = session ? session.user : null;
+
+        // Redirect unauthenticated visitors away from protected portal pages
+        if (!currentUser && !isPublicPage) {
+            window.location.href = 'index.html';
+            return;
+        }
 
         supabaseClient.auth.onAuthStateChange((_event, session) => {
             currentUser = session ? session.user : null;
+            if (!currentUser && !isPublicPage) {
+                window.location.href = 'index.html';
+            }
         });
     }
 
@@ -119,6 +131,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderUnlockedArchives(profile.unlockedPages);
     fetchLeaderboard();
 });
+
+// Logout handler for header/nav button
+async function handleLogout() {
+    if (supabaseClient) {
+        await supabaseClient.auth.signOut();
+    }
+    localStorage.removeItem('llg_user_profile');
+    window.location.href = 'index.html';
+}
 
 function renderUnlockedArchives(unlockedList) {
     const archiveContainer = document.getElementById('unlockedArchiveList');
@@ -198,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                // Secure RPC Function call (bypasses RLS table dumps)
+                // Secure RPC Function call
                 const { data: puzzleResults, error } = await supabaseClient
                     .rpc('verify_puzzle_code', { input_code: userInput });
 
@@ -262,15 +283,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// 5. THREE.JS 3D HOLOGRAM ENGINE
+// 5. THREE.JS 3D HOLOGRAM ENGINE (INVERTED ANAMORPHIC HASHED REVEAL)
 // ==========================================
 let hologramScene, hologramCamera, hologramRenderer, hologramControls, hologramAnimationId;
 let invertedApexNode = null;
 let occultLinesGroup = null;
 let isSubspaceRevealed = false;
 let isVisageAligned = false;
-
-const targetInvertedAngle = new THREE.Vector3(0.0, -4.2, 3.5);
 
 function openProjectionModal() {
     const modal = document.getElementById('projectionModal');
@@ -306,6 +325,9 @@ function initHologram3D() {
     const container = document.getElementById('hologramCanvasContainer');
     if (!container || typeof THREE === 'undefined') return;
 
+    // Vector instantiated safely inside function execution
+    const targetInvertedAngle = new THREE.Vector3(0.0, -4.2, 3.5);
+
     const width = container.clientWidth;
     const height = container.clientHeight;
 
@@ -331,7 +353,7 @@ function initHologram3D() {
     pointLight.position.set(0, 5, 5);
     hologramScene.add(pointLight);
 
-
+    // 13 STANDARD EXECUTIVE NODES
     const tier1 = [new THREE.Vector3(0, 2.8, 0)];
     
     const tier2 = [
@@ -370,7 +392,7 @@ function initHologram3D() {
         hologramScene.add(mesh);
     });
 
-   
+    // 17 GOLD RESIDUAL VECTOR LINES
     const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffd700, linewidth: 2 });
 
     tier2.forEach(target => {
@@ -389,11 +411,11 @@ function initHologram3D() {
         }
     }
 
-    
+    // OCCULT SUBSPACE LAYER
     occultLinesGroup = new THREE.Group();
-    occultLinesGroup.visible = false; r
+    occultLinesGroup.visible = false;
 
-    const hiddenApexPos = new THREE.Vector3(0, -3.8, 0); 
+    const hiddenApexPos = new THREE.Vector3(0, -3.8, 0);
     const darkNodeMaterial = new THREE.MeshStandardMaterial({
         color: 0xef4444,
         emissive: 0x990000,
@@ -416,12 +438,12 @@ function initHologram3D() {
 
     hologramScene.add(occultLinesGroup);
 
-    
+    // Grid Floor
     const gridHelper = new THREE.GridHelper(10, 10, 0xd4af37, 0x1f242d);
     gridHelper.position.y = -1.8;
     hologramScene.add(gridHelper);
 
-    
+    // RAYCASTER CLICK DETECTOR
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
@@ -452,12 +474,11 @@ function initHologram3D() {
         }
     });
 
-    
+    // ANIMATION & HASH-VERIFIED ALIGNMENT LOOP
     function animate() {
         hologramAnimationId = requestAnimationFrame(animate);
         hologramControls.update();
 
-        
         if (hologramCamera.position.y < -0.8) {
             if (!isSubspaceRevealed) {
                 isSubspaceRevealed = true;
@@ -465,7 +486,6 @@ function initHologram3D() {
                 hologramScene.background = new THREE.Color(0x1a0305);
             }
 
-            
             const distToAngle = hologramCamera.position.distanceTo(targetInvertedAngle);
             if (distToAngle < 0.95) {
                 if (!isVisageAligned) {
@@ -521,7 +541,6 @@ function initHologram3D() {
             }
 
         } else {
-            
             if (isSubspaceRevealed) {
                 isSubspaceRevealed = false;
                 isVisageAligned = false;
