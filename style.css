@@ -1,88 +1,77 @@
-/* ==========================================================================
+/* ==========================================
    LIFETIME LEGACY GLOBAL - CORE STYLESHEET
-   Aesthetic: High-End Corporate MLM Facade with Dark Glassmorphism
-   ========================================================================== */
+   Aesthetic: Noir Brutalism x MLM Hustle
+   ========================================== */
 
 :root {
-    --bg-dark: #0a0c10;
-    --card-bg: rgba(18, 22, 31, 0.75);
-    --card-border: rgba(212, 175, 55, 0.2);
+    --bg-main: #050505;
+    --card-bg: #0a0c10;
+    --card-border: #1f242d;
+    --text-main: #d1d5db;
+    --text-muted: #6b7280;
     --gold: #d4af37;
-    --gold-bright: #f3e5ab;
-    --gold-hover: #b89628;
-    --text-main: #e0e6ed;
-    --text-muted: #8a99ad;
-    --accent-red: #8b0000;
+    --gold-bright: #ffd700;
+    --accent-red: #ef4444;
+    --font-mono: 'Courier New', Courier, monospace;
     --font-primary: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --font-mono: "Courier New", Courier, monospace;
 }
 
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 body {
-    background-color: var(--bg-dark);
-    background-image: 
-        radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 60%),
-        radial-gradient(circle at 80% 80%, rgba(15, 23, 42, 0.8) 0%, transparent 50%);
+    background-color: var(--bg-main);
     color: var(--text-main);
     font-family: var(--font-primary);
+    line-height: 1.6;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
 }
 
-/* --- Header & Navigation --- */
+/* ==========================================
+   NAVIGATION & HEADER
+   ========================================== */
 header {
+    background: #000;
     border-bottom: 1px solid var(--card-border);
-    background: rgba(10, 12, 16, 0.85);
-    backdrop-filter: blur(12px);
+    padding: 1rem 2rem;
     position: sticky;
     top: 0;
     z-index: 100;
 }
 
 nav {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    max-width: 1600px;
+    margin: 0 auto;
 }
 
 .logo-link {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 0.8rem;
     text-decoration: none;
-    color: var(--text-main);
-    font-weight: 700;
-    letter-spacing: 1px;
+    color: #fff;
 }
 
 .logo-img {
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     object-fit: contain;
-    filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.4));
-    transition: transform 0.25s ease, filter 0.25s ease;
-}
-
-.logo-link:hover .logo-img {
-    transform: scale(1.1) rotate(5deg);
-    filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.8));
 }
 
 .logo-text {
+    font-family: var(--font-mono);
+    font-weight: bold;
+    letter-spacing: 1.5px;
     font-size: 1rem;
-    background: linear-gradient(135deg, #ffffff 0%, var(--text-muted) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--gold);
 }
 
 nav ul {
@@ -93,10 +82,9 @@ nav ul {
 }
 
 nav a {
-    color: var(--text-muted);
+    color: var(--text-main);
     text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: 0.88rem;
     transition: color 0.2s ease;
 }
 
@@ -106,235 +94,195 @@ nav a:hover {
 
 .gold-text {
     color: var(--gold) !important;
-    font-weight: 600;
 }
 
-.subtle-link {
-    opacity: 0.4;
-    font-size: 0.8rem !important;
-    transition: opacity 0.3s ease !important;
-}
-
-.subtle-link:hover {
-    opacity: 1;
-}
-
-/* --- Main Layout --- */
-.hero-wrapper {
-    max-width: 1200px;
-    margin: 3rem auto;
-    padding: 0 2rem;
-    width: 100%;
-}
-
-.hero-container {
-    display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: 3rem;
-    align-items: center;
-}
-
-/* --- Hero Content (Left Side) --- */
-.hero-tag {
+/* ==========================================
+   BUTTONS & FORM INPUTS
+   ========================================== */
+.btn-primary {
     display: inline-block;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--gold);
-    background: rgba(212, 175, 55, 0.1);
-    border: 1px solid rgba(212, 175, 55, 0.3);
-    padding: 0.3rem 0.8rem;
-    border-radius: 20px;
-    margin-bottom: 1rem;
-}
-
-.hero-content h1 {
-    font-size: 2.8rem;
-    line-height: 1.2;
-    margin-bottom: 1.2rem;
-    font-weight: 800;
-}
-
-.hero-description {
-    color: var(--text-muted);
-    font-size: 1.05rem;
-    line-height: 1.6;
-    margin-bottom: 2rem;
-}
-
-.puzzle-num {
-    color: var(--text-main);
-    border-bottom: 1px dotted var(--gold);
-    cursor: help;
-}
-
-/* --- Feature Grid --- */
-.feature-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.feature-card {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    padding: 1.2rem;
-    border-radius: 8px;
-    backdrop-filter: blur(8px);
-    transition: border-color 0.3s ease, transform 0.2s ease;
-}
-
-.feature-card:hover {
-    border-color: var(--gold);
-    transform: translateX(4px);
-}
-
-.feature-icon {
-    font-size: 1.4rem;
-    color: var(--gold);
-    background: rgba(212, 175, 55, 0.08);
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-    flex-shrink: 0;
-}
-
-.feature-card h4 {
-    font-size: 1rem;
-    margin-bottom: 0.25rem;
-    color: var(--text-main);
-}
-
-.feature-card p {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    line-height: 1.4;
-}
-
-/* --- Auth Card (Right Side) --- */
-.auth-card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    padding: 2.2rem;
-    border-radius: 12px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(12px);
-}
-
-.auth-card h2 {
-    font-size: 1.6rem;
-    margin-bottom: 0.3rem;
-}
-
-.auth-card .subtitle {
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    margin-bottom: 1.8rem;
-}
-
-.form-group {
-    margin-bottom: 1.2rem;
-}
-
-.form-group label {
-    display: block;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: var(--text-muted);
-    margin-bottom: 0.4rem;
-}
-
-.form-group input {
     width: 100%;
-    padding: 0.8rem 1rem;
-    background: rgba(10, 12, 16, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
+    background: var(--gold);
+    color: #000;
+    font-weight: bold;
+    font-family: var(--font-mono);
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover {
+    background: var(--gold-bright);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: transparent;
     color: var(--text-main);
-    font-size: 0.95rem;
+    border: 1px solid var(--card-border);
+    font-family: var(--font-mono);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    background: #000;
+    border: 1px solid var(--card-border);
+    color: #fff;
+    padding: 0.75rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
     outline: none;
     transition: border-color 0.2s ease;
 }
 
-.form-group input:focus {
+input:focus {
     border-color: var(--gold);
 }
 
-.btn-primary {
-    width: 100%;
-    padding: 0.9rem;
-    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-hover) 100%);
-    border: none;
-    border-radius: 6px;
-    color: #000;
-    font-weight: 700;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: opacity 0.2s ease, transform 0.1s ease;
-    margin-top: 0.5rem;
+/* ==========================================
+   DASHBOARD CARDS & WRAPPERS
+   ========================================== */
+.hero-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 0;
 }
 
-.btn-primary:hover {
-    opacity: 0.95;
-    transform: translateY(-1px);
+.hero-container {
+    display: grid;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.auth-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+}
+
+.auth-card h2 {
+    font-family: var(--font-mono);
+    font-size: 1.3rem;
+    color: #fff;
+    margin-bottom: 0.2rem;
+}
+
+.auth-card p.subtitle {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 1.2rem;
+}
+
+.feature-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: #000;
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+}
+
+.hero-tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--gold);
+    border: 1px solid var(--gold);
 }
 
 .status-message {
-    margin-top: 1rem;
-    font-size: 0.85rem;
-    min-height: 18px;
-    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    margin-top: 0.8rem;
 }
 
-.auth-footer {
-    margin-top: 1.5rem;
-    padding-top: 1.2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    text-align: center;
-    font-size: 0.85rem;
-    color: var(--text-muted);
+/* ==========================================
+   3-COLUMN AD-INTEGRATED LAYOUT
+   ========================================== */
+.page-with-ads-layout {
+    display: grid;
+    grid-template-columns: 200px 1fr 200px;
+    gap: 1.5rem;
+    max-width: 1600px;
+    margin: 1.5rem auto;
+    padding: 0 1rem;
+    align-items: start;
 }
 
-.auth-footer a {
-    color: var(--gold);
-    text-decoration: none;
+.main-content-column {
+    min-width: 0;
 }
 
-.auth-footer a:hover {
-    text-decoration: underline;
+/* Borderless Video Banner Box */
+.pure-ad-banner {
+    width: 100%;
+    height: 650px;
+    background: #000;
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    overflow: hidden;
+    position: sticky;
+    top: 5rem;
 }
 
-/* --- Footer --- */
+.ad-video-element {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ==========================================
+   FOOTER
+   ========================================== */
 footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    background: #000;
+    border-top: 1px solid var(--card-border);
     padding: 1.5rem;
     text-align: center;
-    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
     color: var(--text-muted);
-    background: rgba(10, 12, 16, 0.9);
+    margin-top: auto;
 }
 
 .latin-motto {
-    font-family: var(--font-mono);
-    color: rgba(212, 175, 55, 0.6);
-    letter-spacing: 1px;
+    color: var(--gold);
     cursor: help;
 }
 
-/* --- Responsive Adjustments --- */
-@media (max-width: 900px) {
-    .hero-container {
-        grid-template-columns: 1fr;
-        gap: 2rem;
+/* ==========================================
+   RESPONSIVE DESIGN (TABLET / MOBILE)
+   ========================================== */
+@media (max-width: 1100px) {
+    .page-with-ads-layout {
+        grid-template-columns: 1fr !important;
     }
-    .hero-content h1 {
-        font-size: 2.2rem;
+    .ad-sidebar {
+        display: none !important;
     }
 }
