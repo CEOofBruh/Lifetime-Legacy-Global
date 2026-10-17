@@ -3,22 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lifetime Legacy Global | Login</title>
+    <title>Lifetime Legacy Global | Associate Portal</title>
     <link rel="stylesheet" href="style.css">
-   <!-- Lifetime Legacy Global Favicon -->
+    <!-- Lifetime Legacy Global Favicon -->
     <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/CEOofBruh/Lifetime-Legacy-Global/refs/heads/main/LLG%20-%20Icon.ico">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js?v=3" defer></script>
 </head>
-<body>
+<body data-system-epoch="1998">
 
     <header>
         <nav>
-            <div class="logo">❖ LIFETIME LEGACY GLOBAL</div>
+            <a href="index.html" class="logo-link">
+                <img 
+                    src="https://raw.githubusercontent.com/CEOofBruh/Lifetime-Legacy-Global/refs/heads/main/LLG%20-%20Icon.ico" 
+                    alt="Lifetime Legacy Global Logo" 
+                    id="brand-logo" 
+                    class="logo-img" 
+                    data-tier-id="0"
+                >
+                <span class="logo-text">LIFETIME LEGACY GLOBAL</span>
+            </a>
             <ul>
-                <li><a href="index.html" class="gold-text">Login</a></li>
+                <li><a href="index.html" class="gold-text active-link">Login</a></li>
                 <li><a href="signup.html">Register ID</a></li>
-                <li><a href="index2.html">Retro</li>
+                <li><a href="index2.html" class="subtle-link" title="Archive Access">Retro</a></li>
             </ul>
         </nav>
     </header>
@@ -26,42 +35,45 @@
     <main class="hero-wrapper">
         <div class="hero-container">
             
-            <!-- Left Side: Pitch -->
+            <!-- Left Side: Corporate Pitch with Embedded Puzzle Clues -->
             <div class="hero-content">
-                <span class="hero-tag">The Premier Wealth Network</span>
+                <span class="hero-tag">The Premier Wealth Network • Matrix Level 4</span>
                 <h1>Unlock Unlimited <br><span class="gold-text">Generational Wealth</span></h1>
+                
                 <p class="hero-description">
-                    Join over 40,000 global partners leveraging our proprietary digital ecosystem to maximize residual performance.
+                    Join over <span class="puzzle-num" data-code-part="1" title="Node Alpha">43,108</span> global partners leveraging our proprietary digital ecosystem to maximize residual performance.
                 </p>
 
                 <div class="feature-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">⚡</div>
+                    
+                    <div class="feature-card" data-node-id="7" data-law-ref="I">
+                        <div class="feature-icon">⬡</div>
                         <div>
                             <h4>Automated Synergy</h4>
                             <p>Our proprietary affiliate sequence handles friction while you harvest residual streams.</p>
                         </div>
                     </div>
 
-                    <div class="feature-card">
-                        <div class="feature-icon">🧠</div>
+                    <div class="feature-card" data-node-id="3" data-law-ref="II">
+                        <div class="feature-icon">▲</div>
                         <div>
                             <h4>Mindset Re-Engineering</h4>
                             <p>Access tier-locked masterclasses engineered to strip away non-performing belief frameworks.</p>
                         </div>
                     </div>
 
-                    <div class="feature-card">
-                        <div class="feature-icon">📈</div>
+                    <div class="feature-card" data-node-id="1" data-law-ref="III">
+                        <div class="feature-icon">✦</div>
                         <div>
                             <h4>Downline Acceleration</h4>
                             <p>Multiply your legacy index by onboarding sub-affiliates into your personal ecosystem grid.</p>
                         </div>
                     </div>
+
                 </div>
             </div>
 
-            <!-- Right Side: Auth Card -->
+            <!-- Right Side: Auth Portal -->
             <div class="auth-card">
                 <h2>Associate Portal</h2>
                 <p class="subtitle">Authenticate with your Associate Credentials.</p>
@@ -69,18 +81,17 @@
                 <form id="loginForm">
                     <div class="form-group">
                         <label for="loginEmail">Associate Email Address</label>
-                        <input type="email" id="loginEmail" required placeholder="associate@legacy.com" autocomplete="email">
+                        <input type="email" id="loginEmail" required placeholder="associate@legacy-matrix.net" autocomplete="email">
                     </div>
 
                     <div class="form-group">
-                        <label for="loginPassword">Password</label>
+                        <label for="loginPassword">Password / Access Code</label>
                         <input type="password" id="loginPassword" required placeholder="••••••••" autocomplete="current-password">
                     </div>
 
                     <button type="submit" class="btn-primary">Authenticate Session</button>
                 </form>
 
-                <!-- FIXED: Updated ID from loginMessage to loginStatus -->
                 <div id="loginStatus" class="status-message"></div>
 
                 <div class="auth-footer">
@@ -92,8 +103,20 @@
     </main>
 
     <footer>
-        <p>&copy; Lifetime Legacy Global Network. All Rights Reserved. Secretum In Unitate.</p>
+        <p>&copy; 1998–<span id="current-year">2026</span> Lifetime Legacy Global Network. All Rights Reserved. <span class="latin-motto" title="Look beneath the surface">Secretum In Unitate</span>.</p>
     </footer>
 
+    <!-- Developer Console ARG Clue Trigger -->
+    <script>
+        console.log(
+            "%c[LLG SECURITY SYSTEM v3.11]\n" +
+            "--------------------------------------------------\n" +
+            "WARNING: Unverified Associate Session Detected.\n" +
+            "Node Geometry: [7 - 3 - 1 - 7]\n" +
+            "If you are attempting to access the Archive Vault, proceed to /index2.html or enter regional code in the portal.\n" +
+            "--------------------------------------------------",
+            "color: #d4af37; font-family: monospace; font-size: 12px; font-weight: bold;"
+        );
+    </script>
 </body>
 </html>
