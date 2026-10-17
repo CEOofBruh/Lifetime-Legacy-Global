@@ -27,11 +27,9 @@ async function enforceRouteSecurity() {
     const currentUser = session ? session.user : null;
 
     if (!session && !isPublicPage) {
-        // Unauthenticated user attempting to access any restricted page -> bounce to login
         window.location.href = 'index.html';
         return null;
     } else if (session && isPublicPage) {
-        // Authenticated user visiting landing/signup -> send to dashboard
         window.location.href = 'dashboard.html';
         return currentUser;
     }
@@ -273,23 +271,20 @@ function renderUnlockedArchives(unlockedPages) {
 // 5. MAIN PIPELINE LOGIC & DOM HANDLERS
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
-    // RUN AUTOMATIC ROUTE GUARD FOR ALL PAGES
     const currentUser = await enforceRouteSecurity();
 
-    // Avatar File Input Listener
     const avatarInput = document.getElementById('avatarInput') || document.getElementById('avatarFileInput');
     if (avatarInput) {
         avatarInput.addEventListener('change', uploadAvatar);
     }
 
-    // --- SIGNUP FORM HANDLER (signup.html) ---
+    // SIGNUP FORM
     const signupForm = document.getElementById('signupForm');
     if (signupForm) {
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const emailInput = document.getElementById('signupEmail');
             const passwordInput = document.getElementById('signupPassword');
-
             if (!emailInput || !passwordInput) return;
 
             const email = emailInput.value.trim();
@@ -308,21 +303,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 setStatusMessage('signupStatus', error.message, 'var(--accent-red)');
             } else {
                 setStatusMessage('signupStatus', 'Registration successful! Redirecting to login portal...', 'var(--gold)');
-                setTimeout(() => { 
-                    window.location.href = 'index.html'; 
-                }, 1500);
+                setTimeout(() => { window.location.href = 'index.html'; }, 1500);
             }
         });
     }
 
-    // --- LOGIN FORM HANDLER (index.html) ---
+    // LOGIN FORM
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const emailInput = document.getElementById('loginEmail');
             const passwordInput = document.getElementById('loginPassword');
-
             if (!emailInput || !passwordInput) return;
 
             const email = emailInput.value.trim();
@@ -341,14 +333,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 setStatusMessage('loginStatus', error.message, 'var(--accent-red)');
             } else {
                 setStatusMessage('loginStatus', 'Access granted. Opening Associate Portal...', 'var(--gold)');
-                setTimeout(() => { 
-                    window.location.href = 'dashboard.html'; 
-                }, 1000);
+                setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
             }
         });
     }
 
-    // --- DASHBOARD HYDRATION (dashboard.html) ---
+    // DASHBOARD HYDRATION
     if (document.getElementById('coinBalance')) {
         const userId = currentUser ? currentUser.id : null;
 
@@ -374,7 +364,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         fetchLeaderboard();
     }
 
-    // --- PROMO CODE / VOUCHER SUBMISSION (SUPABASE DIRECT VERIFICATION) ---
+    // PROMO CODE SUBMISSION
     const quizForm = document.getElementById('quizForm');
     if (quizForm) {
         quizForm.addEventListener('submit', async (e) => {
@@ -392,7 +382,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             try {
-                // Query Supabase puzzle_codes table
                 const { data: puzzleData, error } = await supabaseClient
                     .from('puzzle_codes')
                     .select('*')
@@ -405,7 +394,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const userId = currentUser ? currentUser.id : null;
                     const currentProfile = await fetchUserProfile(userId);
 
-                    // Check if already unlocked
                     const alreadyUnlocked = currentProfile.unlockedPages.some(
                         p => p.url === puzzleData.unlocked_url
                     );
@@ -416,7 +404,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         return;
                     }
 
-                    // Update profile stats
                     const updatedCoins = currentProfile.coins + puzzleData.reward_coins;
                     const updatedRank = puzzleData.new_rank || currentProfile.rank;
                     const updatedUnlocked = [
@@ -431,10 +418,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         avatarUrl: currentProfile.avatarUrl
                     };
 
-                    // Persist to Supabase profiles
                     await saveUserProfile(userId, updatedProfile);
 
-                    // Update UI elements
                     const coinBalance = document.getElementById('coinBalance');
                     const profileRank = document.getElementById('profileRank');
 
@@ -459,7 +444,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // --- LOGOUT / DISCONNECT HANDLER ---
+    // LOGOUT
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
@@ -471,3 +456,148 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 });
+
+// ==========================================
+// 6. THREE.JS 3D MATRIX HOLOGRAM ENGINE
+// ==========================================
+let hologramScene, hologramCamera, hologramRenderer, hologramControls, hologramAnimationId;
+
+function openProjectionModal() {
+    const modal = document.getElementById('projectionModal');
+    if (!modal) return;
+
+    modal.style.display = 'flex';
+    initHologram3D();
+}
+
+function closeProjectionModal(event) {
+    const modal = document.getElementById('projectionModal');
+    if (modal) modal.style.display = 'none';
+
+    if (hologramAnimationId) cancelAnimationFrame(hologramAnimationId);
+    
+    const container = document.getElementById('hologramCanvasContainer');
+    if (container) {
+        container.innerHTML = `
+            <div style="position: absolute; top: 12px; left: 12px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--gold); background: rgba(0,0,0,0.7); padding: 0.4rem 0.8rem; border: 1px solid rgba(212,175,55,0.3); border-radius: 4px; pointer-events: none; text-align: left;">
+                <div>🖱️ <strong>Left Click + Drag:</strong> Rotate 360°</div>
+                <div>🔍 <strong>Scroll:</strong> Zoom In/Out</div>
+                <div>🖐️ <strong>Right Click + Drag:</strong> Pan Vector</div>
+            </div>
+            <div style="position: absolute; bottom: 12px; right: 12px; font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); background: rgba(0,0,0,0.7); padding: 0.3rem 0.6rem; border-radius: 4px; pointer-events: none;">
+                STATUS: LIVE HOLOGRAM FEED • TACTICAL ORBIT ACTIVE
+            </div>`;
+    }
+}
+
+function initHologram3D() {
+    const container = document.getElementById('hologramCanvasContainer');
+    if (!container || typeof THREE === 'undefined') return;
+
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    hologramScene = new THREE.Scene();
+    hologramScene.background = new THREE.Color(0x020305);
+
+    hologramCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    hologramCamera.position.set(0, 1.5, 9);
+
+    hologramRenderer = new THREE.WebGLRenderer({ antialias: true });
+    hologramRenderer.setSize(width, height);
+    hologramRenderer.setPixelRatio(window.devicePixelRatio);
+    container.appendChild(hologramRenderer.domElement);
+
+    hologramControls = new THREE.OrbitControls(hologramCamera, hologramRenderer.domElement);
+    hologramControls.enableDamping = true;
+    hologramControls.dampingFactor = 0.05;
+    hologramControls.autoRotate = true;
+    hologramControls.autoRotateSpeed = 0.8;
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    hologramScene.add(ambientLight);
+
+    const pointLight = new THREE.PointLight(0xffd700, 2, 50);
+    pointLight.position.set(0, 5, 5);
+    hologramScene.add(pointLight);
+
+    // 13 EXECUTIVE NODES POSITIONS
+    const tier1 = [new THREE.Vector3(0, 2.8, 0)];
+    
+    const tier2 = [
+        new THREE.Vector3(-1.8, 0.9, 0),
+        new THREE.Vector3(0, 0.9, 0.9),
+        new THREE.Vector3(1.8, 0.9, 0)
+    ];
+
+    const tier3 = [
+        new THREE.Vector3(-2.8, -1.0, 0.6),
+        new THREE.Vector3(-1.8, -1.0, 0),
+        new THREE.Vector3(-0.9, -1.0, -0.6),
+        new THREE.Vector3(-0.5, -1.0, 1.6),
+        new THREE.Vector3(0, -1.0, 1.1),
+        new THREE.Vector3(0.5, -1.0, 1.6),
+        new THREE.Vector3(0.9, -1.0, -0.6),
+        new THREE.Vector3(1.8, -1.0, 0),
+        new THREE.Vector3(2.8, -1.0, 0.6)
+    ];
+
+    const allNodes = [...tier1, ...tier2, ...tier3];
+
+    const nodeGeometry = new THREE.SphereGeometry(0.18, 16, 16);
+    const nodeMaterial = new THREE.MeshStandardMaterial({
+        color: 0xffd700,
+        emissive: 0xd4af37,
+        emissiveIntensity: 0.6,
+        roughness: 0.2,
+        metalness: 0.8
+    });
+
+    allNodes.forEach(pos => {
+        const mesh = new THREE.Mesh(nodeGeometry, nodeMaterial);
+        mesh.position.copy(pos);
+        hologramScene.add(mesh);
+    });
+
+    // 17 GOLD RESIDUAL VECTOR LINES
+    const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffd700, linewidth: 2 });
+
+    tier2.forEach(target => {
+        const geometry = new THREE.BufferGeometry().setFromPoints([tier1[0], target]);
+        const line = new THREE.Line(geometry, lineMaterial);
+        hologramScene.add(line);
+    });
+
+    for (let i = 0; i < 3; i++) {
+        const parent = tier2[i];
+        for (let j = 0; j < 3; j++) {
+            const child = tier3[i * 3 + j];
+            const geometry = new THREE.BufferGeometry().setFromPoints([parent, child]);
+            const line = new THREE.Line(geometry, lineMaterial);
+            hologramScene.add(line);
+        }
+    }
+
+    const traceMaterial = new THREE.LineDashedMaterial({ color: 0x888888, dashSize: 0.1, gapSize: 0.05 });
+    const traceTargets = [tier3[0], tier3[2], tier3[4], tier3[6], tier3[8]];
+
+    traceTargets.forEach(origin => {
+        const end = origin.clone().add(new THREE.Vector3(0, -1.2, 0));
+        const geometry = new THREE.BufferGeometry().setFromPoints([origin, end]);
+        const line = new THREE.Line(geometry, traceMaterial);
+        line.computeLineDistances();
+        hologramScene.add(line);
+    });
+
+    const gridHelper = new THREE.GridHelper(10, 10, 0xd4af37, 0x1f242d);
+    gridHelper.position.y = -2.2;
+    hologramScene.add(gridHelper);
+
+    function animate() {
+        hologramAnimationId = requestAnimationFrame(animate);
+        hologramControls.update();
+        hologramRenderer.render(hologramScene, hologramCamera);
+    }
+
+    animate();
+}
