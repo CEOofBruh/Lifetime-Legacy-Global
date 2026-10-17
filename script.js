@@ -175,7 +175,7 @@ async function fetchLeaderboard() {
                 <tr>
                     <td style="font-family: var(--font-mono); color: var(--gold);">#${index + 1}</td>
                     <td style="font-weight: 600;">${username}</td>
-                    <td><span class="hero-tag" style="margin:0; padding:0.1rem 0.5rem; font-size:0.65rem;">${item.rank || 'Bronze Initiate'}</span></td>
+                    <td><span class="tier-badge">${item.rank || 'Bronze Initiate'}</span></td>
                     <td style="font-family: var(--font-mono); font-weight: bold;">${item.coins || 0} LC</td>
                 </tr>
             `;
