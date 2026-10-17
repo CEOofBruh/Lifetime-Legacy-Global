@@ -33,7 +33,7 @@ body {
 }
 
 /* ==========================================
-   HEADER & NAVIGATION (ALL PAGES)
+   HEADER & NAVIGATION
    ========================================== */
 header {
     background: #000;
@@ -48,7 +48,7 @@ nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    max-width: 1200px;
+    max-width: 1700px;
     margin: 0 auto;
 }
 
@@ -58,6 +58,12 @@ nav {
     gap: 0.8rem;
     text-decoration: none;
     color: #fff;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.logo-link:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
 }
 
 .logo-img {
@@ -72,6 +78,11 @@ nav {
     letter-spacing: 1.5px;
     font-size: 1rem;
     color: var(--gold);
+    transition: color 0.2s ease;
+}
+
+.logo-link:hover .logo-text {
+    color: var(--gold-bright);
 }
 
 nav ul {
@@ -85,11 +96,12 @@ nav a {
     color: var(--text-main);
     text-decoration: none;
     font-size: 0.88rem;
-    transition: color 0.2s ease;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
 }
 
 nav a:hover {
     color: var(--gold-bright);
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
 }
 
 .gold-text {
@@ -97,7 +109,7 @@ nav a:hover {
 }
 
 /* ==========================================
-   PUBLIC PAGES HERO & AUTH (INDEX & SIGNUP)
+   PUBLIC PAGES HERO (INDEX & SIGNUP)
    ========================================== */
 .hero-wrapper {
     flex: 1;
@@ -108,7 +120,6 @@ nav a:hover {
     width: 100%;
 }
 
-/* Constrains index.html and signup.html to a centered, professional width */
 .hero-container {
     display: grid;
     grid-template-columns: 1fr 420px;
@@ -136,7 +147,7 @@ nav a:hover {
 }
 
 /* ==========================================
-   BUTTONS & FORM INPUTS
+   BUTTONS & FORM INPUTS (WITH HOVER EFFECTS)
    ========================================== */
 .btn-primary {
     display: inline-block;
@@ -151,12 +162,19 @@ nav a:hover {
     cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 1px;
-    transition: background 0.2s ease, transform 0.1s ease;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.15);
 }
 
 .btn-primary:hover {
     background: var(--gold-bright);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(255, 215, 0, 0.35);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(212, 175, 55, 0.2);
 }
 
 .btn-secondary {
@@ -172,7 +190,10 @@ nav a:hover {
 
 .btn-secondary:hover {
     border-color: var(--gold);
-    color: var(--gold);
+    color: var(--gold-bright);
+    background: rgba(212, 175, 55, 0.05);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .form-group {
@@ -197,15 +218,25 @@ input[type="password"] {
     border-radius: 4px;
     font-size: 0.9rem;
     outline: none;
-    transition: border-color 0.2s ease;
+    transition: all 0.2s ease;
 }
 
-input:focus {
+input[type="text"]:hover,
+input[type="email"]:hover,
+input[type="password"]:hover {
+    border-color: rgba(212, 175, 55, 0.5);
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
     border-color: var(--gold);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+    background: #050608;
 }
 
 /* ==========================================
-   CARDS & BRUTALIST COMPONENTS
+   CARDS & BRUTALIST COMPONENTS (WITH HOVER)
    ========================================== */
 .auth-card {
     background: var(--card-bg);
@@ -213,6 +244,12 @@ input:focus {
     border-radius: 8px;
     padding: 2rem;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-card:hover {
+    border-color: rgba(212, 175, 55, 0.3);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85);
 }
 
 .auth-card h2 {
@@ -236,12 +273,25 @@ input:focus {
     border: 1px solid var(--card-border);
     border-radius: 6px;
     margin-bottom: 1rem;
+    transition: all 0.25s ease;
+}
+
+.feature-card:hover {
+    border-color: var(--gold);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+    background: #040508;
 }
 
 .feature-card h4 {
     color: #fff;
     font-size: 0.92rem;
     margin-bottom: 0.2rem;
+    transition: color 0.2s ease;
+}
+
+.feature-card:hover h4 {
+    color: var(--gold-bright);
 }
 
 .feature-card p {
@@ -249,104 +299,21 @@ input:focus {
     font-size: 0.82rem;
 }
 
+/* Avatar Hover Effect */
+.avatar-container {
+    transition: transform 0.2s ease;
+}
+
+.avatar-container:hover {
+    transform: scale(1.05);
+}
+
+.avatar-container:hover .avatar-circle {
+    border-color: var(--gold-bright) !important;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+/* Badge & Tag Styling */
 .hero-tag {
     display: inline-block;
-    padding: 0.25rem 0.6rem;
-    border-radius: 3px;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    background: rgba(212, 175, 55, 0.1);
-    color: var(--gold);
-    border: 1px solid var(--gold);
-}
-
-.status-message {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    margin-top: 0.8rem;
-}
-
-/* ==========================================
-   PERMANENT 3-COLUMN AD LAYOUT (DASHBOARD)
-   ========================================== */
-.page-with-ads-layout {
-    display: grid !important;
-    grid-template-columns: 180px minmax(0, 1fr) 180px !important;
-    gap: 1.5rem;
-    width: 100%;
-    max-width: 1700px;
-    margin: 1rem auto;
-    padding: 0 1rem;
-    align-items: start;
-    box-sizing: border-box;
-}
-
-.ad-sidebar {
-    width: 180px !important;
-    min-width: 180px !important;
-    max-width: 180px !important;
-    display: block !important;
-}
-
-.main-content-column {
-    min-width: 0 !important;
-    width: 100% !important;
-}
-
-.pure-ad-banner {
-    width: 100% !important;
-    height: 500px !important;
-    background: #000;
-    border: 1px solid var(--card-border);
-    border-radius: 6px;
-    overflow: hidden;
-    position: sticky;
-    top: 4.5rem;
-}
-
-.ad-video-element {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-    display: block !important;
-}
-
-/* ==========================================
-   FOOTER
-   ========================================== */
-footer {
-    background: #000;
-    border-top: 1px solid var(--card-border);
-    padding: 1.5rem;
-    text-align: center;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-top: auto;
-}
-
-.latin-motto {
-    color: var(--gold);
-    cursor: help;
-}
-
-/* ==========================================
-   RESPONSIVE OVERRIDES
-   ========================================== */
-@media (max-width: 960px) {
-    .hero-container {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-    }
-}
-
-@media (max-width: 800px) {
-    .page-with-ads-layout {
-        grid-template-columns: 1fr !important;
-    }
-    .ad-sidebar {
-        display: none !important;
-    }
-}
+    padding
