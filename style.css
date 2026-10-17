@@ -316,4 +316,131 @@ input[type="password"]:focus {
 /* Badge & Tag Styling */
 .hero-tag {
     display: inline-block;
-    padding
+    padding: 0.25rem 0.6rem;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    transition: all 0.2s ease;
+}
+
+.hero-tag:hover {
+    background: rgba(212, 175, 55, 0.2);
+    color: var(--gold-bright);
+}
+
+.status-message {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    margin-top: 0.8rem;
+}
+
+/* ==========================================
+   PERMANENT 3-COLUMN AD LAYOUT & EDGE-TO-EDGE BANNERS
+   ========================================== */
+.page-with-ads-layout {
+    display: grid !important;
+    grid-template-columns: 180px minmax(0, 1fr) 180px !important;
+    gap: 1.8rem;
+    width: 100%;
+    max-width: 1700px;
+    /* Added comfortable top margin & padding below sticky header */
+    margin: 2rem auto 1.5rem auto !important;
+    padding: 0.5rem 1rem 1.5rem 1rem;
+    align-items: start;
+    box-sizing: border-box;
+}
+
+.ad-sidebar {
+    width: 180px !important;
+    min-width: 180px !important;
+    max-width: 180px !important;
+    display: block !important;
+}
+
+.main-content-column {
+    min-width: 0 !important;
+    width: 100% !important;
+}
+
+/* Dynamic full-height sticky video banner container */
+.pure-ad-banner {
+    width: 100% !important;
+    /* Dynamically fills screen height minus sticky header & padding */
+    height: calc(100vh - 7.5rem) !important;
+    min-height: 520px !important;
+    max-height: 880px !important;
+    background: #000;
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    overflow: hidden;
+    position: sticky;
+    top: 5.5rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.pure-ad-banner:hover {
+    border-color: var(--gold);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
+}
+
+.ad-video-element {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+    transition: transform 0.3s ease;
+}
+
+.pure-ad-banner:hover .ad-video-element {
+    transform: scale(1.02);
+}
+
+/* ==========================================
+   FOOTER
+   ========================================== */
+footer {
+    background: #000;
+    border-top: 1px solid var(--card-border);
+    padding: 1.5rem;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: auto;
+}
+
+.latin-motto {
+    color: var(--gold);
+    cursor: help;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.latin-motto:hover {
+    color: var(--gold-bright);
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+}
+
+/* ==========================================
+   RESPONSIVE OVERRIDES
+   ========================================== */
+@media (max-width: 960px) {
+    .hero-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 800px) {
+    .page-with-ads-layout {
+        grid-template-columns: 1fr !important;
+        margin-top: 1rem !important;
+    }
+    .ad-sidebar {
+        display: none !important;
+    }
+}
