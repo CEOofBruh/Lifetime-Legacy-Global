@@ -1,141 +1,65 @@
 /* ==========================================
-   PERMANENT 3-COLUMN LAYOUT & SIDE MEDIA PANELS
-   (Neutralized class names to prevent adblocker triggers)
+   LIFETIME LEGACY GLOBAL - UNIFIED STYLESHEET
+   Aesthetic: Noir Brutalism x MLM Hustle
    ========================================== */
-.page-with-wings-layout {
-    display: grid !important;
-    grid-template-columns: 180px minmax(0, 1fr) 180px !important;
-    gap: 1.8rem;
-    width: 100%;
-    max-width: 1700px;
-    margin: 2rem auto 1.5rem auto !important;
-    padding: 0.5rem 1rem 1.5rem 1rem;
-    align-items: start;
+
+:root {
+    --bg-main: #050505;
+    --card-bg: #0a0c10;
+    --card-border: #1f242d;
+    --text-main: #d1d5db;
+    --text-muted: #6b7280;
+    --gold: #d4af37;
+    --gold-bright: #ffd700;
+    --accent-red: #ef4444;
+    --font-mono: 'Courier New', Courier, monospace;
+    --font-primary: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-.wing-sidebar {
-    width: 180px !important;
-    min-width: 180px !important;
-    max-width: 180px !important;
-    display: block !important;
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: var(--font-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-.main-content-column {
-    min-width: 0 !important;
-    width: 100% !important;
-}
-
-/* Dynamic full-height sticky video frame */
-.media-stream-frame {
-    width: 100% !important;
-    height: calc(100vh - 7.5rem) !important;
-    min-height: 520px !important;
-    max-height: 880px !important;
+/* ==========================================
+   HEADER & NAVIGATION
+   ========================================== */
+header {
     background: #000;
-    border: 1px solid var(--card-border);
-    border-radius: 6px;
-    overflow: hidden;
+    border-bottom: 1px solid var(--card-border);
+    padding: 1rem 2rem;
     position: sticky;
-    top: 5.5rem;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    top: 0;
+    z-index: 100;
 }
 
-.media-stream-frame:hover {
-    border-color: var(--gold);
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1700px;
+    margin: 0 auto;
 }
 
-.stream-video-element {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-    display: block !important;
-    transition: transform 0.3s ease;
+.logo-link {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    text-decoration: none;
+    color: #fff;
+    transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.media-stream-frame:hover .stream-video-element {
-    transform: scale(1.02);
-}
-
-/* ==========================================
-   PROFILE & LEADERBOARD SPACING FIXES
-   ========================================== */
-
-/* Spacing fix for Active Associate tag and avatar collision */
-.auth-card .hero-tag {
-    margin-bottom: 0.8rem !important;
-}
-
-.avatar-container {
-    margin: 0.8rem auto 1rem auto !important;
-}
-
-/* Leaderboard cell formatting and badge layout fixes */
-.leaderboard-table th,
-.leaderboard-table td {
-    padding: 0.75rem 0.5rem;
-    white-space: nowrap;
-}
-
-.tier-badge {
-    display: inline-block;
-    padding: 0.2rem 0.6rem;
-    font-size: 0.65rem;
-    font-family: var(--font-mono);
-    border: 1px solid var(--gold);
-    color: var(--gold);
-    border-radius: 3px;
-    white-space: nowrap;
-    text-align: center;
-}
-
-/* ==========================================
-   RESPONSIVE OVERRIDES & MOBILE STACKING
-   ========================================== */
-
-@media (max-width: 1180px) {
-    /* Collapse 3-column layout into single-column stack */
-    .page-with-wings-layout {
-        grid-template-columns: 1fr !important;
-        padding: 1rem !important;
-    }
-    
-    .wing-sidebar {
-        width: 100% !important;
-        min-width: 100% !important;
-        max-width: 100% !important;
-    }
-
-    /* Transform skyscraper sidebars into responsive top/bottom banners */
-    .media-stream-frame {
-        height: 180px !important;
-        min-height: 180px !important;
-        max-height: 180px !important;
-        position: relative !important;
-        top: 0 !important;
-        margin-bottom: 1rem;
-    }
-
-    .stream-video-element {
-        object-fit: cover !important;
-        object-position: center !important;
-    }
-
-    /* Stack inner profile sidebar and main content */
-    .hero-container {
-        grid-template-columns: 1fr !important;
-        gap: 1.5rem !important;
-    }
-}
-
-@media (max-width: 600px) {
-    /* Hide decorative video banners on small mobile screens for clean reading */
-    .media-stream-frame {
-        display: none !important;
-    }
-
-    .auth-card {
-        padding: 1.25rem;
-    }
-}
+.logo-link:hover {
+    opacity: 0.9
