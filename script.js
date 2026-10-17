@@ -458,10 +458,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ==========================================
-// 6. THREE.JS 3D MATRIX HOLOGRAM ENGINE (WITH INVERSION EASTER EGG)
+// 6. THREE.JS 3D MATRIX HOLOGRAM ENGINE (CAMERA-TRIGGERED EASTER EGG)
 // ==========================================
 let hologramScene, hologramCamera, hologramRenderer, hologramControls, hologramAnimationId;
 let invertedApexNode = null;
+let occultLinesGroup = null; // Container to toggle visibility
 let isSubspaceRevealed = false;
 
 function openProjectionModal() {
@@ -582,7 +583,12 @@ function initHologram3D() {
         }
     }
 
-    // EASTER EGG: INVERTED OCCULT SUB-PYRAMID (BELOW THE GRID FLOOR)
+    // ==========================================
+    // HIDDEN OCCULT GEOMETRY (INITIALLY INVISIBLE)
+    // ==========================================
+    occultLinesGroup = new THREE.Group();
+    occultLinesGroup.visible = false; // HIDDEN BY DEFAULT
+
     const hiddenApexPos = new THREE.Vector3(0, -3.8, 0); // [ARCHON_00]
     const darkNodeMaterial = new THREE.MeshStandardMaterial({
         color: 0xef4444,
@@ -594,16 +600,18 @@ function initHologram3D() {
     invertedApexNode = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 16), darkNodeMaterial);
     invertedApexNode.position.copy(hiddenApexPos);
     invertedApexNode.userData = { id: "ARCHON_00", type: "OCCULT_APEX" };
-    hologramScene.add(invertedApexNode);
+    occultLinesGroup.add(invertedApexNode);
 
-    // INVERTED CRIMSON VECTOR LINES CONNECTING TIER 3 TO THE HIDDEN APEX
+    // INVERTED CRIMSON VECTOR LINES
     const occultLineMaterial = new THREE.LineBasicMaterial({ color: 0xef4444, opacity: 0.8, transparent: true });
     
     tier3.forEach(parentPos => {
         const geometry = new THREE.BufferGeometry().setFromPoints([parentPos, hiddenApexPos]);
         const line = new THREE.Line(geometry, occultLineMaterial);
-        hologramScene.add(line);
+        occultLinesGroup.add(line);
     });
+
+    hologramScene.add(occultLinesGroup);
 
     // Grid Floor
     const gridHelper = new THREE.GridHelper(10, 10, 0xd4af37, 0x1f242d);
@@ -620,7 +628,7 @@ function initHologram3D() {
         mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
 
         raycaster.setFromCamera(mouse, hologramCamera);
-        const intersects = raycaster.intersectObjects(hologramScene.children);
+        const intersects = raycaster.intersectObjects(hologramScene.children, true);
 
         if (intersects.length > 0 && intersects[0].object.isMesh) {
             const clickedObject = intersects[0].object;
@@ -651,11 +659,12 @@ function initHologram3D() {
         hologramAnimationId = requestAnimationFrame(animate);
         hologramControls.update();
 
-        // Check if user pivoted camera beneath the grid floor (Y < -0.8)
+        // Reveal hidden inverted pyramid ONLY when camera orbits below grid floor (Y < -0.8)
         if (hologramCamera.position.y < -0.8) {
             if (!isSubspaceRevealed) {
                 isSubspaceRevealed = true;
-                hologramScene.background = new THREE.Color(0x1a0305); // Shift canvas to blood-wine black
+                occultLinesGroup.visible = true; // REVEAL HIDDEN GEOMETRY
+                hologramScene.background = new THREE.Color(0x1a0305); // Shift background to blood-wine black
                 
                 const title = document.getElementById('modalHologramTitle');
                 const statusHud = document.getElementById('statusHud');
@@ -678,6 +687,7 @@ function initHologram3D() {
         } else {
             if (isSubspaceRevealed) {
                 isSubspaceRevealed = false;
+                occultLinesGroup.visible = false; // HIDE GEOMETRY WHEN ABOVE GRID
                 hologramScene.background = new THREE.Color(0x020305);
                 
                 const title = document.getElementById('modalHologramTitle');
