@@ -426,21 +426,76 @@ footer {
 }
 
 /* ==========================================
-   RESPONSIVE OVERRIDES
+   RESPONSIVE OVERRIDES & MOBILE STACKING
    ========================================== */
-@media (max-width: 960px) {
+
+/* Spacing fix for profile tag and avatar */
+.auth-card .hero-tag {
+    margin-bottom: 0.8rem !important;
+}
+
+.avatar-container {
+    margin: 0.8rem auto 1rem auto !important;
+}
+
+/* Leaderboard badge & cell formatting fix */
+.leaderboard-table th,
+.leaderboard-table td {
+    padding: 0.75rem 0.5rem;
+    white-space: nowrap;
+}
+
+.tier-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.65rem;
+    font-family: var(--font-mono);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    border-radius: 3px;
+    white-space: nowrap;
+    text-align: center;
+}
+
+/* Responsive Breakpoints: Stack Ads & Grids */
+@media (max-width: 1180px) {
+    .page-with-ads-layout {
+        grid-template-columns: 1fr !important;
+        padding: 1rem !important;
+    }
+    
+    .ad-sidebar {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .pure-ad-banner {
+        height: 180px !important;
+        min-height: 180px !important;
+        max-height: 180px !important;
+        position: relative !important;
+        top: 0 !important;
+        margin-bottom: 1rem;
+    }
+
+    .ad-video-element {
+        object-fit: cover !important;
+        object-position: center !important;
+    }
+
     .hero-container {
-        grid-template-columns: 1fr;
-        gap: 2rem;
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
     }
 }
 
-@media (max-width: 800px) {
-    .page-with-ads-layout {
-        grid-template-columns: 1fr !important;
-        margin-top: 1rem !important;
+@media (max-width: 600px) {
+    .pure-ad-banner {
+        display: none !important; /* Hide ads on mobile devices for clean flow */
     }
-    .ad-sidebar {
-        display: none !important;
+
+    .auth-card {
+        padding: 1.25rem;
     }
 }
