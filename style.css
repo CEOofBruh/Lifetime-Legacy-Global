@@ -39,8 +39,7 @@ header {
     background: #000;
     border-bottom: 1px solid var(--card-border);
     padding: 1rem 2rem;
-    position: sticky;
-    top: 0;
+    position: relative; /* Non-sticky: scrolls naturally with the page */
     z-index: 100;
 }
 
@@ -373,7 +372,7 @@ input[type="password"]:focus {
     min-width: 180px !important;
     max-width: 180px !important;
     position: sticky !important;
-    top: 5.5rem !important;
+    top: 1.5rem !important; /* Smooth sticky alignment after header scrolls off */
     display: block !important;
 }
 
@@ -382,7 +381,7 @@ input[type="password"]:focus {
     width: 180px !important;
     max-width: 180px !important;
     height: 700px !important;
-    max-height: calc(100vh - 7rem) !important;
+    max-height: calc(100vh - 3rem) !important;
     background: #000 !important;
     border: 1px solid var(--card-border) !important;
     border-radius: 6px !important;
