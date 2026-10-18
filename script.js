@@ -83,7 +83,7 @@ async function fetchLeaderboard() {
     if (!leaderboardBody) return;
 
     if (!supabaseClient) {
-        leaderboardBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--text-muted);">Offline Mode Active</td></tr>`;
+        leaderboardBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--text-muted);">Offline Mode Active</td></tr>`;
         return;
     }
 
@@ -97,28 +97,30 @@ async function fetchLeaderboard() {
         if (error) throw error;
 
         if (!data || data.length === 0) {
-            leaderboardBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--text-muted);">No active associate records found</td></tr>`;
+            leaderboardBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--text-muted);">No active associate records found</td></tr>`;
             return;
         }
 
         leaderboardBody.innerHTML = '';
         data.forEach((row, index) => {
             const tr = document.createElement('tr');
-            const rowLabel = row.display_name || (row.email ? row.email.split('@')[0] : (row.rank || 'Associate'));
+            const rowName = row.display_name || (row.email ? row.email.split('@')[0] : 'Associate');
+            const rowRank = row.rank || 'Unranked Initiate';
             
             tr.innerHTML = `
                 <td style="padding: 0.8rem;">#${index + 1}</td>
                 <td style="padding: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
                     <img src="${row.avatar_url || DEFAULT_PROFILE.avatarUrl}" style="width: 20px; height: 20px; border-radius: 50%;">
-                    <span>${rowLabel}</span>
+                    <span>${rowName}</span>
                 </td>
+                <td style="padding: 0.8rem; color: var(--text-muted);">${rowRank}</td>
                 <td style="padding: 0.8rem; color: var(--gold); font-weight: bold;">${row.coins ?? 0} LC</td>
             `;
             leaderboardBody.appendChild(tr);
         });
     } catch (e) {
         console.error("Leaderboard error:", e);
-        leaderboardBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--text-muted);">Leaderboard sync paused</td></tr>`;
+        leaderboardBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--text-muted);">Leaderboard sync paused</td></tr>`;
     }
 }
 
@@ -166,7 +168,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Attach Login Form Listener (index.html)
+    // Attach Login Listener (index.html)
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
