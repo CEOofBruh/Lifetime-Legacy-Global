@@ -59,8 +59,9 @@ async function fetchUserProfile(userId) {
             .eq('id', userId)
             .maybeSingle();
 
+        // If user profile is missing in DB, create initial record automatically
         if (error || !data) {
-            console.warn("Profile record missing or unreadable, generating default profile...");
+            console.warn("Profile record missing or restricted, creating initial profile...");
             const initialProfile = {
                 id: userId,
                 coins: DEFAULT_PROFILE.coins,
@@ -69,6 +70,7 @@ async function fetchUserProfile(userId) {
                 avatar_url: DEFAULT_PROFILE.avatarUrl,
                 updated_at: new Date()
             };
+
             await supabaseClient.from('profiles').upsert(initialProfile);
             return DEFAULT_PROFILE;
         }
