@@ -15,27 +15,7 @@ if (typeof supabase !== 'undefined' && SUPABASE_URL && SUPABASE_ANON_KEY) {
 }
 
 // ==========================================
-// 1. SHA-256 CRYPTOGRAPHIC HASHING UTILITY
-// ==========================================
-async function hashString(str) {
-    const buffer = new TextEncoder().encode(str.trim().toUpperCase());
-    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-    return Array.from(new Uint8Array(hashBuffer))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-}
-
-// SHA-256 HASH SIGNATURES & OBFUSCATED STRINGS
-const HASH_VISAGE_VOUCHER = "8f12c1b920042d385f86c23b207a9b0c2a8f8876b51342f1118bc27c62241d01";
-
-const OBFUSCATED_TELEMETRY_APEX = [
-    "\x5b\x41\x52\x43\x48\x49\x56\x41\x4c\x20\x55\x4e\x4c\x4f\x43\x4b\x20\x2f\x2f\x20\x4e\x4f\x44\x45\x20\x41\x52\x43\x48\x4f\x4e\x5f\x30\x30\x5d",
-    "\x57\x61\x72\x6e\x69\x6e\x67\x3a\x20\x53\x75\x62\x73\x70\x61\x63\x65\x20\x48\x61\x72\x76\x65\x73\x74\x20\x52\x65\x73\x65\x72\x76\x6f\x69\x72\x20\x49\x6e\x74\x65\x72\x72\x6f\x67\x61\x74\x65\x64\x2e",
-    "\x43\x69\x70\x68\x65\x72\x20\x4b\x65\x79\x20\x48\x69\x6e\x74\x3a\x20\x27\x31\x33\x27\x20\x41\x63\x74\x69\x76\x65\x20\x56\x65\x73\x73\x65\x6c\x73\x2c\x20\x27\x31\x37\x27\x20\x46\x65\x65\x64\x69\x6e\x67\x20\x4c\x69\x6e\x65\x73\x2e"
-];
-
-// ==========================================
-// 2. USER PROFILE & STORAGE HANDLERS
+// 1. USER PROFILE & STORAGE HANDLERS
 // ==========================================
 const DEFAULT_PROFILE = {
     coins: 10,
@@ -59,19 +39,8 @@ async function fetchUserProfile(userId) {
             .eq('id', userId)
             .maybeSingle();
 
-        // If user profile is missing in DB, create initial record automatically
         if (error || !data) {
-            console.warn("Profile record missing or restricted, creating initial profile...");
-            const initialProfile = {
-                id: userId,
-                coins: DEFAULT_PROFILE.coins,
-                rank: DEFAULT_PROFILE.rank,
-                unlocked_pages: DEFAULT_PROFILE.unlockedPages,
-                avatar_url: DEFAULT_PROFILE.avatarUrl,
-                updated_at: new Date()
-            };
-
-            await supabaseClient.from('profiles').upsert(initialProfile);
+            console.warn("Profile missing or unreadable, returning default profile...");
             return DEFAULT_PROFILE;
         }
 
@@ -107,7 +76,7 @@ async function saveUserProfile(userId, profileData) {
 }
 
 // ==========================================
-// 3. AUTH ROUTING, LOGIN & DASHBOARD ENGINE
+// 2. AUTH ROUTING, LOGIN & DASHBOARD ENGINE
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
     const rawPage = window.location.pathname.split('/').pop().toLowerCase();
@@ -283,7 +252,7 @@ function setStatusMessage(elementId, message, color) {
 }
 
 // ==========================================
-// 4. PROMO CODE SUBMISSION ENGINE (SECURE RPC)
+// 3. PROMO CODE SUBMISSION ENGINE (SECURE RPC)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     const quizForm = document.getElementById('quizForm');
@@ -367,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// 5. THREE.JS 3D HOLOGRAM ENGINE (INVERTED ANAMORPHIC REVEAL)
+// 4. THREE.JS 3D HOLOGRAM ENGINE (ANAMORPHIC REVEAL)
 // ==========================================
 let hologramScene, hologramCamera, hologramRenderer, hologramControls, hologramAnimationId;
 let invertedApexNode = null;
@@ -470,188 +439,4 @@ function initHologram3D() {
 
     allStandardNodes.forEach((pos, idx) => {
         const mesh = new THREE.Mesh(nodeGeometry, nodeMaterial.clone());
-        mesh.position.copy(pos);
-        mesh.userData = { id: `NODE_${idx + 1}`, type: "EXECUTIVE" };
-        hologramScene.add(mesh);
-    });
-
-    // 17 GOLD RESIDUAL VECTOR LINES
-    const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffd700, linewidth: 2 });
-
-    tier2.forEach(target => {
-        const geometry = new THREE.BufferGeometry().setFromPoints([tier1[0], target]);
-        const line = new THREE.Line(geometry, lineMaterial);
-        hologramScene.add(line);
-    });
-
-    for (let i = 0; i < 3; i++) {
-        const parent = tier2[i];
-        for (let j = 0; j < 3; j++) {
-            const child = tier3[i * 3 + j];
-            const geometry = new THREE.BufferGeometry().setFromPoints([parent, child]);
-            const line = new THREE.Line(geometry, lineMaterial);
-            hologramScene.add(line);
-        }
-    }
-
-    // OCCULT SUBSPACE LAYER
-    occultLinesGroup = new THREE.Group();
-    occultLinesGroup.visible = false;
-
-    const hiddenApexPos = new THREE.Vector3(0, -3.8, 0);
-    const darkNodeMaterial = new THREE.MeshStandardMaterial({
-        color: 0xef4444,
-        emissive: 0x990000,
-        emissiveIntensity: 1.0,
-        roughness: 0.1
-    });
-
-    invertedApexNode = new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 16), darkNodeMaterial);
-    invertedApexNode.position.copy(hiddenApexPos);
-    invertedApexNode.userData = { id: "SUB_APEX", type: "OCCULT_APEX" };
-    occultLinesGroup.add(invertedApexNode);
-
-    const occultLineMaterial = new THREE.LineBasicMaterial({ color: 0xef4444, opacity: 0.8, transparent: true });
-    
-    tier3.forEach(parentPos => {
-        const geometry = new THREE.BufferGeometry().setFromPoints([parentPos, hiddenApexPos]);
-        const line = new THREE.Line(geometry, occultLineMaterial);
-        occultLinesGroup.add(line);
-    });
-
-    hologramScene.add(occultLinesGroup);
-
-    // Grid Floor
-    const gridHelper = new THREE.GridHelper(10, 10, 0xd4af37, 0x1f242d);
-    gridHelper.position.y = -1.8;
-    hologramScene.add(gridHelper);
-
-    // RAYCASTER CLICK DETECTOR
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-
-    container.addEventListener('pointerdown', (event) => {
-        const rect = container.getBoundingClientRect();
-        mouse.x = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
-        mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
-
-        raycaster.setFromCamera(mouse, hologramCamera);
-        const intersects = raycaster.intersectObjects(hologramScene.children, true);
-
-        if (intersects.length > 0 && intersects[0].object.isMesh) {
-            const clickedObject = intersects[0].object;
-            
-            if (clickedObject.userData.type === "OCCULT_APEX") {
-                clickedObject.material.color.setHex(0xff0000);
-                console.warn(
-                    `%c${OBFUSCATED_TELEMETRY_APEX[0]}\n--------------------------------------------------\n${OBFUSCATED_TELEMETRY_APEX[1]}\n${OBFUSCATED_TELEMETRY_APEX[2]}\n--------------------------------------------------`,
-                    "color: #ef4444; font-family: monospace; font-size: 12px; font-weight: bold;"
-                );
-            } else {
-                clickedObject.material.color.setHex(0xffd700);
-                console.log(
-                    `%c[LLG TELEMETRY] Node ${clickedObject.userData.id} verified active.`,
-                    "color: #d4af37; font-family: monospace;"
-                );
-            }
-        }
-    });
-
-    // ANIMATION & ALIGNMENT LOOP
-    function animate() {
-        hologramAnimationId = requestAnimationFrame(animate);
-        hologramControls.update();
-
-        if (hologramCamera.position.y < -0.8) {
-            if (!isSubspaceRevealed) {
-                isSubspaceRevealed = true;
-                occultLinesGroup.visible = true;
-                hologramScene.background = new THREE.Color(0x1a0305);
-            }
-
-            const distToAngle = hologramCamera.position.distanceTo(targetInvertedAngle);
-            if (distToAngle < 0.95) {
-                if (!isVisageAligned) {
-                    isVisageAligned = true;
-                    
-                    hologramScene.traverse((obj) => {
-                        if (obj.isMesh && obj.userData.type === "EXECUTIVE") {
-                            obj.material.color.setHex(0xef4444);
-                        }
-                    });
-
-                    const title = document.getElementById('modalHologramTitle');
-                    const statusHud = document.getElementById('statusHud');
-                    
-                    if (title) {
-                        title.textContent = "ANAMORPHIC REVEAL // ARCHON VISAGE";
-                        title.style.color = "var(--accent-red)";
-                    }
-                    if (statusHud) {
-                        statusHud.textContent = "CRITICAL ALIGNMENT • THE ARCHITECT IS WATCHING";
-                        statusHud.style.color = "var(--accent-red)";
-                    }
-
-                    console.warn(
-                        "%c[INVERTED VISAGE ALIGNMENT DETECTED]\n" +
-                        "--------------------------------------------------\n" +
-                        "Subspace geometry resolves into the countenance of the Founder.\n" +
-                        `Verification Signature: ${HASH_VISAGE_VOUCHER}\n` +
-                        "--------------------------------------------------",
-                        "color: #ef4444; font-family: monospace; font-size: 12px; font-weight: bold;"
-                    );
-                }
-            } else if (isVisageAligned) {
-                isVisageAligned = false;
-                
-                hologramScene.traverse((obj) => {
-                    if (obj.isMesh && obj.userData.type === "EXECUTIVE") {
-                        obj.material.color.setHex(0xffd700);
-                    }
-                });
-
-                const title = document.getElementById('modalHologramTitle');
-                const statusHud = document.getElementById('statusHud');
-                
-                if (title) {
-                    title.textContent = "INVERTED SUBSPACE HARVEST MATRIX";
-                    title.style.color = "var(--accent-red)";
-                }
-                if (statusHud) {
-                    statusHud.textContent = "CRACKED TRANSMISSION • ARCHON_00 APEX FEED UNLOCKED";
-                    statusHud.style.color = "var(--accent-red)";
-                }
-            }
-
-        } else {
-            if (isSubspaceRevealed) {
-                isSubspaceRevealed = false;
-                isVisageAligned = false;
-                occultLinesGroup.visible = false;
-                hologramScene.background = new THREE.Color(0x020305);
-                
-                hologramScene.traverse((obj) => {
-                    if (obj.isMesh && obj.userData.type === "EXECUTIVE") {
-                        obj.material.color.setHex(0xffd700);
-                    }
-                });
-
-                const title = document.getElementById('modalHologramTitle');
-                const statusHud = document.getElementById('statusHud');
-                
-                if (title) {
-                    title.textContent = "360° MATRIX VECTOR AUDIT";
-                    title.style.color = "var(--gold-bright)";
-                }
-                if (statusHud) {
-                    statusHud.textContent = "STATUS: LIVE HOLOGRAM FEED • TACTICAL ORBIT ACTIVE";
-                    statusHud.style.color = "var(--text-muted)";
-                }
-            }
-        }
-
-        hologramRenderer.render(hologramScene, hologramCamera);
-    }
-
-    animate();
-}
+        mesh.position.copy(pos
