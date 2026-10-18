@@ -4,8 +4,8 @@
 // ==========================================
 
 // Global State & Supabase Initialization
-const SUPABASE_URL = "https://clnqxwyewtzofeiyzrbk.supabase.co"; 
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbnF4d3lld3R6b2ZlaXl6cmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5MTgzMzksImV4cCI6MjEwNjQ5NDMzOX0.pZa8UV-EBkI-hJmYdi4Cl406pTsC2B4WqyAyO_0f_Tg"; // Paste public anon key here
+const SUPABASE_URL = "https://clnqxwyewtzofeiyzrbk.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbnF4d3lld3R6b2ZlaXl6cmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5MTgzMzksImV4cCI6MjEwNjQ5NDMzOX0.pZa8UV-EBkI-hJmYdi4Cl406pTsC2B4WqyAyO_0f_Tg";
 
 let supabaseClient = null;
 let currentUser = null;
@@ -57,9 +57,21 @@ async function fetchUserProfile(userId) {
             .from('profiles')
             .select('*')
             .eq('id', userId)
-            .single();
+            .maybeSingle();
 
-        if (error || !data) return DEFAULT_PROFILE;
+        if (error || !data) {
+            console.warn("Profile record missing or unreadable, generating default profile...");
+            const initialProfile = {
+                id: userId,
+                coins: DEFAULT_PROFILE.coins,
+                rank: DEFAULT_PROFILE.rank,
+                unlocked_pages: DEFAULT_PROFILE.unlockedPages,
+                avatar_url: DEFAULT_PROFILE.avatarUrl,
+                updated_at: new Date()
+            };
+            await supabaseClient.from('profiles').upsert(initialProfile);
+            return DEFAULT_PROFILE;
+        }
 
         return {
             coins: data.coins ?? DEFAULT_PROFILE.coins,
@@ -234,7 +246,12 @@ async function fetchLeaderboard() {
             .order('coins', { ascending: false })
             .limit(5);
 
-        if (error || !data) return;
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+            leaderboardBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--text-muted);">No active associate records found</td></tr>`;
+            return;
+        }
 
         leaderboardBody.innerHTML = '';
         data.forEach((row, index) => {
@@ -245,12 +262,13 @@ async function fetchLeaderboard() {
                     <img src="${row.avatar_url || DEFAULT_PROFILE.avatarUrl}" style="width: 20px; height: 20px; border-radius: 50%;">
                     <span>${row.rank || 'Associate'}</span>
                 </td>
-                <td style="color: var(--gold); font-weight: bold;">${row.coins} LC</td>
+                <td style="color: var(--gold); font-weight: bold;">${row.coins ?? 0} LC</td>
             `;
             leaderboardBody.appendChild(tr);
         });
     } catch (e) {
         console.error("Leaderboard error:", e);
+        leaderboardBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--text-muted);">Leaderboard sync paused</td></tr>`;
     }
 }
 
