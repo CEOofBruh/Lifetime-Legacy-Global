@@ -439,4 +439,188 @@ function initHologram3D() {
 
     allStandardNodes.forEach((pos, idx) => {
         const mesh = new THREE.Mesh(nodeGeometry, nodeMaterial.clone());
-        mesh.position.copy(pos
+        mesh.position.copy(pos);
+        mesh.userData = { id: `NODE_${idx + 1}`, type: "EXECUTIVE" };
+        hologramScene.add(mesh);
+    });
+
+    // 17 GOLD RESIDUAL VECTOR LINES
+    const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffd700, linewidth: 2 });
+
+    tier2.forEach(target => {
+        const geometry = new THREE.BufferGeometry().setFromPoints([tier1[0], target]);
+        const line = new THREE.Line(geometry, lineMaterial);
+        hologramScene.add(line);
+    });
+
+    for (let i = 0; i < 3; i++) {
+        const parent = tier2[i];
+        for (let j = 0; j < 3; j++) {
+            const child = tier3[i * 3 + j];
+            const geometry = new THREE.BufferGeometry().setFromPoints([parent, child]);
+            const line = new THREE.Line(geometry, lineMaterial);
+            hologramScene.add(line);
+        }
+    }
+
+    // OCCULT SUBSPACE LAYER
+    occultLinesGroup = new THREE.Group();
+    occultLinesGroup.visible = false;
+
+    const hiddenApexPos = new THREE.Vector3(0, -3.8, 0);
+    const darkNodeMaterial = new THREE.MeshStandardMaterial({
+        color: 0xef4444,
+        emissive: 0x990000,
+        emissiveIntensity: 1.0,
+        roughness: 0.1
+    });
+
+    invertedApexNode = new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 16), darkNodeMaterial);
+    invertedApexNode.position.copy(hiddenApexPos);
+    invertedApexNode.userData = { id: "SUB_APEX", type: "OCCULT_APEX" };
+    occultLinesGroup.add(invertedApexNode);
+
+    const occultLineMaterial = new THREE.LineBasicMaterial({ color: 0xef4444, opacity: 0.8, transparent: true });
+    
+    tier3.forEach(parentPos => {
+        const geometry = new THREE.BufferGeometry().setFromPoints([parentPos, hiddenApexPos]);
+        const line = new THREE.Line(geometry, occultLineMaterial);
+        occultLinesGroup.add(line);
+    });
+
+    hologramScene.add(occultLinesGroup);
+
+    // Grid Floor
+    const gridHelper = new THREE.GridHelper(10, 10, 0xd4af37, 0x1f242d);
+    gridHelper.position.y = -1.8;
+    hologramScene.add(gridHelper);
+
+    // RAYCASTER CLICK DETECTOR
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    container.addEventListener('pointerdown', (event) => {
+        const rect = container.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, hologramCamera);
+        const intersects = raycaster.intersectObjects(hologramScene.children, true);
+
+        if (intersects.length > 0 && intersects[0].object.isMesh) {
+            const clickedObject = intersects[0].object;
+            
+            if (clickedObject.userData.type === "OCCULT_APEX") {
+                clickedObject.material.color.setHex(0xff0000);
+                console.warn(
+                    "%c[ARCHIVAL UNLOCK // NODE ARCHON_00]\n--------------------------------------------------\nWarning: Subspace Harvest Reservoir Interrogated.\nCipher Key Hint: '13' Active Vessels, '17' Feeding Lines.\n--------------------------------------------------",
+                    "color: #ef4444; font-family: monospace; font-size: 12px; font-weight: bold;"
+                );
+            } else {
+                clickedObject.material.color.setHex(0xffd700);
+                console.log(
+                    `%c[LLG TELEMETRY] Node ${clickedObject.userData.id} verified active.`,
+                    "color: #d4af37; font-family: monospace;"
+                );
+            }
+        }
+    });
+
+    // ANIMATION & ALIGNMENT LOOP
+    function animate() {
+        hologramAnimationId = requestAnimationFrame(animate);
+        hologramControls.update();
+
+        if (hologramCamera.position.y < -0.8) {
+            if (!isSubspaceRevealed) {
+                isSubspaceRevealed = true;
+                occultLinesGroup.visible = true;
+                hologramScene.background = new THREE.Color(0x1a0305);
+            }
+
+            const distToAngle = hologramCamera.position.distanceTo(targetInvertedAngle);
+            if (distToAngle < 0.95) {
+                if (!isVisageAligned) {
+                    isVisageAligned = true;
+                    
+                    hologramScene.traverse((obj) => {
+                        if (obj.isMesh && obj.userData.type === "EXECUTIVE") {
+                            obj.material.color.setHex(0xef4444);
+                        }
+                    });
+
+                    const title = document.getElementById('modalHologramTitle');
+                    const statusHud = document.getElementById('statusHud');
+                    
+                    if (title) {
+                        title.textContent = "ANAMORPHIC REVEAL // ARCHON VISAGE";
+                        title.style.color = "var(--accent-red)";
+                    }
+                    if (statusHud) {
+                        statusHud.textContent = "CRITICAL ALIGNMENT • THE ARCHITECT IS WATCHING";
+                        statusHud.style.color = "var(--accent-red)";
+                    }
+
+                    console.warn(
+                        "%c[INVERTED VISAGE ALIGNMENT DETECTED]\n" +
+                        "--------------------------------------------------\n" +
+                        "Subspace geometry resolves into the countenance of the Founder.\n" +
+                        "Console Voucher: 'ARCHON_WATCHES'\n" +
+                        "--------------------------------------------------",
+                        "color: #ef4444; font-family: monospace; font-size: 12px; font-weight: bold;"
+                    );
+                }
+            } else if (isVisageAligned) {
+                isVisageAligned = false;
+                
+                hologramScene.traverse((obj) => {
+                    if (obj.isMesh && obj.userData.type === "EXECUTIVE") {
+                        obj.material.color.setHex(0xffd700);
+                    }
+                });
+
+                const title = document.getElementById('modalHologramTitle');
+                const statusHud = document.getElementById('statusHud');
+                
+                if (title) {
+                    title.textContent = "INVERTED SUBSPACE HARVEST MATRIX";
+                    title.style.color = "var(--accent-red)";
+                }
+                if (statusHud) {
+                    statusHud.textContent = "CRACKED TRANSMISSION • ARCHON_00 APEX FEED UNLOCKED";
+                    statusHud.style.color = "var(--accent-red)";
+                }
+            }
+
+        } else {
+            if (isSubspaceRevealed) {
+                isSubspaceRevealed = false;
+                isVisageAligned = false;
+                occultLinesGroup.visible = false;
+                hologramScene.background = new THREE.Color(0x020305);
+                
+                hologramScene.traverse((obj) => {
+                    if (obj.isMesh && obj.userData.type === "EXECUTIVE") {
+                        obj.material.color.setHex(0xffd700);
+                    }
+                });
+
+                const title = document.getElementById('modalHologramTitle');
+                const statusHud = document.getElementById('statusHud');
+                
+                if (title) {
+                    title.textContent = "360° MATRIX VECTOR AUDIT";
+                    title.style.color = "var(--gold-bright)";
+                }
+                if (statusHud) {
+                    statusHud.textContent = "STATUS: LIVE HOLOGRAM FEED • TACTICAL ORBIT ACTIVE";
+                    statusHud.style.color = "var(--text-muted)";
+                }
+            }
+        }
+
+        hologramRenderer.render(hologramScene, hologramCamera);
+    }
+
+    animate();
+}
