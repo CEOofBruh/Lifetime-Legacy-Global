@@ -9,9 +9,9 @@
     <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/CEOofBruh/Lifetime-Legacy-Global/refs/heads/main/LLG%20-%20Icon.ico">
     <!-- Supabase JS Client library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js?v=8" defer></script>
+    <script src="script.js?v=12" defer></script>
 </head>
-<body data-system-epoch="1998">
+<body data-system-epoch="2026">
 
     <!-- Header Navigation -->
     <header>
@@ -31,7 +31,7 @@
                     <span id="navUser" class="gold-text">Loading profile...</span>
                 </li>
                 <li>
-                    <button id="logoutBtn" class="btn-primary" style="padding: 0.4rem 0.9rem; font-size: 0.85rem;">Disconnect</button>
+                    <button id="logoutBtn" onclick="handleLogout()" class="btn-primary" style="padding: 0.4rem 0.9rem; font-size: 0.85rem;">Disconnect</button>
                 </li>
             </ul>
         </nav>
@@ -76,7 +76,7 @@
                             <input type="file" id="avatarInput" accept="image/*" style="display: none;">
 
                             <h2 id="profileName" style="font-size: 1.3rem; margin-bottom: 0.2rem;">Associate</h2>
-                            <div class="tier-badge" id="profileRank" style="margin-bottom: 1.2rem;">Bronze Initiate</div>
+                            <div class="tier-badge" id="profileRank" style="margin-bottom: 1.2rem;">Unranked Initiate</div>
                             
                             <div class="feature-card" style="flex-direction: column; align-items: center; text-align: center; background: rgba(10, 12, 16, 0.6); margin-bottom: 0;">
                                 <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;">Legacy Credits (LC)</span>
@@ -87,7 +87,7 @@
                         <!-- Partner Resource Library Card -->
                         <div class="auth-card">
                             <h4 style="color: var(--text-main); margin-bottom: 0.8rem; font-size: 1rem;">Partner Resource Library</h4>
-                            <div id="unlockedLinks" class="unlocked-links-container">
+                            <div id="unlockedArchiveList" class="unlocked-links-container">
                                 <p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">
                                     No bonus resources unlocked yet. Enter promo codes on the portal to access premium training.
                                 </p>
@@ -130,13 +130,12 @@
                                         <tr style="border-bottom: 1px solid var(--card-border); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
                                             <th style="padding: 0.8rem;">Rank</th>
                                             <th style="padding: 0.8rem;">Associate ID</th>
-                                            <th style="padding: 0.8rem;">Tier</th>
                                             <th style="padding: 0.8rem;">Credits</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="leaderboardTable">
+                                    <tbody id="leaderboardBody">
                                         <tr>
-                                            <td colspan="4" style="text-align:center; padding: 1.5rem; color: var(--text-muted);">
+                                            <td colspan="3" style="text-align:center; padding: 1.5rem; color: var(--text-muted);">
                                                 Querying network ledger...
                                             </td>
                                         </tr>
@@ -193,26 +192,8 @@
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 1998–<span id="current-year">2026</span> Lifetime Legacy Global Network. All Rights Reserved. <span class="latin-motto" title="Look beneath the surface">Secretum In Unitate</span>.</p>
+        <p>&copy; 2025–<span id="current-year">2026</span> Lifetime Legacy Global Network. All Rights Reserved. <span class="latin-motto" title="Look beneath the surface">Secretum In Unitate</span>.</p>
     </footer>
 
-    <!-- Developer Console Diagnostic Script -->
-    <script>
-        console.log(
-            "%c[LLG ASSOCIATE PORTAL]\n" +
-            "--------------------------------------------------\n" +
-            "Associate Session Authenticated.\n" +
-            "Voucher redemption portal active.\n" +
-            "--------------------------------------------------",
-            "color: #d4af37; font-family: monospace; font-size: 12px; font-weight: bold;"
-        );
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const videos = document.querySelectorAll('.stream-video-element');
-            videos.forEach((video) => {
-                video.play().catch((err) => console.warn('[LLG MEDIA STREAM AUTOPLAY NOTICE]', err));
-            });
-        });
-    </script>
 </body>
 </html>
