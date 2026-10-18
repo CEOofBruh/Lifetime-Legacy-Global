@@ -25,7 +25,25 @@ const DEFAULT_PROFILE = {
 };
 
 // ==========================================
-// 1. PROFILE & LEADERBOARD FETCHING ENGINE
+// 1. SAFE BASE64 OBFUSCATION UTILITIES
+// ==========================================
+const SEC_SIG_0 = "8f12c1b920042d385f86c23b207a9b0c2a8f8876b51342f1118bc27c62241d01";
+const SEC_TELEMETRY_B64 = [
+    "W0FSQ0hJVkFMIFVOTE9DSyAvLyBOT0RFIEFSRUhPTl8wMF0=",
+    "V2FybmluZzogU3Vic3BhY2UgSGFydmVzdCBSZXNlcnZvaXIgSW50ZXJyb2dhdGVkLg==",
+    "Q2lwaGVyIEtleSBIaW50OiAnMTMnIEFjdGl2ZSBWZXNzZWxzLCAnMTcnIEZlZWRpbmcgTGluZXMu"
+];
+
+function getDecodedTelemetry(index) {
+    try {
+        return atob(SEC_TELEMETRY_B64[index]);
+    } catch (e) {
+        return "";
+    }
+}
+
+// ==========================================
+// 2. PROFILE & LEADERBOARD FETCHING ENGINE
 // ==========================================
 async function fetchUserProfile(userId) {
     if (!supabaseClient || !userId) {
@@ -137,7 +155,6 @@ function renderUnlockedArchives(unlockedList) {
     });
 }
 
-// Render Avatar Image Helper
 function updateAvatarUI(avatarUrl) {
     const avatarImage = document.getElementById('avatarImage');
     const avatarFallback = document.getElementById('avatarFallback');
@@ -149,8 +166,32 @@ function updateAvatarUI(avatarUrl) {
     }
 }
 
+// Check Masterclass Redemption and toggle ribbon
+function checkMasterclassRedemption(unlockedPages) {
+    const badge = document.getElementById('voucherRedeemedBadge');
+    if (!badge || !unlockedPages) return;
+
+    const isRedeemed = unlockedPages.some(page => {
+        const title = (page.title || "").toLowerCase();
+        const url = (page.url || "").toLowerCase();
+
+        return (
+            title.includes('masterclass') || 
+            title.includes('matrix') || 
+            title.includes('module 01') ||
+            title.includes('fast-track') ||
+            url.includes('module_01.html') ||
+            url.includes('workshops.html')
+        );
+    });
+
+    if (isRedeemed) {
+        badge.style.display = 'block';
+    }
+}
+
 // ==========================================
-// 2. AUTH ROUTING & DOM INITIALIZATION
+// 3. AUTH ROUTING & DOM INITIALIZATION
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
     const rawPage = window.location.pathname.split('/').pop().toLowerCase();
@@ -311,10 +352,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             reader.onload = async (event) => {
                 const base64Image = event.target.result;
                 
-                // Update local UI preview immediately
                 updateAvatarUI(base64Image);
 
-                // Persist new avatar URL across Supabase and local storage
                 if (currentUser) {
                     const profile = await fetchUserProfile(currentUser.id);
                     profile.avatarUrl = base64Image;
@@ -348,6 +387,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         updateAvatarUI(profile.avatarUrl);
         renderUnlockedArchives(profile.unlockedPages);
+        checkMasterclassRedemption(profile.unlockedPages);
         fetchLeaderboard();
     }
 });
@@ -370,7 +410,7 @@ function setStatusMessage(elementId, message, color) {
 }
 
 // ==========================================
-// 3. PROMO CODE SUBMISSION ENGINE (SECURE RPC)
+// 4. PROMO CODE SUBMISSION ENGINE (SECURE RPC)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     const quizForm = document.getElementById('quizForm');
@@ -435,6 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (profileRank) profileRank.textContent = updatedRank;
 
                     renderUnlockedArchives(updatedUnlocked);
+                    checkMasterclassRedemption(updatedUnlocked);
                     fetchLeaderboard();
 
                     feedback.style.color = "var(--gold)";
@@ -454,7 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// 4. THREE.JS 3D HOLOGRAM ENGINE
+// 5. THREE.JS 3D HOLOGRAM ENGINE
 // ==========================================
 let hologramScene, hologramCamera, hologramRenderer, hologramControls, hologramAnimationId;
 let invertedApexNode = null;
@@ -622,6 +663,10 @@ function initHologram3D() {
             const clickedObject = intersects[0].object;
             if (clickedObject.userData.type === "OCCULT_APEX") {
                 clickedObject.material.color.setHex(0xff0000);
+                console.warn(
+                    `%c${getDecodedTelemetry(0)}\n--------------------------------------------------\n${getDecodedTelemetry(1)}\n${getDecodedTelemetry(2)}\n--------------------------------------------------`,
+                    "color: #ef4444; font-family: monospace; font-size: 12px; font-weight: bold;"
+                );
             } else {
                 clickedObject.material.color.setHex(0xffd700);
             }
@@ -670,24 +715,4 @@ function initHologram3D() {
     }
 
     animate();
-}
-
-// ==========================================
-// 5. MASTERCLASS VOUCHER WATCHDOG
-// ==========================================
-// Minimal helper to display the "REDEEMED" ribbon if voucher claimed
-function checkMasterclassRedemption(unlockedPages) {
-    const badge = document.getElementById('voucherRedeemedBadge');
-    if (!badge || !unlockedPages) return;
-
-    // Checks if any unlocked item matches the masterclass reward
-    const isRedeemed = unlockedPages.some(page => 
-        page.title.toLowerCase().includes('masterclass') || 
-        page.title.toLowerCase().includes('matrix') ||
-        page.url === 'workshops.html'
-    );
-
-    if (isRedeemed) {
-        badge.style.display = 'block';
-    }
 }
