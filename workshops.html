@@ -8,7 +8,7 @@
     <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/CEOofBruh/Lifetime-Legacy-Global/refs/heads/main/LLG%20-%20Icon.ico">
     <!-- Supabase JS Library & Global Script -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js?v=8" defer></script>
+    <script src="script.js?v=14" defer></script>
 </head>
 <body data-system-epoch="2026">
 
@@ -33,14 +33,33 @@
 
                 <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
 
-                    <!-- ACTIVE WORKSHOP CARD -->
-                    <a href="module_01.html" class="feature-card" style="border-color: var(--gold); text-decoration: none; color: inherit; flex-direction: row; justify-content: space-between; align-items: center; background: rgba(212, 175, 55, 0.05); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                        <div>
-                            <span style="font-size: 0.7rem; color: var(--gold); font-family: var(--font-mono);">2026 REBRAND LAUNCH MASTERCLASS • INSTANT ACCESS</span>
-                            <h3 style="margin: 0.3rem 0; color: var(--gold-bright);">Module 01: Next-Gen Matrix Fundamentals & Downline Synergy</h3>
-                            <p style="margin: 0; color: var(--text-main);">Fast-track orientation on optimizing downstream partner geometry for maximum 7-figure residual payout.</p>
+                    <!-- ACTIVE WORKSHOP CARD WITH DYNAMIC REDEEMED RIBBON -->
+                    <a href="module_01.html" class="feature-card" style="position: relative; overflow: hidden; border-color: var(--gold); text-decoration: none; color: inherit; flex-direction: column; align-items: stretch; gap: 0.8rem; background: rgba(212, 175, 55, 0.05); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                        
+                        <!-- Voucher Redeemed Corner Ribbon (Unhidden by script if code is claimed) -->
+                        <div id="voucherRedeemedBadge" style="display: none; position: absolute; top: 12px; right: -32px; background: var(--gold); color: #000; font-family: var(--font-mono); font-size: 0.65rem; font-weight: bold; padding: 0.2rem 2.5rem; transform: rotate(45deg); box-shadow: 0 2px 8px rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 1px; pointer-events: none; z-index: 5;">
+                            Redeemed
                         </div>
-                        <span class="hero-tag" style="margin: 0; padding: 0.3rem 0.8rem; font-size: 0.75rem; white-space: nowrap;">CLAIM SEAT →</span>
+
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.8rem; width: 100%;">
+                            <div>
+                                <span style="font-size: 0.7rem; color: var(--gold); font-family: var(--font-mono);">2026 REBRAND LAUNCH MASTERCLASS • INSTANT ACCESS</span>
+                                <h3 style="margin: 0.3rem 0; color: var(--gold-bright);">Masterclass: Intro to Lifetime Legacy Global's System</h3>
+                            </div>
+                            
+                            <span class="hero-tag" style="margin: 0; padding: 0.4rem 0.9rem; font-size: 0.75rem; white-space: nowrap; margin-top: 0.2rem;">
+                                VIEW MASTERCLASS &rarr;
+                            </span>
+                        </div>
+
+                        <p style="margin: 0; color: var(--text-main); line-height: 1.4;">
+                            Fast-track orientation on optimizing downstream partner geometry for maximum 7-figure residual payout.
+                        </p>
+
+                        <!-- Associate Voucher Disclaimer -->
+                        <div style="font-size: 0.75rem; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.5rem; font-style: italic;">
+                            💡 <strong>Associate Notice:</strong> Active members can locate promotional voucher codes hidden inside this masterclass to redeem Legacy Credits on the dashboard.
+                        </div>
                     </a>
 
                     <!-- RECENT CLOSED WORKSHOP 1 -->
