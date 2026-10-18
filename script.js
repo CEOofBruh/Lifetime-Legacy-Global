@@ -25,7 +25,26 @@ const DEFAULT_PROFILE = {
 };
 
 // ==========================================
-// 1. PROFILE & LEADERBOARD FETCHING ENGINE
+// 1. CRYPTOGRAPHIC UTILITIES & OBFUSCATED STRINGS
+// ==========================================
+async function hashString(str) {
+    const buffer = new TextEncoder().encode(str.trim().toUpperCase());
+    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+    return Array.from(new Uint8Array(hashBuffer))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+}
+
+// Hex-Encoded System Telemetry (Hides secrets & cipher hints from source scanners)
+const SEC_SIG_0 = "8f12c1b920042d385f86c23b207a9b0c2a8f8876b51342f1118bc27c62241d01";
+const SEC_TELEMETRY = [
+    "\x5b\x41\x52\x43\x48\x49\x56\x41\x4c\x20\x55\x4e\x4c\x4f\x43\x4b\x20\x2f\x2f\x20\x4e\x4f\x44\x45\x20\x41\x52\x43\x48\x4f\x4e\x5f\x30\x30\x5d",
+    "\x57\x61\x72\x6e\x69\x6e\x67\x3a\x20\x53\x75\x62\x73\x70\x61\x63\x65\x20\x48\x61\x72\x76\x65\x73\x74\x20\x52\x65\x73\x65\x72\x76\x6f\x69\x72\x20\x49\x6e\x74\x65\x72\x72\x6f\x67\x61\x74\x65\x64\x2e",
+    "\x43\x69\x70\x68\x65\x72\x20\x4b\x65\x79\x20\x48\x69\x6e\x74\x3a\x20\x27\x31\x33\x27\x20\x41\x63\x74\x69\x76\x65\x20\x56\x65\x73\x73\x65\x6c\x73\x2c\x20\x27\x31\x37\x27\x20\x46\x65\x65\x64\x69\x6e\x67\x20\x4c\x69\x6e\x65\x73\x2e"
+];
+
+// ==========================================
+// 2. PROFILE & LEADERBOARD FETCHING ENGINE
 // ==========================================
 async function fetchUserProfile(userId) {
     if (!supabaseClient || !userId) {
@@ -132,7 +151,7 @@ function renderUnlockedArchives(unlockedList) {
 }
 
 // ==========================================
-// 2. AUTH ROUTING & DOM INITIALIZATION
+// 3. AUTH ROUTING & DOM INITIALIZATION
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
     const rawPage = window.location.pathname.split('/').pop().toLowerCase();
@@ -216,14 +235,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const navUser = document.getElementById('navUser');
         const profileName = document.getElementById('profileName');
 
-        // Extract user email and display name
         const userEmail = currentUser?.email || 'Associate';
         const displayName = userEmail.includes('@') ? userEmail.split('@')[0] : userEmail;
 
         if (coinBalance) coinBalance.textContent = profile.coins;
         if (profileRank) profileRank.textContent = profile.rank;
         
-        // Update top navbar and profile sidebar card
         if (navUser) navUser.textContent = `ONLINE: ${userEmail.toUpperCase()}`;
         if (profileName) profileName.textContent = displayName;
 
@@ -250,7 +267,7 @@ function setStatusMessage(elementId, message, color) {
 }
 
 // ==========================================
-// 3. PROMO CODE SUBMISSION ENGINE (SECURE RPC)
+// 4. PROMO CODE SUBMISSION ENGINE (SECURE RPC)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     const quizForm = document.getElementById('quizForm');
@@ -333,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// 4. THREE.JS 3D HOLOGRAM ENGINE
+// 5. THREE.JS 3D HOLOGRAM ENGINE
 // ==========================================
 let hologramScene, hologramCamera, hologramRenderer, hologramControls, hologramAnimationId;
 let invertedApexNode = null;
@@ -501,6 +518,10 @@ function initHologram3D() {
             const clickedObject = intersects[0].object;
             if (clickedObject.userData.type === "OCCULT_APEX") {
                 clickedObject.material.color.setHex(0xff0000);
+                console.warn(
+                    `%c${SEC_TELEMETRY[0]}\n--------------------------------------------------\n${SEC_TELEMETRY[1]}\n${SEC_TELEMETRY[2]}\n--------------------------------------------------`,
+                    "color: #ef4444; font-family: monospace; font-size: 12px; font-weight: bold;"
+                );
             } else {
                 clickedObject.material.color.setHex(0xffd700);
             }
