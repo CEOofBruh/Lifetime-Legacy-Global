@@ -671,3 +671,23 @@ function initHologram3D() {
 
     animate();
 }
+
+// ==========================================
+// 5. MASTERCLASS VOUCHER WATCHDOG
+// ==========================================
+// Minimal helper to display the "REDEEMED" ribbon if voucher claimed
+function checkMasterclassRedemption(unlockedPages) {
+    const badge = document.getElementById('voucherRedeemedBadge');
+    if (!badge || !unlockedPages) return;
+
+    // Checks if any unlocked item matches the masterclass reward
+    const isRedeemed = unlockedPages.some(page => 
+        page.title.toLowerCase().includes('masterclass') || 
+        page.title.toLowerCase().includes('matrix') ||
+        page.url === 'workshops.html'
+    );
+
+    if (isRedeemed) {
+        badge.style.display = 'block';
+    }
+}
