@@ -14,9 +14,9 @@ if (typeof supabase !== 'undefined' && SUPABASE_URL && SUPABASE_ANON_KEY) {
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
-// Default Fallback Data
+// Default Fallback Data (0 LC Starting Balance)
 const DEFAULT_PROFILE = {
-    coins: 10,
+    coins: 0,
     rank: "Unranked Initiate",
     unlockedPages: [
         { title: "Module 01: Fast-Track Freedom", url: "module_01.html" }
@@ -110,7 +110,7 @@ async function fetchLeaderboard() {
             tr.innerHTML = `
                 <td style="padding: 0.8rem;">#${index + 1}</td>
                 <td style="padding: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <img src="${row.avatar_url || DEFAULT_PROFILE.avatarUrl}" style="width: 20px; height: 20px; border-radius: 50%;">
+                    <img src="${row.avatar_url || DEFAULT_PROFILE.avatarUrl}" style="width: 20px; height: 20px; border-radius: 50%; object-fit: cover;">
                     <span>${rowName}</span>
                 </td>
                 <td style="padding: 0.8rem; color: var(--text-muted);">${rowRank}</td>
@@ -135,6 +135,18 @@ function renderUnlockedArchives(unlockedList) {
         li.innerHTML = `<a href="${item.url}" class="gold-text" style="text-decoration: none; font-weight: bold; font-size: 0.9rem;">🔓 ${item.title}</a>`;
         archiveContainer.appendChild(li);
     });
+}
+
+// Render Avatar Image Helper
+function updateAvatarUI(avatarUrl) {
+    const avatarImage = document.getElementById('avatarImage');
+    const avatarFallback = document.getElementById('avatarFallback');
+
+    if (avatarImage && avatarUrl) {
+        avatarImage.src = avatarUrl;
+        avatarImage.style.display = 'block';
+        if (avatarFallback) avatarFallback.style.display = 'none';
+    }
 }
 
 // ==========================================
@@ -255,14 +267,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 if (error) throw error;
 
-                // Upsert Profile row with display_name
+                // Upsert Profile row with 0 LC starting balance
                 if (data.user) {
                     await supabaseClient.from('profiles').upsert({
                         id: data.user.id,
                         email: email,
                         display_name: displayName,
                         rank: "Unranked Initiate",
-                        coins: 10,
+                        coins: 0,
                         unlocked_pages: DEFAULT_PROFILE.unlockedPages,
                         avatar_url: DEFAULT_PROFILE.avatarUrl,
                         updated_at: new Date()
@@ -288,6 +300,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Attach Avatar Image Picker Listener (dashboard.html)
+    const avatarInput = document.getElementById('avatarInput');
+    if (avatarInput) {
+        avatarInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const base64Image = event.target.result;
+                
+                // Update local UI preview immediately
+                updateAvatarUI(base64Image);
+
+                // Persist new avatar URL across Supabase and local storage
+                if (currentUser) {
+                    const profile = await fetchUserProfile(currentUser.id);
+                    profile.avatarUrl = base64Image;
+                    await saveUserProfile(currentUser.id, profile);
+                    fetchLeaderboard();
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
     // Load Profile & Leaderboard Data on Protected Pages
     if (!isPublicPage) {
         const userId = currentUser ? currentUser.id : null;
@@ -308,6 +346,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (navUser) navUser.textContent = `ONLINE: ${userEmail.toUpperCase()}`;
         if (profileName) profileName.textContent = displayName;
 
+        updateAvatarUI(profile.avatarUrl);
         renderUnlockedArchives(profile.unlockedPages);
         fetchLeaderboard();
     }
