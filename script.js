@@ -41,17 +41,7 @@ async function fetchUserProfile(userId) {
             .maybeSingle();
 
         if (error || !data) {
-            console.warn("Profile record missing or restricted, creating initial profile row...");
-            const initialProfile = {
-                id: userId,
-                coins: DEFAULT_PROFILE.coins,
-                rank: DEFAULT_PROFILE.rank,
-                unlocked_pages: DEFAULT_PROFILE.unlockedPages,
-                avatar_url: DEFAULT_PROFILE.avatarUrl,
-                updated_at: new Date()
-            };
-
-            await supabaseClient.from('profiles').upsert(initialProfile);
+            console.warn("Profile record missing or restricted, returning default profile...");
             return DEFAULT_PROFILE;
         }
 
@@ -64,6 +54,25 @@ async function fetchUserProfile(userId) {
     } catch (e) {
         console.error("Error fetching profile:", e);
         return DEFAULT_PROFILE;
+    }
+}
+
+async function saveUserProfile(userId, profileData) {
+    localStorage.setItem('llg_user_profile', JSON.stringify(profileData));
+
+    if (!supabaseClient || !userId) return;
+
+    try {
+        await supabaseClient.from('profiles').upsert({
+            id: userId,
+            coins: profileData.coins,
+            rank: profileData.rank,
+            unlocked_pages: profileData.unlockedPages,
+            avatar_url: profileData.avatarUrl,
+            updated_at: new Date()
+        });
+    } catch (e) {
+        console.error("Error saving profile:", e);
     }
 }
 
@@ -94,12 +103,12 @@ async function fetchLeaderboard() {
         data.forEach((row, index) => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>#${index + 1}</td>
-                <td style="display: flex; align-items: center; gap: 0.5rem;">
+                <td style="padding: 0.8rem;">#${index + 1}</td>
+                <td style="padding: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
                     <img src="${row.avatar_url || DEFAULT_PROFILE.avatarUrl}" style="width: 20px; height: 20px; border-radius: 50%;">
                     <span>${row.rank || 'Associate'}</span>
                 </td>
-                <td style="color: var(--gold); font-weight: bold;">${row.coins ?? 0} LC</td>
+                <td style="padding: 0.8rem; color: var(--gold); font-weight: bold;">${row.coins ?? 0} LC</td>
             `;
             leaderboardBody.appendChild(tr);
         });
@@ -115,9 +124,9 @@ function renderUnlockedArchives(unlockedList) {
 
     archiveContainer.innerHTML = '';
     unlockedList.forEach(item => {
-        const li = document.createElement('li');
+        const li = document.createElement('div');
         li.style.marginBottom = "0.6rem";
-        li.innerHTML = `<a href="${item.url}" class="gold-text" style="text-decoration: none; font-weight: bold;">🔓 ${item.title}</a>`;
+        li.innerHTML = `<a href="${item.url}" class="gold-text" style="text-decoration: none; font-weight: bold; font-size: 0.9rem;">🔓 ${item.title}</a>`;
         archiveContainer.appendChild(li);
     });
 }
@@ -130,7 +139,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const currentPage = rawPage === '' ? 'index.html' : rawPage;
     const isPublicPage = currentPage === 'index.html' || currentPage === 'login.html' || currentPage === 'signup.html';
 
-    // Verify Auth Session First
+    // Verify Auth Session
     if (supabaseClient) {
         const { data: { session } } = await supabaseClient.auth.getSession();
         currentUser = session ? session.user : null;
@@ -204,9 +213,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const coinBalance = document.getElementById('coinBalance');
         const profileRank = document.getElementById('profileRank');
+        const navUser = document.getElementById('navUser');
+        const profileName = document.getElementById('profileName');
+
+        // Extract user email and display name
+        const userEmail = currentUser?.email || 'Associate';
+        const displayName = userEmail.includes('@') ? userEmail.split('@')[0] : userEmail;
 
         if (coinBalance) coinBalance.textContent = profile.coins;
         if (profileRank) profileRank.textContent = profile.rank;
+        
+        // Update top navbar and profile sidebar card
+        if (navUser) navUser.textContent = `ONLINE: ${userEmail.toUpperCase()}`;
+        if (profileName) profileName.textContent = displayName;
 
         renderUnlockedArchives(profile.unlockedPages);
         fetchLeaderboard();
