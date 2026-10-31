@@ -199,7 +199,7 @@ function checkMasterclassRedemption(unlockedPages) {
             title.includes('fast-track') ||
             url.includes('module_01.html') ||
             url.includes('workshops.html')
-        );
+        );hand
     });
 
     if (isRedeemed) {
@@ -420,20 +420,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// Logout Procedure
+// ==========================================
+// HARDENED LOGOUT & SESSION PURGE
+// ==========================================
 async function handleLogout() {
-    if (supabaseClient) {
-        await supabaseClient.auth.signOut();
-    }
-    localStorage.removeItem('llg_user_profile');
-    window.location.href = 'index.html';
-}
+    try {
+        if (supabaseClient) {
+            // Force explicit global signout from Supabase Auth
+            await supabaseClient.auth.signOut();
+        }
+    } catch (e) {
+        console.warn("Supabase auth signout error during logout cleanup:", e);
+    } finally {
+        // Clear application profile cache
+        localStorage.removeItem('llg_user_profile');
 
-function setStatusMessage(elementId, message, color) {
-    const el = document.getElementById(elementId);
-    if (el) {
-        el.style.color = color;
-        el.textContent = message; // textContent is natively safe against script injection
+        // Explicitly sweep any residual Supabase local session keys
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('sb-') || key.includes('supabase')) {
+                localStorage.removeItem(key);
+            }
+        });
+
+        // Redirect user safely back to login screen
+        window.location.href = 'index.html';
     }
 }
 
