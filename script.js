@@ -818,8 +818,8 @@ function initHologram3D() {
 // SIMULATED GIF POP-UP ENGINE
 // ==========================================
 const SIMULATED_GIF_ADS = [
-    "./pop-up.gif",
-    "./pop-up-2.gif"
+    "pop-up.gif",
+    "pop-up-2.gif"
 ];
 
 function initSimulatedPopups() {
@@ -830,18 +830,24 @@ function initSimulatedPopups() {
     
     if (!adModal || !adMedia || SIMULATED_GIF_ADS.length === 0) return;
 
+    // Gracefully handle missing/broken GIF files without showing broken icon borders
+    adMedia.onerror = () => {
+        console.warn(`[Pop-up Engine] Failed to load image asset at: ${adMedia.src}. Verify file existence in project root.`);
+        adModal.style.display = 'none';
+    };
+
     // Random delay between 15s (15000ms) and 45s (45000ms)
     const randomDelay = Math.floor(Math.random() * (45000 - 15000 + 1)) + 15000;
 
     setTimeout(() => {
-        // Randomly choose between pop-up.gif and pop-up-2.gif
+        // Pick a random GIF asset from root
         const randomGif = SIMULATED_GIF_ADS[Math.floor(Math.random() * SIMULATED_GIF_ADS.length)];
         adMedia.src = randomGif;
 
         adModal.style.display = 'flex';
     }, randomDelay);
 
-    // Event listeners to close the modal
+    // Close controls
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
             adModal.style.display = 'none';
