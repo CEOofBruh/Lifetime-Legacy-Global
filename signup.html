@@ -3,13 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Content Security Policy (CSP) Header for Client Protection -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data: https:;
+        connect-src 'self' https://clnqxwyewtzofeiyzrbk.supabase.co wss://clnqxwyewtzofeiyzrbk.supabase.co;
+    ">
     <title>Lifetime Legacy Global | Register Associate ID</title>
     <link rel="stylesheet" href="style.css">
     <!-- Lifetime Legacy Global Favicon -->
     <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/CEOofBruh/Lifetime-Legacy-Global/refs/heads/main/LLG%20-%20Icon.ico">
     <!-- Supabase JS Client library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js?v=13" defer></script>
+    <script src="script.js?v=14" defer></script>
 </head>
 <body data-system-epoch="2026">
 
@@ -73,20 +81,42 @@
                 <h2>Register Partner ID</h2>
                 <p class="subtitle">Secure your position in the global downline matrix.</p>
 
-                <form id="signupForm">
+                <form id="signupForm" novalidate>
                     <div class="form-group">
                         <label for="signupDisplayName">Associate Display Name</label>
-                        <input type="text" id="signupDisplayName" placeholder="e.g. Alex Vance" required autocomplete="name">
+                        <input 
+                            type="text" 
+                            id="signupDisplayName" 
+                            placeholder="e.g. Alex Vance" 
+                            required 
+                            minlength="3"
+                            maxlength="25"
+                            autocomplete="name"
+                        >
                     </div>
 
                     <div class="form-group">
                         <label for="signupEmail">Associate Email Address</label>
-                        <input type="email" id="signupEmail" placeholder="partner@legacy-matrix.com" required autocomplete="email">
+                        <input 
+                            type="email" 
+                            id="signupEmail" 
+                            placeholder="partner@legacy-matrix.com" 
+                            required 
+                            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                            autocomplete="email"
+                        >
                     </div>
 
                     <div class="form-group">
                         <label for="signupPassword">Create Password</label>
-                        <input type="password" id="signupPassword" placeholder="••••••••" required minlength="6" autocomplete="new-password">
+                        <input 
+                            type="password" 
+                            id="signupPassword" 
+                            placeholder="•••••••• (Min. 8 chars)" 
+                            required 
+                            minlength="8" 
+                            autocomplete="new-password"
+                        >
                     </div>
 
                     <button type="submit" class="btn-primary">Initialize Registration</button>
