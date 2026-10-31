@@ -25,7 +25,7 @@ const DEFAULT_PROFILE = {
 };
 
 // ==========================================
-// 1. SAFE BASE64 OBFUSCATION UTILITIES
+// 1. SAFE BASE64 & XSS UTILITIES
 // ==========================================
 const SEC_SIG_0 = "8f12c1b920042d385f86c23b207a9b0c2a8f8876b51342f1118bc27c62241d01";
 const SEC_TELEMETRY_B64 = [
@@ -40,6 +40,19 @@ function getDecodedTelemetry(index) {
     } catch (e) {
         return "";
     }
+}
+
+/**
+ * Escapes unsafe HTML characters to prevent XSS attacks when embedding user data into DOM strings.
+ */
+function escapeHTML(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
 
 // ==========================================
@@ -122,17 +135,19 @@ async function fetchLeaderboard() {
         leaderboardBody.innerHTML = '';
         data.forEach((row, index) => {
             const tr = document.createElement('tr');
-            const rowName = row.display_name || (row.email ? row.email.split('@')[0] : 'Associate');
-            const rowRank = row.rank || 'Unranked Initiate';
+            const rowName = escapeHTML(row.display_name || (row.email ? row.email.split('@')[0] : 'Associate'));
+            const rowRank = escapeHTML(row.rank || 'Unranked Initiate');
+            const rawAvatar = row.avatar_url || DEFAULT_PROFILE.avatarUrl;
+            const safeAvatar = escapeHTML(rawAvatar.startsWith('data:image/') || rawAvatar.startsWith('http') ? rawAvatar : DEFAULT_PROFILE.avatarUrl);
             
             tr.innerHTML = `
                 <td style="padding: 0.8rem;">#${index + 1}</td>
                 <td style="padding: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <img src="${row.avatar_url || DEFAULT_PROFILE.avatarUrl}" style="width: 20px; height: 20px; border-radius: 50%; object-fit: cover;">
+                    <img src="${safeAvatar}" style="width: 20px; height: 20px; border-radius: 50%; object-fit: cover;">
                     <span>${rowName}</span>
                 </td>
                 <td style="padding: 0.8rem; color: var(--text-muted);">${rowRank}</td>
-                <td style="padding: 0.8rem; color: var(--gold); font-weight: bold;">${row.coins ?? 0} LC</td>
+                <td style="padding: 0.8rem; color: var(--gold); font-weight: bold;">${Number(row.coins ?? 0)} LC</td>
             `;
             leaderboardBody.appendChild(tr);
         });
@@ -150,7 +165,9 @@ function renderUnlockedArchives(unlockedList) {
     unlockedList.forEach(item => {
         const li = document.createElement('div');
         li.style.marginBottom = "0.6rem";
-        li.innerHTML = `<a href="${item.url}" class="gold-text" style="text-decoration: none; font-weight: bold; font-size: 0.9rem;">🔓 ${item.title}</a>`;
+        const safeTitle = escapeHTML(item.title);
+        const safeUrl = escapeHTML(item.url);
+        li.innerHTML = `<a href="${safeUrl}" class="gold-text" style="text-decoration: none; font-weight: bold; font-size: 0.9rem;">🔓 ${safeTitle}</a>`;
         archiveContainer.appendChild(li);
     });
 }
@@ -348,6 +365,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             const file = e.target.files[0];
             if (!file) return;
 
+            // Restrict upload types & max file size (2MB) for storage safety
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Invalid file format. Please upload a PNG, JPEG, WEBP, or GIF image.');
+                return;
+            }
+            if (file.size > 2 * 1024 * 1024) {
+                alert('File size exceeds the 2MB limit.');
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = async (event) => {
                 const base64Image = event.target.result;
@@ -382,8 +410,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (coinBalance) coinBalance.textContent = profile.coins;
         if (profileRank) profileRank.textContent = profile.rank;
         
-        if (navUser) navUser.textContent = `ONLINE: ${userEmail.toUpperCase()}`;
-        if (profileName) profileName.textContent = displayName;
+        if (navUser) navUser.textContent = `ONLINE: ${escapeHTML(userEmail).toUpperCase()}`;
+        if (profileName) profileName.textContent = displayName; // textContent handles escaping automatically
 
         updateAvatarUI(profile.avatarUrl);
         renderUnlockedArchives(profile.unlockedPages);
@@ -405,7 +433,7 @@ function setStatusMessage(elementId, message, color) {
     const el = document.getElementById(elementId);
     if (el) {
         el.style.color = color;
-        el.textContent = message;
+        el.textContent = message; // textContent is natively safe against script injection
     }
 }
 
