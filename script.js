@@ -813,3 +813,61 @@ function initHologram3D() {
 
     animate();
 }
+
+// ==========================================
+// SIMULATED GIF POP-UP ENGINE
+// ==========================================
+const SIMULATED_GIF_ADS = [
+    "./pop-up.gif",
+    "./pop-up-2.gif"
+];
+
+function initSimulatedPopups() {
+    const adModal = document.getElementById('simulatedAdModal');
+    const adMedia = document.getElementById('adGifMedia');
+    const closeBtn = document.getElementById('closeAdBtn');
+    const gifWrapper = document.getElementById('adGifWrapper');
+    
+    if (!adModal || !adMedia || SIMULATED_GIF_ADS.length === 0) return;
+
+    // Random delay between 15s (15000ms) and 45s (45000ms)
+    const randomDelay = Math.floor(Math.random() * (45000 - 15000 + 1)) + 15000;
+
+    setTimeout(() => {
+        // Randomly choose between pop-up.gif and pop-up-2.gif
+        const randomGif = SIMULATED_GIF_ADS[Math.floor(Math.random() * SIMULATED_GIF_ADS.length)];
+        adMedia.src = randomGif;
+
+        adModal.style.display = 'flex';
+    }, randomDelay);
+
+    // Event listeners to close the modal
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            adModal.style.display = 'none';
+        });
+    }
+
+    if (gifWrapper) {
+        gifWrapper.addEventListener('click', () => {
+            adModal.style.display = 'none';
+        });
+    }
+
+    adModal.addEventListener('click', (e) => {
+        if (e.target === adModal) {
+            adModal.style.display = 'none';
+        }
+    });
+}
+
+// Automatically start on protected pages
+document.addEventListener('DOMContentLoaded', () => {
+    const rawPage = window.location.pathname.split('/').pop().toLowerCase();
+    const currentPage = rawPage === '' ? 'index.html' : rawPage;
+    const isPublicPage = ['index.html', 'login.html', 'signup.html'].includes(currentPage);
+
+    if (!isPublicPage) {
+        initSimulatedPopups();
+    }
+});
