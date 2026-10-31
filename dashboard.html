@@ -196,6 +196,20 @@
         </aside>
 
     </div>
+    <!-- Simulated GIF Pop-up Modal -->
+<div id="simulatedAdModal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0, 0, 0, 0.85); align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+    <div style="background: #0a0c10; border: 1px solid var(--gold); border-radius: 12px; max-width: 480px; width: 90%; padding: 0.8rem; box-shadow: 0 0 35px rgba(212, 175, 55, 0.3); position: relative; text-align: center;">
+        
+        <!-- Dismiss Button -->
+        <button id="closeAdBtn" style="position: absolute; top: 12px; right: 14px; background: rgba(0,0,0,0.7); border: 1px solid var(--gold); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; z-index: 10; font-weight: bold;">✕</button>
+        
+        <!-- GIF Media Wrapper -->
+        <div id="adGifWrapper" style="width: 100%; border-radius: 8px; overflow: hidden; border: 1px solid rgba(212, 175, 55, 0.2); background: #000; cursor: pointer;">
+            <img id="adGifMedia" src="./pop-up.gif" alt="Corporate Announcement" style="width: 100%; height: auto; display: block; object-fit: contain;">
+        </div>
+
+    </div>
+</div>
 
     <!-- Footer -->
     <footer>
