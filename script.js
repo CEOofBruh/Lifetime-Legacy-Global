@@ -70,8 +70,8 @@ function initSimulatedPopups() {
 
     if (!adModal) return;
 
-    // Random delay between 15s (15000ms) and 45s (45000ms)
-    const randomDelay = Math.floor(Math.random() * (45000 - 15000 + 1)) + 15000;
+    // Random delay between 5s (5000ms) and 10s (10000ms)
+    const randomDelay = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
 
     setTimeout(async () => {
         if (slotsCounter) {
@@ -87,20 +87,3 @@ function initSimulatedPopups() {
         if (e.target === adModal) adModal.style.display = 'none';
     });
 }
-
-// ==========================================
-// DOM INITIALIZATION & ROUTING
-// ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-    const rawPage = window.location.pathname.split('/').pop().toLowerCase();
-    const currentPage = rawPage === '' ? 'index.html' : rawPage;
-
-    // Load Leaderboard on pages where it exists
-    loadLeaderboard();
-
-    // Trigger popup ONLY on login.html and signup.html
-    const isAuthPage = ['login.html', 'signup.html'].includes(currentPage);
-    if (isAuthPage) {
-        initSimulatedPopups();
-    }
-});
