@@ -319,7 +319,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const email = emailInput.value.trim();
             const password = passwordInput.value;
 
-            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\$/;
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
             if (displayName.length > 0 && (displayName.length < 3 || displayName.length > 25)) {
                 if (feedback) {
@@ -852,4 +852,98 @@ async function fetchRemainingSlots() {
             .from('profiles')
             .select('*', { count: 'exact', head: true });
 
-        if (error ||
+        if (error || count === null) throw error;
+
+        const remaining = MAX_ALLOWED_PROFILES - count;
+
+        if (remaining <= 0) {
+            return "0 SLOTS REMAINING (CEILING REACHED)";
+        }
+
+        return `ONLY ${remaining} SLOT${remaining === 1 ? '' : 'S'} REMAINING`;
+    } catch (e) {
+        console.warn("⚠️ [Pop-up Debug] Could not query profile count:", e);
+        return "LIMITED SLOTS REMAINING";
+    }
+}
+
+function initSimulatedPopups() {
+    console.log("🔍 [Pop-up Debug] Running initSimulatedPopups()...");
+
+    const adModal = document.getElementById('simulatedAdModal');
+    const slotsCounter = document.getElementById('adSlotsCounter');
+    const closeBtn = document.getElementById('closeAdBtn');
+    const actionBtn = document.getElementById('adActionBtn');
+
+    if (!adModal) {
+        console.error("❌ [Pop-up Debug] Target element #simulatedAdModal NOT found in DOM. Check HTML placement.");
+        return;
+    }
+
+    console.log("✅ [Pop-up Debug] Modal container found. Calculating timer...");
+
+    // Random delay between 5s (5000ms) and 10s (10000ms)
+    const randomDelay = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
+    console.log(`⏱️ [Pop-up Debug] Pop-up scheduled to fire in ${(randomDelay / 1000).toFixed(1)} seconds.`);
+
+    setTimeout(async () => {
+        console.log("🚀 [Pop-up Debug] Timer elapsed! Attempting to display modal...");
+
+        if (slotsCounter) {
+            slotsCounter.textContent = await fetchRemainingSlots();
+        }
+
+        adModal.style.display = 'flex';
+        console.log("🎉 [Pop-up Debug] adModal style set to 'flex'.");
+    }, randomDelay);
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            adModal.style.display = 'none';
+        });
+    }
+
+    if (actionBtn) {
+        actionBtn.addEventListener('click', () => {
+            adModal.style.display = 'none';
+        });
+    }
+
+    adModal.addEventListener('click', (e) => {
+        if (e.target === adModal) {
+            adModal.style.display = 'none';
+        }
+    });
+}
+
+function setupAuthPopups() {
+    const fullPath = window.location.pathname.toLowerCase();
+    const rawPage = fullPath.split('/').pop();
+    
+    console.log(`📌 [Pop-up Debug] Current Path: "${fullPath}", Extracted Page: "${rawPage}"`);
+
+    const isTargetPage = 
+        fullPath === '/' ||
+        rawPage === '' ||
+        rawPage === 'index' || 
+        rawPage === 'index.html' || 
+        rawPage === 'signup' || 
+        rawPage === 'signup.html' ||
+        fullPath.includes('/signup');
+
+    if (isTargetPage) {
+        console.log("✅ [Pop-up Debug] Verified target page (Root/Index or Signup). Initializing pop-up engine...");
+        initSimulatedPopups();
+    } else {
+        console.log("ℹ️ [Pop-up Debug] Not a target page. Pop-up engine skipped.");
+    }
+}
+
+// Trigger setup when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setupAuthPopups();
+    });
+} else {
+    setupAuthPopups();
+}
