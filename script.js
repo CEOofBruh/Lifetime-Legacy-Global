@@ -840,7 +840,9 @@ function initHologram3D() {
 // 6. DYNAMIC AFFILIATE SLOTS POP-UP ENGINE
 // ==========================================
 async function fetchRemainingSlots() {
-    const MAX_ALLOWED_PROFILES = 9;
+    const SEEDED_DUMMY_COUNT = 12; // Your seeded human associate profiles
+    const REAL_PLAYER_SLOTS = 9;   // Allowed ARG player slots
+    const TOTAL_CEILING = SEEDED_DUMMY_COUNT + REAL_PLAYER_SLOTS; // 21 slots
 
     if (typeof supabaseClient === 'undefined' || !supabaseClient) {
         console.warn("⚠️ [Pop-up Debug] Supabase client not initialized.");
@@ -854,7 +856,8 @@ async function fetchRemainingSlots() {
 
         if (error || count === null) throw error;
 
-        const remaining = MAX_ALLOWED_PROFILES - count;
+        // Formula: 21 (total ceiling) - current profile count
+        const remaining = TOTAL_CEILING - count;
 
         if (remaining <= 0) {
             return "0 SLOTS REMAINING (CEILING REACHED)";
