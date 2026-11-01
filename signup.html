@@ -130,6 +130,32 @@
             </div>
 
         </div>
+        <!-- Dynamic Affiliate Pop-up Modal (Public Onboarding Pages Only) -->
+<div id="simulatedAdModal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0, 0, 0, 0.85); align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+    <div style="background: #0a0c10; border: 1px solid var(--gold); border-radius: 12px; max-width: 440px; width: 90%; padding: 1.5rem; box-shadow: 0 0 35px rgba(212, 175, 55, 0.3); position: relative; text-align: center;">
+        
+        <!-- Dismiss Button -->
+        <button id="closeAdBtn" style="position: absolute; top: 12px; right: 14px; background: transparent; border: none; color: var(--gold); font-size: 1.2rem; cursor: pointer; font-weight: bold;">✕</button>
+        
+        <span class="hero-tag" style="font-size: 0.65rem; margin-bottom: 0.8rem; display: inline-block;">NETWORK CAPACITY BULLETIN</span>
+        
+        <h3 style="color: var(--gold); margin-bottom: 0.6rem; font-size: 1.2rem; text-transform: uppercase;">BE A LIFETIME LEGACY AFFILIATE NOW</h3>
+        
+        <!-- Dynamic Slots Display -->
+        <div style="background: rgba(212, 175, 55, 0.08); border: 1px dashed var(--gold); border-radius: 8px; padding: 0.9rem; margin: 1rem 0;">
+            <span id="adSlotsCounter" style="color: var(--accent-red, #ff4d4d); font-weight: bold; font-family: var(--font-mono, monospace); font-size: 1.4rem; display: block; margin-bottom: 0.2rem;">
+                Calculating remaining slots...
+            </span>
+            <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Limited Partner Slots Remaining</span>
+        </div>
+
+        <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 1.2rem;">
+            Secure your node before associate allocation reaches global ceiling. Direct downline revenue splits activate immediately upon tier elevation.
+        </p>
+
+        <button id="adActionBtn" class="btn-primary" style="width: 100%; font-size: 0.85rem; padding: 0.6rem;">CLAIM AFFILIATE POSITION</button>
+    </div>
+</div>
     </main>
 
     <!-- Footer -->
