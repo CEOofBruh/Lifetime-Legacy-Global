@@ -123,7 +123,7 @@ async function fetchLeaderboard() {
             .from('profiles')
             .select('rank, coins, avatar_url, display_name, email')
             .order('coins', { ascending: false })
-            .limit(5);
+            .limit(20);
 
         if (error) throw error;
 
