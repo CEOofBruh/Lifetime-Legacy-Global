@@ -274,7 +274,7 @@ function subscribeToGlobalUnlocks() {
 }
 
 // ==========================================
-// 4. THREE.JS 3D HOLOGRAM ENGINE
+// 4. THREE.JS 3D HOLOGRAM ENGINE (WITH DIAGNOSTIC ERROR LOGGING)
 // ==========================================
 let hologramScene, hologramCamera, hologramRenderer, hologramControls, hologramAnimationId;
 let invertedApexNode = null;
@@ -282,268 +282,294 @@ let occultLinesGroup = null;
 let isSubspaceRevealed = false;
 let isVisageAligned = false;
 
-function openProjectionModal() {
-    const modal = document.getElementById('projectionModal');
-    if (!modal) return;
+window.openProjectionModal = function() {
+    try {
+        console.log("🔍 [Hologram Modal] Attempting to open projection modal...");
+        const modal = document.getElementById('projectionModal');
+        
+        if (!modal) {
+            console.error("❌ [Hologram Error] #projectionModal container element not found in DOM.");
+            return;
+        }
 
-    modal.style.display = 'flex';
-    initHologram3D();
-}
-
-function closeProjectionModal(event) {
-    const modal = document.getElementById('projectionModal');
-    if (modal) modal.style.display = 'none';
-
-    if (hologramAnimationId) cancelAnimationFrame(hologramAnimationId);
-    
-    const container = document.getElementById('hologramCanvasContainer');
-    if (container) {
-        container.classList.remove('glitch-active');
-        container.innerHTML = `
-            <div id="controlsHud" style="position: absolute; top: 12px; left: 12px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--gold); background: rgba(0,0,0,0.7); padding: 0.4rem 0.8rem; border: 1px solid rgba(212,175,55,0.3); border-radius: 4px; pointer-events: none; text-align: left;">
-                <div>🖱️ <strong>Left Click + Drag:</strong> Rotate 360°</div>
-                <div>🔍 <strong>Scroll:</strong> Zoom In/Out</div>
-                <div>🖐️ <strong>Right Click + Drag:</strong> Pan Vector</div>
-            </div>
-            <div id="hologramStatusText" style="position: absolute; bottom: 12px; right: 12px; font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); background: rgba(0,0,0,0.7); padding: 0.3rem 0.6rem; border-radius: 4px; pointer-events: none;">
-                STATUS: NETWORK STRUCTURE STABLE • TIER 1-3 LINKED
-            </div>`;
+        modal.style.display = 'flex';
+        console.log("✅ [Hologram Modal] Modal set to display: flex. Initializing 3D Canvas...");
+        initHologram3D();
+    } catch (err) {
+        console.error("❌ [Hologram Error] Exception inside openProjectionModal():", err);
     }
-    isSubspaceRevealed = false;
-    isVisageAligned = false;
-}
+};
+
+window.closeProjectionModal = function(event) {
+    try {
+        const modal = document.getElementById('projectionModal');
+        if (modal) modal.style.display = 'none';
+
+        if (hologramAnimationId) cancelAnimationFrame(hologramAnimationId);
+        
+        const container = document.getElementById('hologramCanvasContainer');
+        if (container) {
+            container.classList.remove('glitch-active');
+            container.innerHTML = `
+                <div id="controlsHud" style="position: absolute; top: 12px; left: 12px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--gold); background: rgba(0,0,0,0.7); padding: 0.4rem 0.8rem; border: 1px solid rgba(212,175,55,0.3); border-radius: 4px; pointer-events: none; text-align: left;">
+                    <div>🖱️ <strong>Left Click + Drag:</strong> Rotate 360°</div>
+                    <div>🔍 <strong>Scroll:</strong> Zoom In/Out</div>
+                    <div>🖐️ <strong>Right Click + Drag:</strong> Pan Vector</div>
+                </div>
+                <div id="hologramStatusText" style="position: absolute; bottom: 12px; right: 12px; font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); background: rgba(0,0,0,0.7); padding: 0.3rem 0.6rem; border-radius: 4px; pointer-events: none;">
+                    STATUS: NETWORK STRUCTURE STABLE • TIER 1-3 LINKED
+                </div>`;
+        }
+        isSubspaceRevealed = false;
+        isVisageAligned = false;
+    } catch (err) {
+        console.error("❌ [Hologram Error] Exception inside closeProjectionModal():", err);
+    }
+};
 
 function initHologram3D() {
     const container = document.getElementById('hologramCanvasContainer');
-    if (!container) return;
-
-    if (typeof THREE === 'undefined') {
-        container.innerHTML = `<div style="color:var(--accent-red); padding:2rem; font-family:monospace;">Error: Three.js library missing. Please load three.min.js in HTML head.</div>`;
+    if (!container) {
+        console.error("❌ [Hologram Error] Container #hologramCanvasContainer missing from HTML.");
         return;
     }
 
-    const existingCanvas = container.querySelector('canvas');
-    if (existingCanvas) existingCanvas.remove();
-
-    const targetInvertedAngle = new THREE.Vector3(0.0, -4.2, 3.5);
-
-    const width = container.clientWidth || 600;
-    const height = container.clientHeight || 400;
-
-    hologramScene = new THREE.Scene();
-    hologramScene.background = new THREE.Color(0x020305);
-
-    hologramCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    hologramCamera.position.set(0, 1.5, 9);
-
-    hologramRenderer = new THREE.WebGLRenderer({ antialias: true });
-    hologramRenderer.setSize(width, height);
-    hologramRenderer.setPixelRatio(window.devicePixelRatio);
-    container.appendChild(hologramRenderer.domElement);
-
-    if (typeof THREE.OrbitControls !== 'undefined') {
-        hologramControls = new THREE.OrbitControls(hologramCamera, hologramRenderer.domElement);
-    } else if (typeof OrbitControls !== 'undefined') {
-        hologramControls = new OrbitControls(hologramCamera, hologramRenderer.domElement);
-    } else {
-        hologramControls = { update: () => {} };
+    if (typeof THREE === 'undefined') {
+        const errMsg = "Error: Three.js library not loaded in HTML head. Please check script CDN tag.";
+        console.error("❌ [Hologram Error]", errMsg);
+        container.innerHTML = `<div style="color:var(--accent-red,#ef4444); padding:2rem; font-family:monospace; text-align:center;">${errMsg}</div>`;
+        return;
     }
 
-    if (hologramControls.enableDamping !== undefined) {
-        hologramControls.enableDamping = true;
-        hologramControls.dampingFactor = 0.05;
-    }
+    try {
+        const existingCanvas = container.querySelector('canvas');
+        if (existingCanvas) existingCanvas.remove();
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    hologramScene.add(ambientLight);
+        const targetInvertedAngle = new THREE.Vector3(0.0, -4.2, 3.5);
 
-    const pointLight = new THREE.PointLight(0xffd700, 2, 50);
-    pointLight.position.set(0, 5, 5);
-    hologramScene.add(pointLight);
+        const width = container.clientWidth || 600;
+        const height = container.clientHeight || 400;
 
-    const tier1 = [new THREE.Vector3(0, 2.8, 0)];
-    const tier2 = [
-        new THREE.Vector3(-1.8, 0.9, 0.8),
-        new THREE.Vector3(0, 0.9, -0.5),
-        new THREE.Vector3(1.8, 0.9, 0.8)
-    ];
-    const tier3 = [
-        new THREE.Vector3(-2.8, -1.0, 1.2),
-        new THREE.Vector3(-1.8, -1.0, 0.4),
-        new THREE.Vector3(-0.9, -1.0, -0.6),
-        new THREE.Vector3(-0.5, -1.0, 1.0),
-        new THREE.Vector3(0, -1.0, 0.2),
-        new THREE.Vector3(0.5, -1.0, 1.0),
-        new THREE.Vector3(0.9, -1.0, -0.6),
-        new THREE.Vector3(1.8, -1.0, 0.4),
-        new THREE.Vector3(2.8, -1.0, 1.2)
-    ];
+        hologramScene = new THREE.Scene();
+        hologramScene.background = new THREE.Color(0x020305);
 
-    const allStandardNodes = [...tier1, ...tier2, ...tier3];
+        hologramCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+        hologramCamera.position.set(0, 1.5, 9);
 
-    const nodeGeometry = new THREE.SphereGeometry(0.18, 16, 16);
-    const nodeMaterial = new THREE.MeshStandardMaterial({
-        color: 0xffd700,
-        emissive: 0xd4af37,
-        emissiveIntensity: 0.6,
-        roughness: 0.2,
-        metalness: 0.8
-    });
+        hologramRenderer = new THREE.WebGLRenderer({ antialias: true });
+        hologramRenderer.setSize(width, height);
+        hologramRenderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(hologramRenderer.domElement);
 
-    allStandardNodes.forEach((pos, idx) => {
-        const mesh = new THREE.Mesh(nodeGeometry, nodeMaterial.clone());
-        mesh.position.copy(pos);
-        mesh.userData = { id: `NODE_${idx + 1}`, type: "EXECUTIVE" };
-        hologramScene.add(mesh);
-    });
+        if (typeof THREE.OrbitControls !== 'undefined') {
+            hologramControls = new THREE.OrbitControls(hologramCamera, hologramRenderer.domElement);
+        } else if (typeof OrbitControls !== 'undefined') {
+            hologramControls = new OrbitControls(hologramCamera, hologramRenderer.domElement);
+        } else {
+            console.warn("⚠️ [Hologram Warning] OrbitControls library missing. 3D canvas interaction will be limited.");
+            hologramControls = { update: () => {} };
+        }
 
-    const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffd700, linewidth: 2 });
+        if (hologramControls.enableDamping !== undefined) {
+            hologramControls.enableDamping = true;
+            hologramControls.dampingFactor = 0.05;
+        }
 
-    tier2.forEach(target => {
-        const geometry = new THREE.BufferGeometry().setFromPoints([tier1[0], target]);
-        const line = new THREE.Line(geometry, lineMaterial);
-        hologramScene.add(line);
-    });
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        hologramScene.add(ambientLight);
 
-    for (let i = 0; i < 3; i++) {
-        const parent = tier2[i];
-        for (let j = 0; j < 3; j++) {
-            const child = tier3[i * 3 + j];
-            const geometry = new THREE.BufferGeometry().setFromPoints([parent, child]);
+        const pointLight = new THREE.PointLight(0xffd700, 2, 50);
+        pointLight.position.set(0, 5, 5);
+        hologramScene.add(pointLight);
+
+        const tier1 = [new THREE.Vector3(0, 2.8, 0)];
+        const tier2 = [
+            new THREE.Vector3(-1.8, 0.9, 0.8),
+            new THREE.Vector3(0, 0.9, -0.5),
+            new THREE.Vector3(1.8, 0.9, 0.8)
+        ];
+        const tier3 = [
+            new THREE.Vector3(-2.8, -1.0, 1.2),
+            new THREE.Vector3(-1.8, -1.0, 0.4),
+            new THREE.Vector3(-0.9, -1.0, -0.6),
+            new THREE.Vector3(-0.5, -1.0, 1.0),
+            new THREE.Vector3(0, -1.0, 0.2),
+            new THREE.Vector3(0.5, -1.0, 1.0),
+            new THREE.Vector3(0.9, -1.0, -0.6),
+            new THREE.Vector3(1.8, -1.0, 0.4),
+            new THREE.Vector3(2.8, -1.0, 1.2)
+        ];
+
+        const allStandardNodes = [...tier1, ...tier2, ...tier3];
+
+        const nodeGeometry = new THREE.SphereGeometry(0.18, 16, 16);
+        const nodeMaterial = new THREE.MeshStandardMaterial({
+            color: 0xffd700,
+            emissive: 0xd4af37,
+            emissiveIntensity: 0.6,
+            roughness: 0.2,
+            metalness: 0.8
+        });
+
+        allStandardNodes.forEach((pos, idx) => {
+            const mesh = new THREE.Mesh(nodeGeometry, nodeMaterial.clone());
+            mesh.position.copy(pos);
+            mesh.userData = { id: `NODE_${idx + 1}`, type: "EXECUTIVE" };
+            hologramScene.add(mesh);
+        });
+
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffd700, linewidth: 2 });
+
+        tier2.forEach(target => {
+            const geometry = new THREE.BufferGeometry().setFromPoints([tier1[0], target]);
             const line = new THREE.Line(geometry, lineMaterial);
             hologramScene.add(line);
-        }
-    }
+        });
 
-    occultLinesGroup = new THREE.Group();
-    occultLinesGroup.visible = false;
-
-    const hiddenApexPos = new THREE.Vector3(0, -3.8, 0);
-    const darkNodeMaterial = new THREE.MeshStandardMaterial({
-        color: 0xef4444,
-        emissive: 0x990000,
-        emissiveIntensity: 1.0,
-        roughness: 0.1
-    });
-
-    invertedApexNode = new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 16), darkNodeMaterial);
-    invertedApexNode.position.copy(hiddenApexPos);
-    invertedApexNode.userData = { id: "SUB_APEX", type: "OCCULT_APEX" };
-    occultLinesGroup.add(invertedApexNode);
-
-    const occultLineMaterial = new THREE.LineBasicMaterial({ color: 0xef4444, opacity: 0.8, transparent: true });
-    
-    tier3.forEach(parentPos => {
-        const geometry = new THREE.BufferGeometry().setFromPoints([parentPos, hiddenApexPos]);
-        const line = new THREE.Line(geometry, occultLineMaterial);
-        occultLinesGroup.add(line);
-    });
-
-    hologramScene.add(occultLinesGroup);
-
-    const gridHelper = new THREE.GridHelper(10, 10, 0xd4af37, 0x1f242d);
-    gridHelper.position.y = -1.8;
-    hologramScene.add(gridHelper);
-
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-
-    container.addEventListener('pointerdown', (event) => {
-        const rect = container.getBoundingClientRect();
-        mouse.x = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
-        mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
-
-        raycaster.setFromCamera(mouse, hologramCamera);
-        const intersects = raycaster.intersectObjects(hologramScene.children, true);
-
-        if (intersects.length > 0 && intersects[0].object.isMesh) {
-            const clickedObject = intersects[0].object;
-            if (clickedObject.userData.type === "OCCULT_APEX") {
-                clickedObject.material.color.setHex(0xff0000);
-                console.warn(
-                    `%c${getDecodedTelemetry(0)}\n--------------------------------------------------\n${getDecodedTelemetry(1)}\n${getDecodedTelemetry(2)}\n--------------------------------------------------`,
-                    "color: #ef4444; font-family: monospace; font-size: 12px; font-weight: bold;"
-                );
-            } else {
-                clickedObject.material.color.setHex(0xffd700);
+        for (let i = 0; i < 3; i++) {
+            const parent = tier2[i];
+            for (let j = 0; j < 3; j++) {
+                const child = tier3[i * 3 + j];
+                const geometry = new THREE.BufferGeometry().setFromPoints([parent, child]);
+                const line = new THREE.Line(geometry, lineMaterial);
+                hologramScene.add(line);
             }
         }
-    });
 
-    function animate() {
-        hologramAnimationId = requestAnimationFrame(animate);
-        if (hologramControls && hologramControls.update) hologramControls.update();
+        occultLinesGroup = new THREE.Group();
+        occultLinesGroup.visible = false;
 
-        const modalHeader = document.getElementById('modalHologramTitle');
-        const modalTag = document.getElementById('modalHologramTag');
-        const statusOverlay = document.getElementById('hologramStatusText');
+        const hiddenApexPos = new THREE.Vector3(0, -3.8, 0);
+        const darkNodeMaterial = new THREE.MeshStandardMaterial({
+            color: 0xef4444,
+            emissive: 0x990000,
+            emissiveIntensity: 1.0,
+            roughness: 0.1
+        });
 
-        if (hologramCamera.position.y < -0.8) {
-            if (!isSubspaceRevealed) {
-                isSubspaceRevealed = true;
-                occultLinesGroup.visible = true;
-                hologramScene.background = new THREE.Color(0x1a0305);
+        invertedApexNode = new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 16), darkNodeMaterial);
+        invertedApexNode.position.copy(hiddenApexPos);
+        invertedApexNode.userData = { id: "SUB_APEX", type: "OCCULT_APEX" };
+        occultLinesGroup.add(invertedApexNode);
 
-                if (container) container.classList.add('glitch-active');
+        const occultLineMaterial = new THREE.LineBasicMaterial({ color: 0xef4444, opacity: 0.8, transparent: true });
+        
+        tier3.forEach(parentPos => {
+            const geometry = new THREE.BufferGeometry().setFromPoints([parentPos, hiddenApexPos]);
+            const line = new THREE.Line(geometry, occultLineMaterial);
+            occultLinesGroup.add(line);
+        });
 
-                if (modalTag) {
-                    modalTag.textContent = "CRITICAL: GEOMETRY CORRUPTION";
-                    modalTag.style.color = "var(--accent-red)";
-                }
-                if (modalHeader) {
-                    modalHeader.textContent = "THE TRUE MONARCH // ALL LEADS FEED ONE";
-                    modalHeader.style.color = "var(--accent-red)";
-                }
-                if (statusOverlay) {
-                    statusOverlay.innerHTML = `<span style="color: var(--accent-red); font-weight: bold; letter-spacing: 1px;">STATUS: UNMASKED // ALL DOWNLINES CONVERGING ON SOLE RECEIVER</span>`;
+        hologramScene.add(occultLinesGroup);
+
+        const gridHelper = new THREE.GridHelper(10, 10, 0xd4af37, 0x1f242d);
+        gridHelper.position.y = -1.8;
+        hologramScene.add(gridHelper);
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        container.addEventListener('pointerdown', (event) => {
+            const rect = container.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, hologramCamera);
+            const intersects = raycaster.intersectObjects(hologramScene.children, true);
+
+            if (intersects.length > 0 && intersects[0].object.isMesh) {
+                const clickedObject = intersects[0].object;
+                if (clickedObject.userData.type === "OCCULT_APEX") {
+                    clickedObject.material.color.setHex(0xff0000);
+                    console.warn(
+                        `%c${getDecodedTelemetry(0)}\n--------------------------------------------------\n${getDecodedTelemetry(1)}\n${getDecodedTelemetry(2)}\n--------------------------------------------------`,
+                        "color: #ef4444; font-family: monospace; font-size: 12px; font-weight: bold;"
+                    );
+                } else {
+                    clickedObject.material.color.setHex(0xffd700);
                 }
             }
+        });
 
-            const distToAngle = hologramCamera.position.distanceTo(targetInvertedAngle);
-            if (distToAngle < 0.95) {
-                if (!isVisageAligned) {
-                    isVisageAligned = true;
+        function animate() {
+            hologramAnimationId = requestAnimationFrame(animate);
+            if (hologramControls && hologramControls.update) hologramControls.update();
+
+            const modalHeader = document.getElementById('modalHologramTitle');
+            const modalTag = document.getElementById('modalHologramTag');
+            const statusOverlay = document.getElementById('hologramStatusText');
+
+            if (hologramCamera.position.y < -0.8) {
+                if (!isSubspaceRevealed) {
+                    isSubspaceRevealed = true;
+                    occultLinesGroup.visible = true;
+                    hologramScene.background = new THREE.Color(0x1a0305);
+
+                    if (container) container.classList.add('glitch-active');
+
+                    if (modalTag) {
+                        modalTag.textContent = "CRITICAL: GEOMETRY CORRUPTION";
+                        modalTag.style.color = "var(--accent-red)";
+                    }
+                    if (modalHeader) {
+                        modalHeader.textContent = "THE TRUE MONARCH // ALL LEADS FEED ONE";
+                        modalHeader.style.color = "var(--accent-red)";
+                    }
+                    if (statusOverlay) {
+                        statusOverlay.innerHTML = `<span style="color: var(--accent-red); font-weight: bold; letter-spacing: 1px;">STATUS: UNMASKED // ALL DOWNLINES CONVERGING ON SOLE RECEIVER</span>`;
+                    }
+                }
+
+                const distToAngle = hologramCamera.position.distanceTo(targetInvertedAngle);
+                if (distToAngle < 0.95) {
+                    if (!isVisageAligned) {
+                        isVisageAligned = true;
+                        hologramScene.traverse((obj) => {
+                            if (obj.isMesh && obj.userData.type === "EXECUTIVE") {
+                                obj.material.color.setHex(0xef4444);
+                            }
+                        });
+                    }
+                } else if (isVisageAligned) {
+                    isVisageAligned = false;
                     hologramScene.traverse((obj) => {
                         if (obj.isMesh && obj.userData.type === "EXECUTIVE") {
-                            obj.material.color.setHex(0xef4444);
+                            obj.material.color.setHex(0xffd700);
                         }
                     });
                 }
-            } else if (isVisageAligned) {
-                isVisageAligned = false;
-                hologramScene.traverse((obj) => {
-                    if (obj.isMesh && obj.userData.type === "EXECUTIVE") {
-                        obj.material.color.setHex(0xffd700);
+            } else {
+                if (isSubspaceRevealed) {
+                    isSubspaceRevealed = false;
+                    isVisageAligned = false;
+                    occultLinesGroup.visible = false;
+                    hologramScene.background = new THREE.Color(0x020305);
+
+                    if (container) container.classList.remove('glitch-active');
+
+                    if (modalTag) {
+                        modalTag.textContent = "NETWORK GEOMETRY VISUALIZER";
+                        modalTag.style.color = "var(--gold)";
                     }
-                });
-            }
-        } else {
-            if (isSubspaceRevealed) {
-                isSubspaceRevealed = false;
-                isVisageAligned = false;
-                occultLinesGroup.visible = false;
-                hologramScene.background = new THREE.Color(0x020305);
-
-                if (container) container.classList.remove('glitch-active');
-
-                if (modalTag) {
-                    modalTag.textContent = "NETWORK GEOMETRY VISUALIZER";
-                    modalTag.style.color = "var(--gold)";
-                }
-                if (modalHeader) {
-                    modalHeader.textContent = "DOWNLINE MATRIX TOPOLOGY";
-                    modalHeader.style.color = "var(--gold)";
-                }
-                if (statusOverlay) {
-                    statusOverlay.textContent = "STATUS: NETWORK STRUCTURE STABLE • TIER 1-3 LINKED";
+                    if (modalHeader) {
+                        modalHeader.textContent = "DOWNLINE MATRIX TOPOLOGY";
+                        modalHeader.style.color = "var(--gold)";
+                    }
+                    if (statusOverlay) {
+                        statusOverlay.textContent = "STATUS: NETWORK STRUCTURE STABLE • TIER 1-3 LINKED";
+                    }
                 }
             }
+
+            hologramRenderer.render(hologramScene, hologramCamera);
         }
 
-        hologramRenderer.render(hologramScene, hologramCamera);
+        animate();
+        console.log("🚀 [Hologram Success] 3D Scene rendered and animating cleanly.");
+    } catch (err) {
+        console.error("❌ [Hologram Error] Exception during Three.js initialization:", err);
+        container.innerHTML = `<div style="color:var(--accent-red,#ef4444); padding:2rem; font-family:monospace; text-align:center;">3D Initialization Error: ${err.message}</div>`;
     }
-
-    animate();
 }
 
 // ==========================================
@@ -551,13 +577,40 @@ function initHologram3D() {
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
     // -----------------------------------------------------------------
-    // SAFE EVENT BINDINGS (Eliminates CSP inline execution violations)
+    // SAFE EVENT BINDINGS WITH ERROR LOGGING
     // -----------------------------------------------------------------
+    const triggerHologramModal = document.getElementById('triggerHologramModal');
     const openHologramBtn = document.getElementById('openHologramBtn');
     const closeHologramBtn = document.getElementById('closeHologramBtn');
+    const projectionModal = document.getElementById('projectionModal');
 
-    if (openHologramBtn) openHologramBtn.addEventListener('click', openProjectionModal);
-    if (closeHologramBtn) closeHologramBtn.addEventListener('click', closeProjectionModal);
+    if (triggerHologramModal) {
+        triggerHologramModal.addEventListener('click', () => {
+            console.log("👆 [Click Event] #triggerHologramModal clicked!");
+            window.openProjectionModal();
+        });
+    } else {
+        console.warn("⚠️ [DOM Warning] #triggerHologramModal element not found on current page.");
+    }
+
+    if (openHologramBtn) {
+        openHologramBtn.addEventListener('click', () => {
+            console.log("👆 [Click Event] #openHologramBtn clicked!");
+            window.openProjectionModal();
+        });
+    }
+
+    if (closeHologramBtn) {
+        closeHologramBtn.addEventListener('click', window.closeProjectionModal);
+    }
+
+    if (projectionModal) {
+        projectionModal.addEventListener('click', (e) => {
+            if (e.target === projectionModal) {
+                window.closeProjectionModal();
+            }
+        });
+    }
 
     const rawPage = window.location.pathname.split('/').pop().toLowerCase();
     const currentPage = rawPage === '' ? 'index.html' : rawPage;
