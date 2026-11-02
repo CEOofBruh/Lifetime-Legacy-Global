@@ -282,15 +282,15 @@ let occultLinesGroup = null;
 let isSubspaceRevealed = false;
 let isVisageAligned = false;
 
-window.openProjectionModal = function() {
+function openProjectionModal() {
     const modal = document.getElementById('projectionModal');
     if (!modal) return;
 
     modal.style.display = 'flex';
     initHologram3D();
-};
+}
 
-window.closeProjectionModal = function(event) {
+function closeProjectionModal(event) {
     const modal = document.getElementById('projectionModal');
     if (modal) modal.style.display = 'none';
 
@@ -311,19 +311,17 @@ window.closeProjectionModal = function(event) {
     }
     isSubspaceRevealed = false;
     isVisageAligned = false;
-};
+}
 
 function initHologram3D() {
     const container = document.getElementById('hologramCanvasContainer');
     if (!container) return;
 
     if (typeof THREE === 'undefined') {
-        console.error("Three.js library not detected on page.");
         container.innerHTML = `<div style="color:var(--accent-red); padding:2rem; font-family:monospace;">Error: Three.js library missing. Please load three.min.js in HTML head.</div>`;
         return;
     }
 
-    // Clean up existing canvas if present
     const existingCanvas = container.querySelector('canvas');
     if (existingCanvas) existingCanvas.remove();
 
@@ -552,6 +550,15 @@ function initHologram3D() {
 // 5. AUTH ROUTING & DOM INITIALIZATION
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
+    // -----------------------------------------------------------------
+    // SAFE EVENT BINDINGS (Eliminates CSP inline execution violations)
+    // -----------------------------------------------------------------
+    const openHologramBtn = document.getElementById('openHologramBtn');
+    const closeHologramBtn = document.getElementById('closeHologramBtn');
+
+    if (openHologramBtn) openHologramBtn.addEventListener('click', openProjectionModal);
+    if (closeHologramBtn) closeHologramBtn.addEventListener('click', closeProjectionModal);
+
     const rawPage = window.location.pathname.split('/').pop().toLowerCase();
     const currentPage = rawPage === '' ? 'index.html' : rawPage;
     const isPublicPage = currentPage === 'index.html' || currentPage === 'login.html' || currentPage === 'signup.html';
