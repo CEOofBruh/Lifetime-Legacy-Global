@@ -3,181 +3,298 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLG | Module 01: Fast-Track Freedom</title>
+    <title>Module 01: Fast-Track Freedom | Lifetime Legacy Global</title>
+    
+    <!-- Content Security Policy (CSP) Header -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self' https://clnqxwyewtzofeiyzrbk.supabase.co;
+        script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data: https:;
+        connect-src 'self' https://clnqxwyewtzofeiyzrbk.supabase.co wss://clnqxwyewtzofeiyzrbk.supabase.co;
+    ">
+    
+    <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/CEOofBruh/Lifetime-Legacy-Global/refs/heads/main/LLG%20-%20Icon.ico">
     
-    <!-- CSP Directive (Strict & Secure) -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://clnqxwyewtzofeiyzrbk.supabase.co; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://clnqxwyewtzofeiyzrbk.supabase.co wss://clnqxwyewtzofeiyzrbk.supabase.co;">
-    
-    <style>
-        :root {
-            --gold: #d4af37;
-            --bg-dark: #0a0c10;
-            --card-bg: rgba(15, 18, 25, 0.95);
-            --text-muted: #8a8f9d;
-            --accent-red: #ef4444;
-            --font-mono: 'Courier New', Courier, monospace;
-        }
-
-        body {
-            margin: 0;
-            padding: 2rem;
-            background-color: var(--bg-dark);
-            color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 800px;
-            width: 100%;
-            background: var(--card-bg);
-            border: 1px solid var(--gold);
-            border-radius: 8px;
-            padding: 2rem;
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.15);
-        }
-
-        header {
-            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
-            padding-bottom: 1rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        h1 {
-            color: var(--gold);
-            font-size: 1.5rem;
-            margin: 0;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-gold {
-            background: transparent;
-            color: var(--gold);
-            border: 1px solid var(--gold);
-            padding: 0.6rem 1.2rem;
-            border-radius: 4px;
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-gold:hover {
-            background: var(--gold);
-            color: #000;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
-        }
-
-        /* 3D Hologram Modal Overlay */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(5px);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            position: relative;
-            width: 90%;
-            max-width: 900px;
-            height: 600px;
-            background: #020305;
-            border: 1px solid var(--gold);
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .modal-header {
-            padding: 1rem;
-            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(10, 12, 16, 0.9);
-        }
-
-        .canvas-container {
-            flex: 1;
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-
-        .close-modal-btn {
-            background: transparent;
-            border: none;
-            color: var(--gold);
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-    </style>
-
-    <!-- Dependencies -->
+    <!-- Supabase JS Library & Global Script -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Three.js Libraries for 3D Hologram Projection -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script src="script.js?v=15" defer></script>
 </head>
-<body>
+<body data-system-epoch="2026">
 
-    <div class="container">
-        <header>
-            <h1>Module 01: Fast-Track Freedom</h1>
-            <a href="dashboard.html" class="btn-gold" style="text-decoration:none;">&larr; Return to Dashboard</a>
-        </header>
+    <header>
+        <nav>
+            <a href="/" class="logo-link">
+                <img src="https://raw.githubusercontent.com/CEOofBruh/Lifetime-Legacy-Global/refs/heads/main/LLG%20-%20Icon.ico" alt="Logo" class="logo-img">
+                <span class="logo-text">LIFETIME LEGACY GLOBAL</span>
+            </a>
+            <ul>
+                <li><a href="workshops.html" class="gold-text">← Back to Masterclasses</a></li>
+            </ul>
+        </nav>
+    </header>
 
-        <main>
-            <p style="color: var(--text-muted); line-height: 1.6;">
-                Welcome Associate. The legacy protocol begins here. Interrogate the downline structure below to verify matrix positioning.
-            </p>
-
-            <div style="margin-top: 2rem; text-align: center;">
-                <button id="openHologramBtn" class="btn-gold">Launch Downline Matrix Visualizer (3D)</button>
-            </div>
-        </main>
-    </div>
-
-    <!-- Projection Modal -->
-    <div id="projectionModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div>
-                    <span id="modalHologramTag" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--gold); display: block;">NETWORK GEOMETRY VISUALIZER</span>
-                    <h2 id="modalHologramTitle" style="margin: 0; font-size: 1.1rem; color: var(--gold);">DOWNLINE MATRIX TOPOLOGY</h2>
-                </div>
-                <button id="closeHologramBtn" class="close-modal-btn">&times;</button>
-            </div>
+    <main class="hero-wrapper">
+        <div class="hero-container" style="grid-template-columns: 1fr; max-width: 960px; margin: 0 auto;">
             
-            <div id="hologramCanvasContainer" class="canvas-container">
+            <div class="auth-card" style="width: 100%; border-color: rgba(212, 175, 55, 0.4); background: #0a0c10;">
+                
+                <!-- TOP HEADER -->
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); padding-bottom: 0.8rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <span class="hero-tag" style="font-size: 0.65rem; background: var(--gold); color: #000; font-weight: bold;">ORIENTATION LESSON</span>
+                        <h2 style="margin-top: 0.4rem; font-family: var(--font-mono); font-size: 1.4rem;">Next-Gen Matrix Fundamentals & Downline Synergy</h2>
+                    </div>
+                    <span style="font-size: 0.8rem; color: var(--gold); font-family: var(--font-mono); letter-spacing: 1px;">MODULE 01 • 2026 REBRAND</span>
+                </div>
+
+                <!-- OVERPROMISING HUSTLE CULTURE ARTICLE -->
+                <article style="background: rgba(15, 18, 25, 0.75); border: 1px solid var(--card-border); padding: 1.5rem; border-radius: 6px; margin-bottom: 1.8rem; line-height: 1.7; font-size: 0.92rem; color: var(--text-main);">
+                    <span style="font-size: 0.75rem; color: var(--gold); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 0.5rem;">
+                        🔥 HUSTLE & RESIDUAL YIELD MASTERCLASS
+                    </span>
+
+                    <h3 style="color: #fff; font-size: 1.2rem; margin-bottom: 0.8rem;">Stop Trading Time For Money: Plug Into The 2026 Matrix</h3>
+
+                    <p style="margin-bottom: 1rem;">
+                        Are you tired of working a boring 9-to-5 job making someone else rich? Ready to be your own boss, make money from your phone while on vacation, and retire your spouse early? Welcome to the rebranded <strong>Lifetime Legacy Global</strong> family!
+                    </p>
+
+                    <p style="margin-bottom: 1rem;">
+                        Our 2026 system isn't about hard selling or cold-calling—it's about <i>duplication and leverage</i>. When you plug into our proven triangular downline matrix, you aren't just building a team; you're launching a self-running passive residual machine that pays you while you sleep.
+                    </p>
+
+                    <!-- MEMBER CASE STUDY / ANECDOTE -->
+                    <div style="background: rgba(10, 12, 16, 0.9); border: 1px dashed var(--gold); padding: 1.2rem; border-radius: 6px; margin: 1.2rem 0;">
+                        <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem;">
+                            <span style="font-size: 1.5rem;">⭐</span>
+                            <div>
+                                <h4 style="margin: 0; color: var(--gold-bright); font-size: 0.98rem;">MEMBER CASE STUDY: Jessica M. (Regional Vice President)</h4>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">From $45k Debt to 7-Figure Residual Freedom in 8 Months</span>
+                            </div>
+                        </div>
+
+                        <p style="font-size: 0.88rem; color: var(--text-main); font-style: italic; margin-bottom: 0.8rem;">
+                            "Before Lifetime Legacy Global, I was working 60 hours a week as a nurse and barely paying rent. I was skeptical, but my mentor told me to just count my goals and trust the system..."
+                        </p>
+
+                        <p style="font-size: 0.88rem; color: var(--text-main); line-height: 1.6; margin: 0;">
+                            "I activated my account, focused on building my core leadership team, and hit rank fast. I personally mentored <strong>13 active executive leaders</strong> across my top tiers, and we connected them straight into <strong>17 golden residual vectors</strong>. By month 3, my passive check beat my monthly salary!"
+                        </p>
+                    </div>
+
+                    <p style="margin-bottom: 0;">
+                        Ready to claim your fast-action bonus credits? Check out the audit scenario below, count the active nodes and connecting residual legs, and enter your 4-digit code directly on your dashboard.
+                    </p>
+                </article>
+
+                <!-- SECTION BREAK HEADER -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="margin: 0; font-size: 1.1rem; color: var(--gold-bright); font-family: var(--font-mono);">THE MULTI-TIER BRAIN TEASER</h3>
+                    <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">REF: 2026-PYRAMID-01</span>
+                </div>
+
+                <!-- NOIR VISUAL EXHIBIT BOARD GRID -->
+                <div style="background: #000; border: 2px solid #222; border-radius: 8px; padding: 1.8rem; display: grid; grid-template-columns: 360px 1fr; gap: 1.8rem; align-items: start;">
+                    
+                    <!-- LEFT: SVG MULTI-TIER PYRAMID MATRIX DIAGRAM & LEGEND -->
+                    <div style="background: #050505; border: 1px solid var(--card-border); padding: 1.2rem; text-align: center; border-radius: 6px; box-shadow: inset 0 0 20px rgba(0,0,0,0.9);">
+                        
+                        <span style="font-size: 0.65rem; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 0.8rem;">
+                            FIG 1.0 • VANCE BRANCH MATRIX AUDIT
+                        </span>
+
+                        <!-- DISCREET CLICK TRIGGER (CLEAN ID FOR CSP COMPLIANCE) -->
+                        <div id="triggerHologramModal" style="cursor: pointer; position: relative;" title="Inspect 3D matrix structure">
+                            
+                            <!-- Pure SVG MLM Pyramid -->
+                            <svg width="320" height="240" viewBox="0 0 320 240" style="margin: 0 auto; display: block;">
+                                <defs>
+                                    <filter id="goldGlow">
+                                        <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                                        <feMerge>
+                                            <feMergeNode in="coloredBlur"/>
+                                            <feMergeNode in="SourceGraphic"/>
+                                        </feMerge>
+                                    </filter>
+                                </defs>
+
+                                <polygon points="160,15 20,230 300,230" fill="none" stroke="rgba(212, 175, 55, 0.15)" stroke-width="1" stroke-dasharray="3 3"/>
+                                <line x1="20" y1="90" x2="300" y2="90" stroke="rgba(212, 175, 55, 0.2)" stroke-dasharray="2 2"/>
+                                <line x1="20" y1="160" x2="300" y2="160" stroke="rgba(212, 175, 55, 0.2)" stroke-dasharray="2 2"/>
+
+                                <line x1="160" y1="30" x2="80" y2="90" stroke="#d4af37" stroke-width="2" filter="url(#goldGlow)"/>
+                                <line x1="160" y1="30" x2="160" y2="90" stroke="#d4af37" stroke-width="2" filter="url(#goldGlow)"/>
+                                <line x1="160" y1="30" x2="240" y2="90" stroke="#d4af37" stroke-width="2" filter="url(#goldGlow)"/>
+
+                                <line x1="80" y1="90" x2="40" y2="160" stroke="#d4af37" stroke-width="1.8" filter="url(#goldGlow)"/>
+                                <line x1="80" y1="90" x2="80" y2="160" stroke="#d4af37" stroke-width="1.8" filter="url(#goldGlow)"/>
+                                <line x1="80" y1="90" x2="110" y2="160" stroke="#d4af37" stroke-width="1.8" filter="url(#goldGlow)"/>
+
+                                <line x1="160" y1="90" x2="135" y2="160" stroke="#d4af37" stroke-width="1.8" filter="url(#goldGlow)"/>
+                                <line x1="160" y1="90" x2="160" y2="160" stroke="#d4af37" stroke-width="1.8" filter="url(#goldGlow)"/>
+                                <line x1="160" y1="90" x2="185" y2="160" stroke="#d4af37" stroke-width="1.8" filter="url(#goldGlow)"/>
+
+                                <line x1="240" y1="90" x2="210" y2="160" stroke="#d4af37" stroke-width="1.8" filter="url(#goldGlow)"/>
+                                <line x1="240" y1="90" x2="240" y2="160" stroke="#d4af37" stroke-width="1.8" filter="url(#goldGlow)"/>
+                                <line x1="240" y1="90" x2="280" y2="160" stroke="#d4af37" stroke-width="1.8" filter="url(#goldGlow)"/>
+
+                                <line x1="40" y1="160" x2="30" y2="220" stroke="rgba(212, 175, 55, 0.5)" stroke-width="1.2" stroke-dasharray="2 2"/>
+                                <line x1="110" y1="160" x2="105" y2="220" stroke="rgba(212, 175, 55, 0.5)" stroke-width="1.2" stroke-dasharray="2 2"/>
+                                <line x1="160" y1="160" x2="160" y2="220" stroke="rgba(212, 175, 55, 0.5)" stroke-width="1.2" stroke-dasharray="2 2"/>
+                                <line x1="210" y1="160" x2="215" y2="220" stroke="rgba(212, 175, 55, 0.5)" stroke-width="1.2" stroke-dasharray="2 2"/>
+                                <line x1="280" y1="160" x2="290" y2="220" stroke="rgba(212, 175, 55, 0.5)" stroke-width="1.2" stroke-dasharray="2 2"/>
+
+                                <circle cx="160" cy="30" r="7" fill="#fff" stroke="#d4af37" stroke-width="2.5" filter="url(#goldGlow)"/>
+                                <text x="160" y="18" fill="#d4af37" font-size="9" font-family="monospace" text-anchor="middle" font-weight="bold">FOUNDER (1)</text>
+
+                                <circle cx="80" cy="90" r="6" fill="#fff" stroke="#d4af37" stroke-width="2" filter="url(#goldGlow)"/>
+                                <circle cx="160" cy="90" r="6" fill="#fff" stroke="#d4af37" stroke-width="2" filter="url(#goldGlow)"/>
+                                <circle cx="240" cy="90" r="6" fill="#fff" stroke="#d4af37" stroke-width="2" filter="url(#goldGlow)"/>
+
+                                <circle cx="40" cy="160" r="4.5" fill="#fff" stroke="#d4af37" stroke-width="1.5"/>
+                                <circle cx="80" cy="160" r="4.5" fill="#fff" stroke="#d4af37" stroke-width="1.5"/>
+                                <circle cx="110" cy="160" r="4.5" fill="#fff" stroke="#d4af37" stroke-width="1.5"/>
+                                <circle cx="135" cy="160" r="4.5" fill="#fff" stroke="#d4af37" stroke-width="1.5"/>
+                                <circle cx="160" cy="160" r="4.5" fill="#fff" stroke="#d4af37" stroke-width="1.5"/>
+                                <circle cx="185" cy="160" r="4.5" fill="#fff" stroke="#d4af37" stroke-width="1.5"/>
+                                <circle cx="210" cy="160" r="4.5" fill="#fff" stroke="#d4af37" stroke-width="1.5"/>
+                                <circle cx="240" cy="160" r="4.5" fill="#fff" stroke="#d4af37" stroke-width="1.5"/>
+                                <circle cx="280" cy="160" r="4.5" fill="#fff" stroke="#d4af37" stroke-width="1.5"/>
+
+                                <rect x="25" y="220" width="10" height="10" fill="none" stroke="rgba(212,175,55,0.4)"/>
+                                <rect x="100" y="220" width="10" height="10" fill="none" stroke="rgba(212,175,55,0.4)"/>
+                                <rect x="155" y="220" width="10" height="10" fill="none" stroke="rgba(212,175,55,0.4)"/>
+                                <rect x="210" y="220" width="10" height="10" fill="none" stroke="rgba(212,175,55,0.4)"/>
+                                <rect x="285" y="220" width="10" height="10" fill="none" stroke="rgba(212,175,55,0.4)"/>
+                            </svg>
+                        </div>
+
+                        <!-- DIAGRAM LEGEND BOX -->
+                        <div style="margin-top: 1rem; padding: 0.8rem; background: rgba(0, 0, 0, 0.7); border: 1px solid var(--card-border); border-radius: 6px; text-align: left; font-family: var(--font-mono); font-size: 0.72rem;">
+                            <span style="color: var(--gold); font-weight: bold; display: block; margin-bottom: 0.5rem; text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.5px; border-bottom: 1px solid rgba(212,175,55,0.2); padding-bottom: 0.3rem;">
+                                🔑 MATRIX DIAGRAM LEGEND
+                            </span>
+                            <div style="display: flex; flex-direction: column; gap: 0.4rem; color: var(--text-main);">
+                                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                    <span style="display: inline-block; width: 10px; height: 10px; background: #fff; border: 2px solid var(--gold); border-radius: 50%;"></span>
+                                    <span><strong>Active Executive Node</strong> (Tiers 1–3)</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                    <span style="display: inline-block; width: 10px; height: 10px; border: 1px solid rgba(212,175,55,0.6);"></span>
+                                    <span style="color: var(--text-muted);">Pending Vector / Tier 4</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                    <span style="display: inline-block; width: 14px; height: 2px; background: var(--gold);"></span>
+                                    <span><strong>Gold Residual Vector Line</strong></span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                    <span style="display: inline-block; width: 14px; height: 0; border-top: 2px dashed rgba(212,175,55,0.5);"></span>
+                                    <span style="color: var(--text-muted);">Downline Expansion Trace</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 0.8rem; padding-top: 0.6rem; border-top: 1px solid #1a1a1a; font-family: var(--font-mono); font-size: 0.7rem; color: var(--gold);">
+                            HIERARCHY: TRIANGULAR LEVERAGE MATRIX
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: SCENARIO STORY & CLEAR HINTS -->
+                    <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+                        
+                        <div style="background: rgba(15, 18, 25, 0.9); border: 1px solid var(--card-border); padding: 1.2rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.5;">
+                            <span style="color: var(--gold); font-weight: bold; font-size: 0.88rem; display: block; margin-bottom: 0.8rem; border-bottom: 1px solid rgba(212,175,55,0.2); padding-bottom: 0.4rem;">
+                                📜 SCENARIO: MARCUS'S DIAMOND QUALIFICATION
+                            </span>
+
+                            <p style="color: var(--text-main); margin-bottom: 0.8rem;">
+                                Regional Director Marcus Vance is applying for his $10,000 Diamond Bonus Override. To clear compliance, he must generate his 4-digit verification key using his branch matrix shown in Fig 1.0.
+                            </p>
+
+                            <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.78rem;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--text-muted);">• Executive Founder Node:</span>
+                                    <span style="color: var(--gold-bright);">1 Node</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--text-muted);">• Regional Director Level:</span>
+                                    <span style="color: var(--gold-bright);">3 Nodes</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--text-muted);">• Senior Associate Level:</span>
+                                    <span style="color: var(--gold-bright);">9 Nodes</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background: rgba(10, 12, 16, 0.95); border: 1px solid var(--card-border); border-left: 3px solid var(--gold); padding: 1.2rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.6;">
+                            <span style="color: var(--gold); font-weight: bold; display: block; margin-bottom: 0.5rem;">
+                                💡 KEY GENERATION FORMULA
+                            </span>
+                            <p style="color: var(--text-main); margin: 0;">
+                                Help Marcus construct his 4-digit key by combining two numbers side-by-side:
+                                <br><br>
+                                <strong>1. First 2 digits:</strong> Count the total solid <strong>Active Executive Nodes</strong> in Marcus's branch (Tiers 1–3).
+                                <br>
+                                <strong>2. Last 2 digits:</strong> Count the total glowing <strong>Gold Residual Vector Lines</strong> channeling payout down his matrix.
+                            </p>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem;">
+                            <span style="font-size: 0.78rem; color: var(--text-muted);">Derived Marcus's 4-digit key?</span>
+                            <a href="dashboard.html" class="btn-primary" style="width: auto; padding: 0.5rem 1.2rem; font-size: 0.85rem; text-decoration: none;">
+                                Redeem on Dashboard →
+                            </a>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Interactive 3D Hologram Projection Modal -->
+    <div id="projectionModal" class="modal-overlay">
+        <div class="modal-content" style="width: 850px; max-width: 95vw;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 0.8rem; margin-bottom: 1rem;">
+                <div>
+                    <span id="modalHologramTag" class="hero-tag" style="font-size: 0.65rem;">NETWORK GEOMETRY VISUALIZER</span>
+                    <h4 id="modalHologramTitle" style="margin: 0.2rem 0 0 0; font-family: var(--font-mono); color: var(--gold-bright);">DOWNLINE MATRIX TOPOLOGY</h4>
+                </div>
+                <button id="closeHologramBtn" class="modal-close">✕ CLOSE</button>
+            </div>
+
+            <!-- 3D Canvas Container -->
+            <div id="hologramCanvasContainer" style="width: 100%; height: 480px; background: #000; border: 1px solid var(--card-border); border-radius: 6px; position: relative; overflow: hidden; cursor: grab;">
+                
                 <div id="controlsHud" style="position: absolute; top: 12px; left: 12px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--gold); background: rgba(0,0,0,0.7); padding: 0.4rem 0.8rem; border: 1px solid rgba(212,175,55,0.3); border-radius: 4px; pointer-events: none; text-align: left;">
                     <div>🖱️ <strong>Left Click + Drag:</strong> Rotate 360°</div>
                     <div>🔍 <strong>Scroll:</strong> Zoom In/Out</div>
                     <div>🖐️ <strong>Right Click + Drag:</strong> Pan Vector</div>
                 </div>
+
                 <div id="hologramStatusText" style="position: absolute; bottom: 12px; right: 12px; font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); background: rgba(0,0,0,0.7); padding: 0.3rem 0.6rem; border-radius: 4px; pointer-events: none;">
                     STATUS: NETWORK STRUCTURE STABLE • TIER 1-3 LINKED
                 </div>
             </div>
+
         </div>
     </div>
 
-    <!-- Core Engine -->
-    <script src="script.js"></script>
+    <footer>
+        <p>&copy; 2025–2026 Lifetime Legacy Global Network. All Rights Reserved. Secretum In Unitate.</p>
+    </footer>
+
 </body>
 </html>
