@@ -14,7 +14,7 @@ if (typeof supabase !== 'undefined' && SUPABASE_URL && SUPABASE_ANON_KEY) {
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
-// Default Fallback Data (0 LC Starting Balance)
+// Default Fallback Data
 const DEFAULT_PROFILE = {
     coins: 0,
     rank: "Unranked Initiate",
@@ -181,12 +181,21 @@ function renderUnlockedArchives(unlockedList) {
     if (!archiveContainer) return;
 
     archiveContainer.innerHTML = '';
-    unlockedList.forEach(item => {
+    
+    // Always include default module 01
+    const combinedList = [
+        ...DEFAULT_PROFILE.unlockedPages,
+        ...unlockedList.filter(item => item.url !== "module_01.html")
+    ];
+
+    combinedList.forEach(item => {
         const li = document.createElement('div');
         li.style.marginBottom = "0.6rem";
-        const safeTitle = escapeHTML(item.title);
-        const safeUrl = escapeHTML(item.url);
-        li.innerHTML = `<a href="${safeUrl}" class="gold-text" style="text-decoration: none; font-weight: bold; font-size: 0.9rem;">🔓 ${safeTitle}</a>`;
+        const safeTitle = escapeHTML(item.unlocked_title || item.title);
+        const safeUrl = escapeHTML(item.unlocked_url || item.url);
+        const unlockedBy = item.unlocked_by_name ? ` <span style="font-size:0.7rem; color: var(--text-muted);">(by ${escapeHTML(item.unlocked_by_name)})</span>` : '';
+        
+        li.innerHTML = `<a href="${safeUrl}" class="gold-text" style="text-decoration: none; font-weight: bold; font-size: 0.9rem;">🔓 ${safeTitle}</a>${unlockedBy}`;
         archiveContainer.appendChild(li);
     });
 }
@@ -207,8 +216,8 @@ function checkMasterclassRedemption(unlockedPages) {
     if (!badge || !unlockedPages) return;
 
     const isRedeemed = unlockedPages.some(page => {
-        const title = (page.title || "").toLowerCase();
-        const url = (page.url || "").toLowerCase();
+        const title = (page.unlocked_title || page.title || "").toLowerCase();
+        const url = (page.unlocked_url || page.url || "").toLowerCase();
 
         return (
             title.includes('masterclass') || 
@@ -226,7 +235,53 @@ function checkMasterclassRedemption(unlockedPages) {
 }
 
 // ==========================================
-// 3. AUTH ROUTING & DOM INITIALIZATION
+// 3. SHARED PROGRESSION & REALTIME ENGINE
+// ==========================================
+async function fetchGlobalUnlocks() {
+    if (!supabaseClient) return;
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('global_unlocks')
+            .select('*')
+            .order('unlocked_at', { ascending: true });
+
+        if (error) throw error;
+
+        renderUnlockedArchives(data || []);
+        checkMasterclassRedemption(data || []);
+    } catch (e) {
+        // Silently handle fallback
+    }
+}
+
+function subscribeToGlobalUnlocks() {
+    if (!supabaseClient) return;
+
+    supabaseClient
+        .channel('public:global_unlocks')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'global_unlocks' }, (payload) => {
+            const newUnlock = payload.new;
+            
+            fetchGlobalUnlocks();
+            fetchLeaderboard();
+
+            // Display alert banner to active players
+            const noticeTitle = newUnlock.unlocked_title || 'New Node';
+            const noticeUser = newUnlock.unlocked_by_name || 'Associate';
+            
+            const banner = document.createElement('div');
+            banner.style.cssText = 'position:fixed; top:20px; right:20px; background:#0f1219; border:1px solid #d4af37; color:#d4af37; padding:12px 20px; border-radius:6px; z-index:99999; font-family:monospace; font-size:0.8rem; box-shadow:0 0 15px rgba(212,175,55,0.4);';
+            banner.innerHTML = `<strong>🔓 GLOBAL UNLOCK:</strong> ${escapeHTML(noticeUser)} solved "${escapeHTML(noticeTitle)}"!`;
+            document.body.appendChild(banner);
+
+            setTimeout(() => banner.remove(), 6000);
+        })
+        .subscribe();
+}
+
+// ==========================================
+// 4. AUTH ROUTING & DOM INITIALIZATION
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
     const rawPage = window.location.pathname.split('/').pop().toLowerCase();
@@ -432,7 +487,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Load Profile & Leaderboard Data on Protected Pages
+    // Load Profile, Leaderboard Data & Shared Unlocks on Protected Pages
     if (!isPublicPage) {
         const userId = currentUser ? currentUser.id : null;
         const profile = await fetchUserProfile(userId);
@@ -453,8 +508,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (profileName) profileName.textContent = displayName;
 
         updateAvatarUI(profile.avatarUrl);
-        renderUnlockedArchives(profile.unlockedPages);
-        checkMasterclassRedemption(profile.unlockedPages);
+        fetchGlobalUnlocks();
+        subscribeToGlobalUnlocks();
         fetchLeaderboard();
     }
 });
@@ -468,7 +523,7 @@ async function handleLogout() {
             await supabaseClient.auth.signOut();
         }
     } catch (e) {
-        // Continue cleanup even if signout fails
+        // Continue cleanup
     } finally {
         localStorage.removeItem('llg_user_profile');
 
@@ -491,7 +546,7 @@ function setStatusMessage(elementId, message, color) {
 }
 
 // ==========================================
-// 4. PROMO CODE SUBMISSION ENGINE (SECURE RPC)
+// 5. PROMO CODE SUBMISSION ENGINE (SHARED RPC)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     const quizForm = document.getElementById('quizForm');
@@ -522,27 +577,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     const userId = currentUser ? currentUser.id : null;
                     const currentProfile = await fetchUserProfile(userId);
 
-                    const alreadyUnlocked = currentProfile.unlockedPages.some(
-                        p => p.url === puzzleData.unlocked_url
-                    );
-
-                    if (alreadyUnlocked) {
-                        feedback.style.color = "var(--gold)";
-                        feedback.textContent = "Voucher Notice: Promotion already claimed on this associate account.";
-                        return;
-                    }
-
+                    // If newly unlocked globally or first time solved by this player, award LC & tier
                     const updatedCoins = currentProfile.coins + puzzleData.reward_coins;
                     const updatedRank = puzzleData.new_rank || currentProfile.rank;
-                    const updatedUnlocked = [
-                        ...currentProfile.unlockedPages,
-                        { title: puzzleData.unlocked_title, url: puzzleData.unlocked_url }
-                    ];
 
                     const updatedProfile = {
                         coins: updatedCoins,
                         rank: updatedRank,
-                        unlockedPages: updatedUnlocked,
+                        unlockedPages: currentProfile.unlockedPages,
                         avatarUrl: currentProfile.avatarUrl,
                         displayName: currentProfile.displayName
                     };
@@ -555,12 +597,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (coinBalance) coinBalance.textContent = updatedCoins;
                     if (profileRank) profileRank.textContent = updatedRank;
 
-                    renderUnlockedArchives(updatedUnlocked);
-                    checkMasterclassRedemption(updatedUnlocked);
+                    fetchGlobalUnlocks();
                     fetchLeaderboard();
 
-                    feedback.style.color = "var(--gold)";
-                    feedback.textContent = `Voucher Approved! Awarded ${puzzleData.reward_coins} LC. Associate tier updated to ${updatedRank}.`;
+                    if (puzzleData.is_newly_unlocked) {
+                        feedback.style.color = "var(--gold)";
+                        feedback.textContent = `Voucher Approved! First global solve! Awarded ${puzzleData.reward_coins} LC. Tier updated to ${updatedRank}.`;
+                    } else {
+                        feedback.style.color = "var(--gold)";
+                        feedback.textContent = `Voucher Approved! Node was already unlocked globally. Awarded ${puzzleData.reward_coins} LC for personal record!`;
+                    }
                     inputField.value = "";
                 } else {
                     feedback.style.color = "var(--accent-red)";
@@ -575,7 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// 5. THREE.JS 3D HOLOGRAM ENGINE
+// 6. THREE.JS 3D HOLOGRAM ENGINE
 // ==========================================
 let hologramScene, hologramCamera, hologramRenderer, hologramControls, hologramAnimationId;
 let invertedApexNode = null;
@@ -831,7 +877,7 @@ function initHologram3D() {
 }
 
 // ==========================================
-// 6. DYNAMIC AFFILIATE SLOTS POP-UP ENGINE
+// 7. DYNAMIC AFFILIATE SLOTS POP-UP ENGINE
 // ==========================================
 async function fetchRemainingSlots() {
     const SEEDED_DUMMY_COUNT = 12; // 12 Dummy seed profiles
@@ -904,13 +950,13 @@ function setupAuthPopups() {
     const fullPath = window.location.pathname.toLowerCase();
     const rawPage = fullPath.split('/').pop();
 
+    // Trigger EXCLUSIVELY on login and signup pages
     const isTargetPage = 
-        fullPath === '/' ||
-        rawPage === '' ||
-        rawPage === 'index' || 
-        rawPage === 'index.html' || 
+        rawPage === 'login' || 
+        rawPage === 'login.html' || 
         rawPage === 'signup' || 
         rawPage === 'signup.html' ||
+        fullPath.includes('/login') ||
         fullPath.includes('/signup');
 
     if (isTargetPage) {
