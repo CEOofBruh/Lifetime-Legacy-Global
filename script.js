@@ -42,9 +42,6 @@ function getDecodedTelemetry(index) {
     }
 }
 
-/**
- * Escapes unsafe HTML characters to prevent XSS attacks when embedding user data into DOM strings.
- */
 function escapeHTML(str) {
     if (str === null || str === undefined) return '';
     return String(str)
@@ -123,7 +120,7 @@ async function fetchLeaderboard() {
             .from('profiles')
             .select('rank, coins, avatar_url, display_name, email')
             .order('coins', { ascending: false })
-            .limit(20); // TOP 20 PROFILES
+            .limit(20);
 
         if (error) throw error;
 
@@ -132,7 +129,6 @@ async function fetchLeaderboard() {
             return;
         }
 
-        // Render Table Layout
         if (leaderboardBody) {
             leaderboardBody.innerHTML = '';
             data.forEach((row, index) => {
@@ -155,7 +151,6 @@ async function fetchLeaderboard() {
             });
         }
 
-        // Render List Layout
         if (leaderboardList) {
             leaderboardList.innerHTML = '';
             data.forEach((user, index) => {
@@ -182,7 +177,6 @@ function renderUnlockedArchives(unlockedList) {
 
     archiveContainer.innerHTML = '';
     
-    // Always include default module 01
     const combinedList = [
         ...DEFAULT_PROFILE.unlockedPages,
         ...unlockedList.filter(item => item.url !== "module_01.html")
@@ -266,7 +260,6 @@ function subscribeToGlobalUnlocks() {
             fetchGlobalUnlocks();
             fetchLeaderboard();
 
-            // Display alert banner to active players
             const noticeTitle = newUnlock.unlocked_title || 'New Node';
             const noticeUser = newUnlock.unlocked_by_name || 'Associate';
             
@@ -281,347 +274,7 @@ function subscribeToGlobalUnlocks() {
 }
 
 // ==========================================
-// 4. AUTH ROUTING & DOM INITIALIZATION
-// ==========================================
-document.addEventListener('DOMContentLoaded', async () => {
-    const rawPage = window.location.pathname.split('/').pop().toLowerCase();
-    const currentPage = rawPage === '' ? 'index.html' : rawPage;
-    const isPublicPage = currentPage === 'index.html' || currentPage === 'login.html' || currentPage === 'signup.html';
-
-    // Verify Auth Session
-    if (supabaseClient) {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        currentUser = session ? session.user : null;
-
-        if (currentUser && isPublicPage) {
-            window.location.href = 'dashboard.html';
-            return;
-        }
-
-        if (!currentUser && !isPublicPage) {
-            window.location.href = 'index.html';
-            return;
-        }
-
-        supabaseClient.auth.onAuthStateChange((event, session) => {
-            currentUser = session ? session.user : null;
-            if (!currentUser && !isPublicPage) {
-                window.location.href = 'index.html';
-            }
-        });
-    }
-
-    // Attach Login Listener
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const emailInput = document.getElementById('loginEmail');
-            const passwordInput = document.getElementById('loginPassword');
-            const feedback = document.getElementById('loginFeedback') || document.getElementById('loginStatus');
-
-            if (!emailInput || !passwordInput) return;
-
-            if (feedback) {
-                feedback.style.color = "var(--text-muted)";
-                feedback.textContent = "Authenticating associate credentials...";
-            }
-
-            try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: emailInput.value.trim(),
-                    password: passwordInput.value
-                });
-
-                if (error) throw error;
-
-                if (feedback) {
-                    feedback.style.color = "var(--gold)";
-                    feedback.textContent = "Authentication successful! Entering dashboard...";
-                }
-
-                currentUser = data.user;
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 500);
-
-            } catch (err) {
-                if (feedback) {
-                    feedback.style.color = "var(--accent-red)";
-                    feedback.textContent = err.message || "Invalid credentials. Check email and password.";
-                }
-            }
-        });
-    }
-
-    // Attach Signup Listener with Strict Input Validation
-    const signupForm = document.getElementById('signupForm');
-    if (signupForm) {
-        signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const displayNameInput = document.getElementById('signupDisplayName');
-            const emailInput = document.getElementById('signupEmail');
-            const passwordInput = document.getElementById('signupPassword');
-            const feedback = document.getElementById('signupStatus') || document.getElementById('signupFeedback');
-
-            if (!emailInput || !passwordInput) return;
-
-            const displayName = displayNameInput ? displayNameInput.value.trim() : "";
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
-
-            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-            if (displayName.length > 0 && (displayName.length < 3 || displayName.length > 25)) {
-                if (feedback) {
-                    feedback.style.color = "var(--accent-red)";
-                    feedback.textContent = "Validation Error: Display name must be between 3 and 25 characters.";
-                }
-                return;
-            }
-
-            if (!emailRegex.test(email)) {
-                if (feedback) {
-                    feedback.style.color = "var(--accent-red)";
-                    feedback.textContent = "Validation Error: Please enter a valid email address.";
-                }
-                return;
-            }
-
-            if (password.length < 8) {
-                if (feedback) {
-                    feedback.style.color = "var(--accent-red)";
-                    feedback.textContent = "Validation Error: Password must be at least 8 characters long.";
-                }
-                return;
-            }
-
-            if (feedback) {
-                feedback.style.color = "var(--text-muted)";
-                feedback.textContent = "Initializing associate identity...";
-            }
-
-            if (!supabaseClient) {
-                if (feedback) {
-                    feedback.style.color = "var(--accent-red)";
-                    feedback.textContent = "Error: Database client connection missing.";
-                }
-                return;
-            }
-
-            try {
-                const { data, error } = await supabaseClient.auth.signUp({
-                    email: email,
-                    password: password,
-                    options: {
-                        data: {
-                            display_name: displayName
-                        }
-                    }
-                });
-
-                if (error) throw error;
-
-                if (data.user) {
-                    await supabaseClient.from('profiles').upsert({
-                        id: data.user.id,
-                        email: email,
-                        display_name: displayName,
-                        rank: "Unranked Initiate",
-                        coins: 0,
-                        unlocked_pages: DEFAULT_PROFILE.unlockedPages,
-                        avatar_url: DEFAULT_PROFILE.avatarUrl,
-                        updated_at: new Date()
-                    });
-                }
-
-                if (feedback) {
-                    feedback.style.color = "var(--gold)";
-                    feedback.textContent = "Identity verified! Redirecting to login...";
-                }
-
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1200);
-
-            } catch (err) {
-                if (feedback) {
-                    feedback.style.color = "var(--accent-red)";
-                    feedback.textContent = err.message || "Failed to register account. Check inputs.";
-                }
-            }
-        });
-    }
-
-    // Attach Avatar Image Picker Listener
-    const avatarInput = document.getElementById('avatarInput');
-    if (avatarInput) {
-        avatarInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const allowedTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
-            if (!allowedTypes.includes(file.type)) {
-                alert('Invalid file format. Please upload a PNG, JPEG, WEBP, or GIF image.');
-                return;
-            }
-            if (file.size > 2 * 1024 * 1024) {
-                alert('File size exceeds the 2MB limit.');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = async (event) => {
-                const base64Image = event.target.result;
-                
-                updateAvatarUI(base64Image);
-
-                if (currentUser) {
-                    const profile = await fetchUserProfile(currentUser.id);
-                    profile.avatarUrl = base64Image;
-                    await saveUserProfile(currentUser.id, profile);
-                    fetchLeaderboard();
-                }
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-
-    // Load Profile, Leaderboard Data & Shared Unlocks on Protected Pages
-    if (!isPublicPage) {
-        const userId = currentUser ? currentUser.id : null;
-        const profile = await fetchUserProfile(userId);
-
-        const coinBalance = document.getElementById('coinBalance');
-        const profileRank = document.getElementById('profileRank');
-        const navUser = document.getElementById('navUser');
-        const profileName = document.getElementById('profileName');
-
-        const userEmail = currentUser?.email || 'Associate';
-        const metadataName = currentUser?.user_metadata?.display_name;
-        const displayName = profile.displayName || metadataName || (userEmail.includes('@') ? userEmail.split('@')[0] : userEmail);
-
-        if (coinBalance) coinBalance.textContent = profile.coins;
-        if (profileRank) profileRank.textContent = profile.rank;
-        
-        if (navUser) navUser.textContent = `ONLINE: ${escapeHTML(userEmail).toUpperCase()}`;
-        if (profileName) profileName.textContent = displayName;
-
-        updateAvatarUI(profile.avatarUrl);
-        fetchGlobalUnlocks();
-        subscribeToGlobalUnlocks();
-        fetchLeaderboard();
-    }
-});
-
-// ==========================================
-// HARDENED LOGOUT & SESSION PURGE ENGINE
-// ==========================================
-async function handleLogout() {
-    try {
-        if (supabaseClient) {
-            await supabaseClient.auth.signOut();
-        }
-    } catch (e) {
-        // Continue cleanup
-    } finally {
-        localStorage.removeItem('llg_user_profile');
-
-        Object.keys(localStorage).forEach(key => {
-            if (key.startsWith('sb-') || key.includes('supabase')) {
-                localStorage.removeItem(key);
-            }
-        });
-
-        window.location.href = 'index.html';
-    }
-}
-
-function setStatusMessage(elementId, message, color) {
-    const el = document.getElementById(elementId);
-    if (el) {
-        el.style.color = color;
-        el.textContent = message;
-    }
-}
-
-// ==========================================
-// 5. PROMO CODE SUBMISSION ENGINE (SHARED RPC)
-// ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-    const quizForm = document.getElementById('quizForm');
-    if (quizForm) {
-        quizForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const inputField = document.getElementById('answerInput');
-            const feedback = document.getElementById('quizFeedback');
-            if (!inputField || !feedback) return;
-
-            const userInput = inputField.value.trim().toUpperCase();
-            setStatusMessage('quizFeedback', 'Verifying promo voucher with billing network...', 'var(--text-muted)');
-
-            if (!supabaseClient) {
-                setStatusMessage('quizFeedback', 'Error: Cloud database client unavailable.', 'var(--accent-red)');
-                return;
-            }
-
-            try {
-                const { data: puzzleResults, error } = await supabaseClient
-                    .rpc('verify_puzzle_code', { input_code: userInput });
-
-                if (error) throw error;
-
-                const puzzleData = (puzzleResults && puzzleResults.length > 0) ? puzzleResults[0] : null;
-
-                if (puzzleData) {
-                    const userId = currentUser ? currentUser.id : null;
-                    const currentProfile = await fetchUserProfile(userId);
-
-                    // If newly unlocked globally or first time solved by this player, award LC & tier
-                    const updatedCoins = currentProfile.coins + puzzleData.reward_coins;
-                    const updatedRank = puzzleData.new_rank || currentProfile.rank;
-
-                    const updatedProfile = {
-                        coins: updatedCoins,
-                        rank: updatedRank,
-                        unlockedPages: currentProfile.unlockedPages,
-                        avatarUrl: currentProfile.avatarUrl,
-                        displayName: currentProfile.displayName
-                    };
-
-                    await saveUserProfile(userId, updatedProfile);
-
-                    const coinBalance = document.getElementById('coinBalance');
-                    const profileRank = document.getElementById('profileRank');
-
-                    if (coinBalance) coinBalance.textContent = updatedCoins;
-                    if (profileRank) profileRank.textContent = updatedRank;
-
-                    fetchGlobalUnlocks();
-                    fetchLeaderboard();
-
-                    if (puzzleData.is_newly_unlocked) {
-                        feedback.style.color = "var(--gold)";
-                        feedback.textContent = `Voucher Approved! First global solve! Awarded ${puzzleData.reward_coins} LC. Tier updated to ${updatedRank}.`;
-                    } else {
-                        feedback.style.color = "var(--gold)";
-                        feedback.textContent = `Voucher Approved! Node was already unlocked globally. Awarded ${puzzleData.reward_coins} LC for personal record!`;
-                    }
-                    inputField.value = "";
-                } else {
-                    feedback.style.color = "var(--accent-red)";
-                    feedback.textContent = "Invalid Code: Promo voucher not recognized or expired.";
-                }
-            } catch (err) {
-                feedback.style.color = "var(--accent-red)";
-                feedback.textContent = "System error during voucher verification.";
-            }
-        });
-    }
-});
-
-// ==========================================
-// 6. THREE.JS 3D HOLOGRAM ENGINE
+// 4. THREE.JS 3D HOLOGRAM ENGINE
 // ==========================================
 let hologramScene, hologramCamera, hologramRenderer, hologramControls, hologramAnimationId;
 let invertedApexNode = null;
@@ -629,15 +282,15 @@ let occultLinesGroup = null;
 let isSubspaceRevealed = false;
 let isVisageAligned = false;
 
-function openProjectionModal() {
+window.openProjectionModal = function() {
     const modal = document.getElementById('projectionModal');
     if (!modal) return;
 
     modal.style.display = 'flex';
     initHologram3D();
-}
+};
 
-function closeProjectionModal(event) {
+window.closeProjectionModal = function(event) {
     const modal = document.getElementById('projectionModal');
     if (modal) modal.style.display = 'none';
 
@@ -658,16 +311,26 @@ function closeProjectionModal(event) {
     }
     isSubspaceRevealed = false;
     isVisageAligned = false;
-}
+};
 
 function initHologram3D() {
     const container = document.getElementById('hologramCanvasContainer');
-    if (!container || typeof THREE === 'undefined') return;
+    if (!container) return;
+
+    if (typeof THREE === 'undefined') {
+        console.error("Three.js library not detected on page.");
+        container.innerHTML = `<div style="color:var(--accent-red); padding:2rem; font-family:monospace;">Error: Three.js library missing. Please load three.min.js in HTML head.</div>`;
+        return;
+    }
+
+    // Clean up existing canvas if present
+    const existingCanvas = container.querySelector('canvas');
+    if (existingCanvas) existingCanvas.remove();
 
     const targetInvertedAngle = new THREE.Vector3(0.0, -4.2, 3.5);
 
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    const width = container.clientWidth || 600;
+    const height = container.clientHeight || 400;
 
     hologramScene = new THREE.Scene();
     hologramScene.background = new THREE.Color(0x020305);
@@ -680,9 +343,18 @@ function initHologram3D() {
     hologramRenderer.setPixelRatio(window.devicePixelRatio);
     container.appendChild(hologramRenderer.domElement);
 
-    hologramControls = new THREE.OrbitControls(hologramCamera, hologramRenderer.domElement);
-    hologramControls.enableDamping = true;
-    hologramControls.dampingFactor = 0.05;
+    if (typeof THREE.OrbitControls !== 'undefined') {
+        hologramControls = new THREE.OrbitControls(hologramCamera, hologramRenderer.domElement);
+    } else if (typeof OrbitControls !== 'undefined') {
+        hologramControls = new OrbitControls(hologramCamera, hologramRenderer.domElement);
+    } else {
+        hologramControls = { update: () => {} };
+    }
+
+    if (hologramControls.enableDamping !== undefined) {
+        hologramControls.enableDamping = true;
+        hologramControls.dampingFactor = 0.05;
+    }
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     hologramScene.add(ambientLight);
@@ -802,7 +474,7 @@ function initHologram3D() {
 
     function animate() {
         hologramAnimationId = requestAnimationFrame(animate);
-        hologramControls.update();
+        if (hologramControls && hologramControls.update) hologramControls.update();
 
         const modalHeader = document.getElementById('modalHologramTitle');
         const modalTag = document.getElementById('modalHologramTag');
@@ -877,12 +549,337 @@ function initHologram3D() {
 }
 
 // ==========================================
+// 5. AUTH ROUTING & DOM INITIALIZATION
+// ==========================================
+document.addEventListener('DOMContentLoaded', async () => {
+    const rawPage = window.location.pathname.split('/').pop().toLowerCase();
+    const currentPage = rawPage === '' ? 'index.html' : rawPage;
+    const isPublicPage = currentPage === 'index.html' || currentPage === 'login.html' || currentPage === 'signup.html';
+
+    if (supabaseClient) {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        currentUser = session ? session.user : null;
+
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            currentUser = session ? session.user : null;
+        });
+    }
+
+    // Attach Login Listener
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const emailInput = document.getElementById('loginEmail');
+            const passwordInput = document.getElementById('loginPassword');
+            const feedback = document.getElementById('loginFeedback') || document.getElementById('loginStatus');
+
+            if (!emailInput || !passwordInput) return;
+
+            if (feedback) {
+                feedback.style.color = "var(--text-muted)";
+                feedback.textContent = "Authenticating associate credentials...";
+            }
+
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: emailInput.value.trim(),
+                    password: passwordInput.value
+                });
+
+                if (error) throw error;
+
+                if (feedback) {
+                    feedback.style.color = "var(--gold)";
+                    feedback.textContent = "Authentication successful! Entering dashboard...";
+                }
+
+                currentUser = data.user;
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 500);
+
+            } catch (err) {
+                if (feedback) {
+                    feedback.style.color = "var(--accent-red)";
+                    feedback.textContent = err.message || "Invalid credentials. Check email and password.";
+                }
+            }
+        });
+    }
+
+    // Attach Signup Listener
+    const signupForm = document.getElementById('signupForm');
+    if (signupForm) {
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const displayNameInput = document.getElementById('signupDisplayName');
+            const emailInput = document.getElementById('signupEmail');
+            const passwordInput = document.getElementById('signupPassword');
+            const feedback = document.getElementById('signupStatus') || document.getElementById('signupFeedback');
+
+            if (!emailInput || !passwordInput) return;
+
+            const displayName = displayNameInput ? displayNameInput.value.trim() : "";
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+            if (displayName.length > 0 && (displayName.length < 3 || displayName.length > 25)) {
+                if (feedback) {
+                    feedback.style.color = "var(--accent-red)";
+                    feedback.textContent = "Validation Error: Display name must be between 3 and 25 characters.";
+                }
+                return;
+            }
+
+            if (!emailRegex.test(email)) {
+                if (feedback) {
+                    feedback.style.color = "var(--accent-red)";
+                    feedback.textContent = "Validation Error: Please enter a valid email address.";
+                }
+                return;
+            }
+
+            if (password.length < 8) {
+                if (feedback) {
+                    feedback.style.color = "var(--accent-red)";
+                    feedback.textContent = "Validation Error: Password must be at least 8 characters long.";
+                }
+                return;
+            }
+
+            if (feedback) {
+                feedback.style.color = "var(--text-muted)";
+                feedback.textContent = "Initializing associate identity...";
+            }
+
+            if (!supabaseClient) {
+                if (feedback) {
+                    feedback.style.color = "var(--accent-red)";
+                    feedback.textContent = "Error: Database client connection missing.";
+                }
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            display_name: displayName
+                        }
+                    }
+                });
+
+                if (error) throw error;
+
+                if (data.user) {
+                    await supabaseClient.from('profiles').upsert({
+                        id: data.user.id,
+                        email: email,
+                        display_name: displayName,
+                        rank: "Unranked Initiate",
+                        coins: 0,
+                        unlocked_pages: DEFAULT_PROFILE.unlockedPages,
+                        avatar_url: DEFAULT_PROFILE.avatarUrl,
+                        updated_at: new Date()
+                    });
+                }
+
+                if (feedback) {
+                    feedback.style.color = "var(--gold)";
+                    feedback.textContent = "Identity verified! Redirecting to login...";
+                }
+
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1200);
+
+            } catch (err) {
+                if (feedback) {
+                    feedback.style.color = "var(--accent-red)";
+                    feedback.textContent = err.message || "Failed to register account. Check inputs.";
+                }
+            }
+        });
+    }
+
+    // Attach Avatar Image Picker
+    const avatarInput = document.getElementById('avatarInput');
+    if (avatarInput) {
+        avatarInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Invalid file format. Please upload a PNG, JPEG, WEBP, or GIF image.');
+                return;
+            }
+            if (file.size > 2 * 1024 * 1024) {
+                alert('File size exceeds the 2MB limit.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const base64Image = event.target.result;
+                
+                updateAvatarUI(base64Image);
+
+                if (currentUser) {
+                    const profile = await fetchUserProfile(currentUser.id);
+                    profile.avatarUrl = base64Image;
+                    await saveUserProfile(currentUser.id, profile);
+                    fetchLeaderboard();
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Load Profile, Leaderboard Data & Shared Unlocks on Protected Pages
+    if (!isPublicPage) {
+        const userId = currentUser ? currentUser.id : null;
+        const profile = await fetchUserProfile(userId);
+
+        const coinBalance = document.getElementById('coinBalance');
+        const profileRank = document.getElementById('profileRank');
+        const navUser = document.getElementById('navUser');
+        const profileName = document.getElementById('profileName');
+
+        const userEmail = currentUser?.email || 'Associate';
+        const metadataName = currentUser?.user_metadata?.display_name;
+        const displayName = profile.displayName || metadataName || (userEmail.includes('@') ? userEmail.split('@')[0] : userEmail);
+
+        if (coinBalance) coinBalance.textContent = profile.coins;
+        if (profileRank) profileRank.textContent = profile.rank;
+        
+        if (navUser) navUser.textContent = `ONLINE: ${escapeHTML(userEmail).toUpperCase()}`;
+        if (profileName) profileName.textContent = displayName;
+
+        updateAvatarUI(profile.avatarUrl);
+        fetchGlobalUnlocks();
+        subscribeToGlobalUnlocks();
+        fetchLeaderboard();
+    }
+});
+
+// ==========================================
+// HARDENED LOGOUT & SESSION PURGE ENGINE
+// ==========================================
+async function handleLogout() {
+    try {
+        if (supabaseClient) {
+            await supabaseClient.auth.signOut();
+        }
+    } catch (e) {
+        // Continue cleanup
+    } finally {
+        localStorage.removeItem('llg_user_profile');
+
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('sb-') || key.includes('supabase')) {
+                localStorage.removeItem(key);
+            }
+        });
+
+        window.location.href = 'index.html';
+    }
+}
+
+function setStatusMessage(elementId, message, color) {
+    const el = document.getElementById(elementId);
+    if (el) {
+        el.style.color = color;
+        el.textContent = message;
+    }
+}
+
+// ==========================================
+// 6. PROMO CODE SUBMISSION ENGINE
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const quizForm = document.getElementById('quizForm');
+    if (quizForm) {
+        quizForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const inputField = document.getElementById('answerInput');
+            const feedback = document.getElementById('quizFeedback');
+            if (!inputField || !feedback) return;
+
+            const userInput = inputField.value.trim().toUpperCase();
+            setStatusMessage('quizFeedback', 'Verifying promo voucher with billing network...', 'var(--text-muted)');
+
+            if (!supabaseClient) {
+                setStatusMessage('quizFeedback', 'Error: Cloud database client unavailable.', 'var(--accent-red)');
+                return;
+            }
+
+            try {
+                const { data: puzzleResults, error } = await supabaseClient
+                    .rpc('verify_puzzle_code', { input_code: userInput });
+
+                if (error) throw error;
+
+                const puzzleData = (puzzleResults && puzzleResults.length > 0) ? puzzleResults[0] : null;
+
+                if (puzzleData) {
+                    const userId = currentUser ? currentUser.id : null;
+                    const currentProfile = await fetchUserProfile(userId);
+
+                    const updatedCoins = currentProfile.coins + puzzleData.reward_coins;
+                    const updatedRank = puzzleData.new_rank || currentProfile.rank;
+
+                    const updatedProfile = {
+                        coins: updatedCoins,
+                        rank: updatedRank,
+                        unlockedPages: currentProfile.unlockedPages,
+                        avatarUrl: currentProfile.avatarUrl,
+                        displayName: currentProfile.displayName
+                    };
+
+                    await saveUserProfile(userId, updatedProfile);
+
+                    const coinBalance = document.getElementById('coinBalance');
+                    const profileRank = document.getElementById('profileRank');
+
+                    if (coinBalance) coinBalance.textContent = updatedCoins;
+                    if (profileRank) profileRank.textContent = updatedRank;
+
+                    fetchGlobalUnlocks();
+                    fetchLeaderboard();
+
+                    if (puzzleData.is_newly_unlocked) {
+                        feedback.style.color = "var(--gold)";
+                        feedback.textContent = `Voucher Approved! First global solve! Awarded ${puzzleData.reward_coins} LC. Tier updated to ${updatedRank}.`;
+                    } else {
+                        feedback.style.color = "var(--gold)";
+                        feedback.textContent = `Voucher Approved! Node was already unlocked globally. Awarded ${puzzleData.reward_coins} LC for personal record!`;
+                    }
+                    inputField.value = "";
+                } else {
+                    feedback.style.color = "var(--accent-red)";
+                    feedback.textContent = "Invalid Code: Promo voucher not recognized or expired.";
+                }
+            } catch (err) {
+                feedback.style.color = "var(--accent-red)";
+                feedback.textContent = "System error during voucher verification.";
+            }
+        });
+    }
+});
+
+// ==========================================
 // 7. DYNAMIC AFFILIATE SLOTS POP-UP ENGINE
 // ==========================================
 async function fetchRemainingSlots() {
-    const SEEDED_DUMMY_COUNT = 12; // 12 Dummy seed profiles
-    const REAL_PLAYER_SLOTS = 9;   // Allowed ARG player ceiling
-    const TOTAL_CEILING = SEEDED_DUMMY_COUNT + REAL_PLAYER_SLOTS; // 21 Slots total
+    const SEEDED_DUMMY_COUNT = 12;
+    const REAL_PLAYER_SLOTS = 9;
+    const TOTAL_CEILING = SEEDED_DUMMY_COUNT + REAL_PLAYER_SLOTS;
 
     if (typeof supabaseClient === 'undefined' || !supabaseClient) {
         return "FEW SLOTS REMAINING";
@@ -895,7 +892,6 @@ async function fetchRemainingSlots() {
 
         if (error || count === null) throw error;
 
-        // Formula: 21 (total ceiling) - count of profiles in DB
         const remaining = TOTAL_CEILING - count;
 
         if (remaining <= 0) {
@@ -916,7 +912,6 @@ function initSimulatedPopups() {
 
     if (!adModal) return;
 
-    // Random delay between 3s (3000ms) and 5s (5000ms)
     const randomDelay = Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000;
 
     setTimeout(async () => {
@@ -950,7 +945,6 @@ function setupAuthPopups() {
     const fullPath = window.location.pathname.toLowerCase();
     const rawPage = fullPath.split('/').pop();
 
-    // Trigger EXCLUSIVELY on login and signup pages
     const isTargetPage = 
         rawPage === 'login' || 
         rawPage === 'login.html' || 
@@ -964,7 +958,6 @@ function setupAuthPopups() {
     }
 }
 
-// Trigger setup when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         setupAuthPopups();
