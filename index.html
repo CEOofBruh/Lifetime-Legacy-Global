@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SYSTEM INITIALIZATION | Lifetime Legacy Global</title>
+    <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/CEOofBruh/Lifetime-Legacy-Global/refs/heads/main/LLG%20-%20Icon.ico">
     <style>
         * {
             box-sizing: border-box;
@@ -137,6 +138,11 @@
             box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
         }
 
+        #adminNotice a {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
         @media (max-width: 600px) {
             .countdown-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -150,7 +156,7 @@
 <body>
 
     <div id="adminNotice">
-        🔑 ADMIN BYPASS ACTIVE — <span style="color: #fff;">Session Granted</span>
+        🔑 ADMIN BYPASS ACTIVE — <a href="javascript:void(0)" onclick="executeRedirect()">Enter Site (index2.html) →</a>
     </div>
 
     <div class="container">
@@ -191,8 +197,10 @@
     </div>
 
     <script>
-        // 14-day Countdown target
-        const TARGET_DATE = new Date().getTime() + (14 * 24 * 60 * 60 * 1000);
+        // -------------------------------------------------------------
+        // 1. COUNTDOWN TIMER CONFIGURATION (11 Months, 30 Days = ~365 Days)
+        // -------------------------------------------------------------
+        const TARGET_DATE = new Date().getTime() + (365 * 24 * 60 * 60 * 1000);
 
         function updateCountdown() {
             const now = new Date().getTime();
@@ -220,35 +228,58 @@
         setInterval(updateCountdown, 1000);
         updateCountdown();
 
-        // Admin Bypass Logic
+        // -------------------------------------------------------------
+        // 2. GITHUB PAGES ADMIN BYPASS ENGINE
+        // -------------------------------------------------------------
         const ADMIN_PASSPHRASE = "LLG2026";
+        const TARGET_FILE = "index2.html";
+
+        // Dynamically resolve GitHub Pages subpath/root directory
+        function getGitHubPagesRedirectUrl() {
+            const pathSegments = window.location.pathname.split('/');
+            pathSegments.pop(); // Remove index.html or trailing filename
+            const folderPath = pathSegments.join('/');
+            const prefix = folderPath.endsWith('/') ? folderPath : folderPath + '/';
+            return window.location.origin + prefix + TARGET_FILE;
+        }
+
+        function executeRedirect() {
+            const destination = getGitHubPagesRedirectUrl();
+            window.location.href = destination;
+        }
 
         function activateAdminBypass() {
             try {
                 localStorage.setItem('llg_admin_access', 'true');
-            } catch (e) {}
-            
+            } catch (e) {
+                console.warn('LocalStorage unavailable:', e);
+            }
+
             const notice = document.getElementById('adminNotice');
             if (notice) notice.style.display = 'block';
 
             const status = document.getElementById('statusBar');
             if (status) {
-                status.textContent = "STATUS: ADMIN BYPASS VERIFIED // FULL ACCESS UNLOCKED";
+                status.textContent = "STATUS: ADMIN BYPASS VERIFIED // REDIRECTING...";
                 status.style.color = "#d4af37";
             }
+
+            // Redirect smoothly to index2.html
+            setTimeout(executeRedirect, 150);
         }
 
-        // URL Check (#admin or ?key=LLG2026)
+        // Auto-check URL parameters (#admin or ?key=LLG2026)
         if (window.location.hash === '#admin' || window.location.search.includes('key=LLG2026')) {
             activateAdminBypass();
         }
 
-        // LocalStorage Check
+        // Auto-check existing local storage admin session
         if (localStorage.getItem('llg_admin_access') === 'true') {
-            activateAdminBypass();
+            const notice = document.getElementById('adminNotice');
+            if (notice) notice.style.display = 'block';
         }
 
-        // Fixed Triple-Click (1-second decay timer)
+        // Triple-click logo handler (1-second decay)
         let clickCount = 0;
         let clickTimer = null;
         const logo = document.getElementById('adminLogoTrigger');
@@ -263,7 +294,6 @@
                     setTimeout(() => {
                         const pass = prompt("ENTER ADMIN MASTER KEY:");
                         if (pass === ADMIN_PASSPHRASE) {
-                            alert("Bypass verified. Admin session activated!");
                             activateAdminBypass();
                         } else if (pass !== null) {
                             alert("Access Denied.");
@@ -282,7 +312,6 @@
             if (e.shiftKey && (e.key === 'A' || e.key === 'a')) {
                 const pass = prompt("ENTER ADMIN MASTER KEY:");
                 if (pass === ADMIN_PASSPHRASE) {
-                    alert("Bypass verified. Admin session activated!");
                     activateAdminBypass();
                 } else if (pass !== null) {
                     alert("Access Denied.");
