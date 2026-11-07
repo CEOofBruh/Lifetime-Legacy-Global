@@ -3,68 +3,292 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Ledger Vault | Lifetime Legacy Global</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/CEOofBruh/Lifetime-Legacy-Global/refs/heads/main/LLG%20-%20Icon.ico">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js?v=6" defer></script>
+    <title>SYSTEM INITIALIZATION | Lifetime Legacy Global</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #050507;
+            color: #d4af37;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(circle at center, rgba(212, 175, 55, 0.08) 0%, transparent 70%),
+                linear-gradient(rgba(212, 175, 55, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(212, 175, 55, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            z-index: 2;
+            background: rgba(10, 12, 16, 0.85);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.9), inset 0 0 15px rgba(212, 175, 55, 0.1);
+        }
+
+        .logo-img {
+            width: 70px;
+            height: 70px;
+            margin-bottom: 1.2rem;
+            filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.4));
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .logo-img:active {
+            transform: scale(0.92);
+        }
+
+        .system-tag {
+            font-size: 0.75rem;
+            letter-spacing: 3px;
+            color: #8a8f9d;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+        }
+
+        .sub-text {
+            font-size: 0.9rem;
+            color: #a0a5b5;
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+
+        .countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .time-box {
+            background: #000;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 6px;
+            padding: 1.2rem 0.5rem;
+        }
+
+        .time-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #d4af37;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .time-label {
+            font-size: 0.65rem;
+            color: #8a8f9d;
+            letter-spacing: 2px;
+            margin-top: 0.4rem;
+            text-transform: uppercase;
+        }
+
+        .status-bar {
+            font-size: 0.75rem;
+            color: #ef4444;
+            border-top: 1px dashed rgba(212, 175, 55, 0.2);
+            padding-top: 1.5rem;
+            letter-spacing: 1px;
+        }
+
+        #adminNotice {
+            display: none;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: #0f1219;
+            border: 1px solid #d4af37;
+            color: #d4af37;
+            padding: 8px 16px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            z-index: 100;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        }
+
+        @media (max-width: 600px) {
+            .countdown-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .time-number {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
 </head>
-<body data-system-epoch="2026">
+<body>
 
-    <!-- Header Navigation -->
-    <header>
-        <nav>
-            <a href="dashboard.html" class="logo-link">
-                <img src="https://raw.githubusercontent.com/CEOofBruh/Lifetime-Legacy-Global/refs/heads/main/LLG%20-%20Icon.ico" alt="Logo" class="logo-img">
-                <span class="logo-text">LIFETIME LEGACY GLOBAL</span>
-            </a>
-            <ul>
-                <li><a href="dashboard.html" class="gold-text">← Return to Portal</a></li>
-            </ul>
-        </nav>
-    </header>
+    <div id="adminNotice">
+        🔑 ADMIN BYPASS ACTIVE — <span style="color: #fff;">Session Granted</span>
+    </div>
 
-    <!-- Main Vault Layout -->
-    <main class="hero-wrapper">
-        <div class="hero-container" style="grid-template-columns: 1fr; max-width: 900px; margin: 0 auto;">
-            
-            <div class="auth-card" style="width: 100%;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <span class="hero-tag">RESTRICTED PARTNER RESOURCE</span>
-                    <span style="font-size: 0.75rem; color: var(--gold); font-family: var(--font-mono);">NODE 01 ACCESSED</span>
-                </div>
+    <div class="container">
+        <img src="https://raw.githubusercontent.com/CEOofBruh/Lifetime-Legacy-Global/refs/heads/main/LLG%20-%20Icon.ico" 
+             alt="LLG Icon" 
+             class="logo-img" 
+             id="adminLogoTrigger"
+             title="Triple-click logo to open Admin Prompt">
 
-                <h2>Master Matrix Ledger & Regional Allocation</h2>
-                <p class="subtitle">Premium partner document unlocked via Fast-Track Code 1317.</p>
+        <div class="system-tag">SYSTEM INITIALIZATION IN PROGRESS</div>
+        <h1>LIFETIME LEGACY GLOBAL</h1>
+        <p class="sub-text">
+            Network matrix realignment underway. Next-gen downline vectors and matrix masterclass modules opening shortly.
+        </p>
 
-                <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 1.5rem 0;">
-
-                <div style="background: rgba(10, 12, 16, 0.85); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--card-border);">
-                    <h3 style="color: var(--gold); font-size: 1.15rem; margin-bottom: 0.8rem;">2026 Regional Downline Distribution Memo</h3>
-                    
-                    <p style="line-height: 1.6; margin-bottom: 1rem; color: var(--text-main);">
-                        Congratulations on activating your Bronze Associate tier. By applying the 4-node polyhedral formula, you have successfully verified your position within our primary regional matrix ledger.
-                    </p>
-
-                    <div style="margin: 1.2rem 0; padding: 1rem; background: rgba(0, 0, 0, 0.5); border-left: 3px solid var(--gold); font-family: var(--font-mono); font-size: 0.85rem;">
-                        <p style="color: var(--gold-bright); font-weight: bold; margin-bottom: 0.5rem;">[EXECUTIVE DIRECTIVE - TIER 2 PREPARATION]</p>
-                        <p style="margin-bottom: 0.5rem;">• Associate accounts reaching <strong>100 LC</strong> unlock Module 02: Legacy Expansion.</p>
-                        <p style="margin-bottom: 0;">• Additional bonus codes can be decoded from affiliate memos and corporate press releases.</p>
-                    </div>
-
-                    <p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">
-                        Keep this document bookmarked. Additional matrix parameters will unlock as your total Legacy Credits increase on the global leaderboard.
-                    </p>
-                </div>
+        <div class="countdown-grid">
+            <div class="time-box">
+                <div class="time-number" id="days">00</div>
+                <div class="time-label">Days</div>
             </div>
-
+            <div class="time-box">
+                <div class="time-number" id="hours">00</div>
+                <div class="time-label">Hours</div>
+            </div>
+            <div class="time-box">
+                <div class="time-number" id="minutes">00</div>
+                <div class="time-label">Minutes</div>
+            </div>
+            <div class="time-box">
+                <div class="time-number" id="seconds">00</div>
+                <div class="time-label">Seconds</div>
+            </div>
         </div>
-    </main>
 
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2025–2026 Lifetime Legacy Global Network. All Rights Reserved. Secretum In Unitate.</p>
-    </footer>
+        <div class="status-bar" id="statusBar">
+            STATUS: RESTRICTED ACCESS • LAUNCH TARGET LOCKED
+        </div>
+    </div>
 
+    <script>
+        // 14-day Countdown target
+        const TARGET_DATE = new Date().getTime() + (14 * 24 * 60 * 60 * 1000);
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = TARGET_DATE - now;
+
+            if (distance < 0) {
+                document.getElementById('days').textContent = "00";
+                document.getElementById('hours').textContent = "00";
+                document.getElementById('minutes').textContent = "00";
+                document.getElementById('seconds').textContent = "00";
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = String(days).padStart(2, '0');
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // Admin Bypass Logic
+        const ADMIN_PASSPHRASE = "LLG2026";
+
+        function activateAdminBypass() {
+            try {
+                localStorage.setItem('llg_admin_access', 'true');
+            } catch (e) {}
+            
+            const notice = document.getElementById('adminNotice');
+            if (notice) notice.style.display = 'block';
+
+            const status = document.getElementById('statusBar');
+            if (status) {
+                status.textContent = "STATUS: ADMIN BYPASS VERIFIED // FULL ACCESS UNLOCKED";
+                status.style.color = "#d4af37";
+            }
+        }
+
+        // URL Check (#admin or ?key=LLG2026)
+        if (window.location.hash === '#admin' || window.location.search.includes('key=LLG2026')) {
+            activateAdminBypass();
+        }
+
+        // LocalStorage Check
+        if (localStorage.getItem('llg_admin_access') === 'true') {
+            activateAdminBypass();
+        }
+
+        // Fixed Triple-Click (1-second decay timer)
+        let clickCount = 0;
+        let clickTimer = null;
+        const logo = document.getElementById('adminLogoTrigger');
+
+        if (logo) {
+            logo.addEventListener('click', () => {
+                clickCount++;
+                if (clickTimer) clearTimeout(clickTimer);
+
+                if (clickCount >= 3) {
+                    clickCount = 0;
+                    setTimeout(() => {
+                        const pass = prompt("ENTER ADMIN MASTER KEY:");
+                        if (pass === ADMIN_PASSPHRASE) {
+                            alert("Bypass verified. Admin session activated!");
+                            activateAdminBypass();
+                        } else if (pass !== null) {
+                            alert("Access Denied.");
+                        }
+                    }, 50);
+                } else {
+                    clickTimer = setTimeout(() => {
+                        clickCount = 0;
+                    }, 1000);
+                }
+            });
+        }
+
+        // Keyboard Shortcut (Shift + A)
+        window.addEventListener('keydown', (e) => {
+            if (e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+                const pass = prompt("ENTER ADMIN MASTER KEY:");
+                if (pass === ADMIN_PASSPHRASE) {
+                    alert("Bypass verified. Admin session activated!");
+                    activateAdminBypass();
+                } else if (pass !== null) {
+                    alert("Access Denied.");
+                }
+            }
+        });
+    </script>
 </body>
 </html>
